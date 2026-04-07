@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Get Quizzicle Trivia — 3 C's Tavern</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #111211; --bg2: #181a18; --bg3: #1f211f; --bg4: #262926;
+  --border: rgba(74,200,92,0.15); --border2: rgba(74,200,92,0.3);
+  --green: #4ac85c; --green2: #2e8a3c; --green-dim: rgba(74,200,92,0.12); --green-glow: rgba(74,200,92,0.08);
+  --text: #e8ece8; --text2: #9aab9a; --text3: #5a6b5a;
+  --gold: #f0b429; --silver: #b0bec5; --bronze: #cd8b5a;
+  --font: 'Space Grotesk', sans-serif; --mono: 'Space Mono', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+.dash { max-width: 960px; margin: 0 auto; padding: 28px 20px; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+.header-left h1 { font-size: 24px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; line-height: 1; }
+.header-left .venue { font-size: 12px; color: var(--text2); margin-top: 5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
+.season-tabs { display: flex; gap: 6px; }
+.tab { padding: 7px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
+.tab.active { background: var(--green); color: #0a1a0c; border-color: var(--green); }
+.tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--green); line-height: 1; font-family: var(--mono); }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); font-family: var(--mono); }
+.panel-body { padding: 12px; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 5px; margin-bottom: 3px; transition: background 0.1s; }
+.lb-row:hover { background: var(--green-glow); }
+.lb-rank { font-size: 13px; font-weight: 700; font-family: var(--mono); width: 22px; text-align: center; flex-shrink: 0; }
+.rank-1 { color: var(--gold); } .rank-2 { color: var(--silver); } .rank-3 { color: var(--bronze); } .rank-other { color: var(--text3); }
+.lb-medal { font-size: 14px; width: 18px; flex-shrink: 0; }
+.lb-team { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-pts { font-size: 14px; font-weight: 700; color: var(--green); font-family: var(--mono); flex-shrink: 0; }
+.lb-bar-wrap { width: 70px; flex-shrink: 0; }
+.lb-bar-bg { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.lb-bar-fill { height: 4px; background: var(--green); border-radius: 2px; }
+.week-selector { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.wk-btn { padding: 3px 9px; font-size: 11px; border-radius: 3px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--mono); transition: all 0.12s; }
+.wk-btn.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.wk-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+.week-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.week-table th { padding: 6px 8px; text-align: left; color: var(--text3); font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 400; }
+.week-table td { padding: 8px 8px; border-bottom: 1px solid rgba(74,200,92,0.06); }
+.week-table tr:last-child td { border-bottom: none; }
+.week-table tr:hover td { background: var(--green-glow); }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 3px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
+.rb-1 { background: rgba(240,180,41,0.15); color: var(--gold); }
+.rb-2 { background: rgba(176,190,197,0.15); color: var(--silver); }
+.rb-3 { background: rgba(205,139,90,0.15); color: var(--bronze); }
+.rb-o { background: var(--bg4); color: var(--text3); }
+.score-high { color: var(--green); font-family: var(--mono); font-weight: 700; }
+.score-mid { color: var(--text); font-family: var(--mono); font-weight: 700; }
+.score-low { color: var(--text3); font-family: var(--mono); font-weight: 700; }
+.trend-panel { margin-bottom: 20px; }
+.trend-wrap { position: relative; width: 100%; height: 220px; padding: 16px 12px 0; }
+.legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 10px 16px 14px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); font-family: var(--mono); }
+.legend-line { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
+.footer { text-align: center; padding: 20px 0 10px; font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.5px; }
+</style>
+</head>
+<body>
+<div class="dash">
+  <div class="header">
+    <div class="header-left">
+      <h1>Get Quizzicle Trivia</h1>
+      <div class="venue">3 C's Tavern &mdash; Seasonal Scoreboard</div>
+    </div>
+    <div class="season-tabs">
+      <button class="tab" onclick="setSeason(1)">Season 1</button>
+      <button class="tab active" onclick="setSeason(2)">Season 2</button>
+    </div>
+  </div>
+
+  <div class="stat-row" id="stat-row"></div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Season Leaderboard</span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">Championship pts</span>
+      </div>
+      <div class="panel-body" id="leaderboard-panel" style="padding:8px 6px;max-height:460px;overflow-y:auto;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Weekly Results</span></div>
+      <div class="week-selector" id="week-selector"></div>
+      <div class="panel-body" id="weekly-panel" style="padding:8px;"></div>
+    </div>
+  </div>
+
+  <div class="panel trend-panel">
+    <div class="panel-header">
+      <span class="panel-title">Score Trend — Top Teams</span>
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);" id="trend-subtitle"></span>
+    </div>
+    <div class="trend-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="legend" id="trend-legend"></div>
+  </div>
+
+  <div class="footer">Get Quizzicle Trivia &mdash; 3 C's Tavern &mdash; Season Dashboard</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const DATA = {
+  1: {
+    stats: { events: 9, teams: 34, topTeam: 'Tres Veganos', topPts: 98, bestScore: 57, bestTeam: 'Tres Veganos', bestWeek: 'Feb 10' },
+    leaderboard: [
+      {team:'Tres Veganos',pts:98},{team:'Super Smart Amigos',pts:44},{team:'Prosecco Princesses',pts:18},
+      {team:'Cotton Headed Ninny Muggin',pts:16},{team:'4 Stooges',pts:13},{team:'Illiterate',pts:8},
+      {team:'Taking Up Space',pts:8},{team:'Alaskan Flounder Basket',pts:8},{team:'Wake Up Drunk Man',pts:5},
+      {team:'Team Extreme',pts:3},{team:'Wait This Isnt Eddies',pts:3},{team:'Mystery Inc',pts:3},
+      {team:'Baton Rouge Cindy',pts:3},{team:'Prawn Stars',pts:1}
+    ],
+    weeks: {
+      'Dec 9': [{rank:1,team:'Tres Veganos',score:53},{rank:2,team:'4 Stooges',score:47},{rank:3,team:'Prosecco Princesses',score:44},{rank:4,team:'Team Extreme',score:41},{rank:5,team:'Prawn Stars',score:39},{rank:6,team:'I Forgot My Wallet',score:32},{rank:7,team:"Diddy Didn't Do It",score:27}],
+      'Dec 16': [{rank:1,team:'Tres Veganos',score:46},{rank:2,team:'Prosecco Princesses',score:42},{rank:3,team:'Wake Up Drunk Man',score:38},{rank:4,team:'Mystery Inc',score:32},{rank:5,team:'Three Stooges',score:25},{rank:6,team:'Super Smart Amigos',score:23},{rank:7,team:"Wait This Isn't Eddies",score:21},{rank:8,team:'Gabriel Needs A Raise',score:11}],
+      'Dec 23': [{rank:1,team:'Cotton Headed Ninny Muggin',score:56},{rank:2,team:'Tres Veganos',score:55},{rank:3,team:'Super Smart Amigos',score:39},{rank:4,team:'Were All Trying...',score:37},{rank:5,team:'Real Wafers',score:33},{rank:6,team:'The Six Stooges',score:30},{rank:7,team:'Dos Elfos',score:30}],
+      'Jan 6': [{rank:1,team:'Tres Veganos',score:51},{rank:2,team:'Super Smart Amigos',score:35.5},{rank:3,team:'Illiterate',score:26.5},{rank:4,team:'Bunch Of Stooges',score:25.5},{rank:5,team:'El Jefe Y La Chingona',score:12},{rank:6,team:'Paisons',score:12},{rank:7,team:'We Tried',score:2},{rank:8,team:'Crispi Crew',score:2}],
+      'Jan 13': [{rank:1,team:'Tres Veganos',score:52},{rank:2,team:'Alaskan Flounder Basket',score:51},{rank:3,team:'Super Smart Amigos',score:46},{rank:4,team:'Baton Rouge Cindy',score:39},{rank:5,team:'Technically Tim',score:34},{rank:6,team:'I Forgot My Wallet',score:29},{rank:7,team:'Prosecco Princesses',score:17},{rank:8,team:'Birthday Broads',score:15}],
+      'Jan 20': [{rank:1,team:'Tres Veganos',score:31},{rank:2,team:'Super Smart Amigos',score:30},{rank:3,team:'Prosecco Princesses',score:21},{rank:4,team:'Gabriel Needs A Raise',score:1}],
+      'Jan 27': [{rank:1,team:'Tres Veganos',score:43},{rank:2,team:'Eddie And Mad Dog',score:36},{rank:3,team:'Tuesdays',score:35},{rank:4,team:'Jeopardy Losers Club',score:29},{rank:5,team:'Three Stooges',score:28},{rank:6,team:'Super Smart Amigos',score:27},{rank:7,team:'I Might Be Wrong',score:21},{rank:8,team:'I Forgot My Wallet',score:21}],
+      'Feb 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:38},{rank:3,team:'Moses Supposes',score:33},{rank:4,team:'The Hamsters',score:32},{rank:5,team:"Owen's Grandpa",score:25}],
+      'Feb 10': [{rank:1,team:'Tres Veganos',score:57},{rank:2,team:'Jon And Leck',score:44},{rank:3,team:'Super Smart Amigos',score:42},{rank:4,team:'Prosecco Princesses',score:38},{rank:5,team:'Stupid Cupids',score:34},{rank:6,team:'Marias',score:11}]
+    },
+    trendWeeks: ['Dec 9','Dec 16','Dec 23','Jan 6','Jan 13','Jan 20','Jan 27','Feb 3','Feb 10'],
+    trendTeams: [
+      {name:'Tres Veganos',color:'#4ac85c',data:[53,46,55,51,52,31,43,41,57]},
+      {name:'Super Smart Amigos',color:'#2e8a3c',data:[null,23,39,35.5,46,30,27,38,42]},
+      {name:'Prosecco Princesses',color:'#7aad84',data:[44,42,null,null,17,21,null,null,38]}
+    ]
+  },
+  2: {
+    stats: { events: 7, teams: 50, topTeam: 'Tres Veganos', topPts: 294.5, bestScore: 59, bestTeam: 'Thre Caballeros', bestWeek: 'Mar 24' },
+    leaderboard: [
+      {team:'Tres Veganos',pts:294.5},{team:'Super Smart Amigos',pts:286.5},{team:'Sloppy Joes',pts:144},
+      {team:'A Very Unbirthday',pts:83},{team:'Gabriel Needs A Raise',pts:66},{team:'Big Booty Bitches',pts:58},
+      {team:'Jack Daniels',pts:50},{team:'Epstein Escapists',pts:44.5},{team:'Are You Cyrious',pts:37},
+      {team:'Golden Toe Bean',pts:36.5},{team:'Awesome Sauce',pts:34.5},{team:'Gabriels Angels',pts:30},
+      {team:'Sorry Val',pts:29},{team:'Better Late Than Pregnant',pts:28},{team:'The Birthday Brigade',pts:27},
+      {team:'2 Chicks 1 Dick',pts:25},{team:'I Forgot My Wallet',pts:23},{team:'Questionable First Date',pts:22},
+      {team:'The Yips',pts:20},{team:'Shit Heads',pts:17},{team:'Underdawgs',pts:9},
+      {team:'Sandra Dee',pts:7},{team:'The Kaczinskis',pts:6}
+    ],
+    weeks: {
+      'Feb 17': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:40},{rank:3,team:'A Very Unbirthday',score:39},{rank:4,team:'Sorry Val',score:29},{rank:5,team:'2 Chicks 1 Dick',score:25},{rank:6,team:'Underdawgs',score:9},{rank:7,team:'Sandra Dee',score:7},{rank:8,team:'The Kaczinskis',score:6}],
+      'Feb 24': [{rank:1,team:'Super Smart Amigos',score:53},{rank:2,team:'Tres Veganos',score:36},{rank:3,team:'Sloppy Joes',score:29},{rank:4,team:'Jack Daniels',score:24},{rank:5,team:'The Yips',score:20},{rank:6,team:'Gabriel Needs A Raise',score:19},{rank:7,team:'Shit Heads',score:17}],
+      'Mar 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Are You Cyrious',score:37},{rank:3,team:'Gabriels Angels',score:30},{rank:4,team:'Birthday Brigade',score:27},{rank:5,team:'Super Smart Amigos',score:25},{rank:6,team:'Tequila Mockingbird',score:15}],
+      'Mar 10': [{rank:1,team:'Big Booty Bitches',score:58},{rank:2,team:'Super Smart Amigos',score:51},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Chicken Wingin It',score:32},{rank:5,team:'Better Late Than Pregnant',score:28},{rank:6,team:'I Forgot My Wallet',score:23},{rank:7,team:'Questionable First Date',score:22}],
+      'Mar 17': [{rank:1,team:'Gucci',score:48},{rank:2,team:'Epstein Escapists',score:44.5},{rank:3,team:"O'tres Veganos",score:41.5},{rank:4,team:'Team Golden Toe Bean',score:36.5},{rank:5,team:'Awesome Sauce',score:34.5},{rank:6,team:'Super Smart Amigos',score:29},{rank:7,team:'Shamrock Shakers',score:28},{rank:8,team:'Sharkbait',score:26},{rank:9,team:'Blueyy',score:24},{rank:10,team:'Lettuce And Tomato',score:20.5}],
+      'Mar 24': [{rank:1,team:'Thre Caballeros',score:59},{rank:2,team:'Super Smart Amigos',score:50.5},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Know Nothings',score:44},{rank:5,team:'Hard R',score:25},{rank:6,team:'Quiztopher + Tierney',score:21},{rank:7,team:'Jerry Berry',score:20},{rank:8,team:'Chama',score:18},{rank:9,team:'Shark Bait',score:16},{rank:10,team:'Hannah Montana',score:15}],
+      'Mar 31': [{rank:1,team:'Gabriel Needs A Raise',score:47},{rank:2,team:'Tres Veganos',score:41},{rank:3,team:'Super Smart Amigos',score:38},{rank:4,team:'Fire And Brimstone',score:37},{rank:5,team:'Samirs Mom',score:34},{rank:6,team:'Two Caballeros',score:25},{rank:7,team:'Jumpin Jerry',score:20},{rank:8,team:'Ball N Chain',score:15},{rank:9,team:'El Grande Americano',score:13},{rank:10,team:'Choo-Choo',score:9}]
+    },
+    trendWeeks: ['Feb 17','Feb 24','Mar 3','Mar 10','Mar 17','Mar 24','Mar 31'],
+    trendTeams: [
+      {name:'Tres Veganos',color:'#4ac85c',data:[41,36,41,47,41.5,47,41]},
+      {name:'Super Smart Amigos',color:'#2e8a3c',data:[40,53,25,51,29,50.5,38]},
+      {name:'Sloppy Joes',color:'#7aad84',data:[null,29,15,32,28,20,20]}
+    ]
+  }
+};
+
+let currentSeason = 2;
+let currentWeek = null;
+let chartInstance = null;
+
+function setSeason(s) {
+  currentSeason = s;
+  currentWeek = null;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === s-1));
+  render();
+}
+
+function render() {
+  const d = DATA[currentSeason];
+  renderStats(d.stats);
+  renderLeaderboard(d.leaderboard);
+  const firstWeek = Object.keys(d.weeks)[0];
+  if (!currentWeek) currentWeek = firstWeek;
+  renderWeekSelector(d);
+  renderWeekly(d.weeks[currentWeek], currentWeek);
+  renderTrend(d);
+}
+
+function renderStats(s) {
+  document.getElementById('stat-row').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Nights Hosted</div><div class="stat-value">${s.events}</div><div class="stat-sub">trivia events</div></div>
+    <div class="stat-card"><div class="stat-label">Unique Teams</div><div class="stat-value">${s.teams}</div><div class="stat-sub">season participants</div></div>
+    <div class="stat-card"><div class="stat-label">Season Leader</div><div class="stat-value" style="font-size:15px;line-height:1.3;">${s.topTeam}</div><div class="stat-sub">${s.topPts} championship pts</div></div>
+    <div class="stat-card"><div class="stat-label">Top Score</div><div class="stat-value">${s.bestScore}</div><div class="stat-sub">${s.bestTeam} &middot; ${s.bestWeek}</div></div>
+  `;
+}
+
+function renderLeaderboard(lb) {
+  const maxPts = lb[0].pts;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard-panel').innerHTML = lb.map((r,i) => {
+    const pct = Math.round((r.pts / maxPts) * 100);
+    const rankCls = i < 3 ? `rank-${i+1}` : 'rank-other';
+    return `<div class="lb-row">
+      <span class="lb-rank ${rankCls}">${i+1}</span>
+      <span class="lb-medal">${medals[i] || ''}</span>
+      <span class="lb-team">${r.team}</span>
+      <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${pct}%"></div></div></div>
+      <span class="lb-pts">${r.pts}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderWeekSelector(d) {
+  document.getElementById('week-selector').innerHTML = Object.keys(d.weeks).map(w =>
+    `<button class="wk-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w}</button>`
+  ).join('');
+}
+
+function selectWeek(w) {
+  currentWeek = w;
+  document.querySelectorAll('.wk-btn').forEach(b => b.classList.toggle('active', b.textContent === w));
+  renderWeekly(DATA[currentSeason].weeks[w], w);
+}
+
+function renderWeekly(teams, week) {
+  if (!teams) return;
+  const maxScore = Math.max(...teams.map(t => t.score));
+  const rbCls = r => r===1?'rb-1':r===2?'rb-2':r===3?'rb-3':'rb-o';
+  const sCls = s => s >= maxScore*0.85 ? 'score-high' : s >= maxScore*0.6 ? 'score-mid' : 'score-low';
+  document.getElementById('weekly-panel').innerHTML = `
+    <table class="week-table">
+      <thead><tr><th>Rank</th><th>Team</th><th style="text-align:right">Score</th></tr></thead>
+      <tbody>${teams.map(t=>`<tr>
+        <td><span class="rank-badge ${rbCls(t.rank)}">${t.rank}</span></td>
+        <td style="color:var(--text)">${t.team}</td>
+        <td class="${sCls(t.score)}" style="text-align:right">${t.score}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
+}
+
+function renderTrend(d) {
+  document.getElementById('trend-subtitle').textContent = `Top 3 teams · ${d.trendWeeks.length} weeks`;
+  document.getElementById('trend-legend').innerHTML = d.trendTeams.map(t =>
+    `<span class="legend-item"><span class="legend-line" style="background:${t.color}"></span>${t.name}</span>`
+  ).join('');
+
+  const canvas = document.getElementById('trendChart');
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
+
+  chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: d.trendWeeks,
+      datasets: d.trendTeams.map(t => ({
+        label: t.name,
+        data: t.data,
+        borderColor: t.color,
+        backgroundColor: t.color + '20',
+        borderWidth: 2,
+        pointBackgroundColor: t.color,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        spanGaps: true
+      }))
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1f211f',
+          borderColor: 'rgba(74,200,92,0.3)',
+          borderWidth: 1,
+          titleColor: '#9aab9a',
+          bodyColor: '#e8ece8',
+          padding: 10
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(74,200,92,0.07)' },
+          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 }, autoSkip: false }
+        },
+        y: {
+          grid: { color: 'rgba(74,200,92,0.07)' },
+          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 } },
+          min: 0
+        }
+      }
+    }
+  });
+}
+
+render();
+</script>
+</body>
+</html>
