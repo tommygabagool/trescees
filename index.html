@@ -1,310 +1,732 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Get Quizzicle Trivia — 3 C's Tavern</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
-<style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --bg: #111211; --bg2: #181a18; --bg3: #1f211f; --bg4: #262926;
-  --border: rgba(74,200,92,0.15); --border2: rgba(74,200,92,0.3);
-  --green: #4ac85c; --green2: #2e8a3c; --green-dim: rgba(74,200,92,0.12); --green-glow: rgba(74,200,92,0.08);
-  --text: #e8ece8; --text2: #9aab9a; --text3: #5a6b5a;
-  --gold: #f0b429; --silver: #b0bec5; --bronze: #cd8b5a;
-  --font: 'Space Grotesk', sans-serif; --mono: 'Space Mono', monospace;
+import { useState, useEffect } from “react”
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, ReferenceLine, CartesianGrid, Legend } from “recharts”
+
+const T = {
+bg:       “#080e1a”,
+surface:  “#0d1626”,
+card:     “#111d30”,
+border:   “#1a2d45”,
+accent:   “#00c896”,
+accentDim:”#0a4033”,
+navy:     “#1a4a7a”,
+navyDim:  “#0d2540”,
+text:     “#e8f0ff”,
+muted:    “#5a7090”,
+dim:      “#2a3a50”,
+amber:    “#f0a040”,
+red:      “#e05060”,
+white:    “#ffffff”,
 }
-body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
-.dash { max-width: 960px; margin: 0 auto; padding: 28px 20px; }
-.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
-.header-left h1 { font-size: 24px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; line-height: 1; }
-.header-left .venue { font-size: 12px; color: var(--text2); margin-top: 5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
-.season-tabs { display: flex; gap: 6px; }
-.tab { padding: 7px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
-.tab.active { background: var(--green); color: #0a1a0c; border-color: var(--green); }
-.tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
-.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
-.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); margin-bottom: 6px; }
-.stat-value { font-size: 26px; font-weight: 700; color: var(--green); line-height: 1; font-family: var(--mono); }
-.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
-.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-@media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
-.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); font-family: var(--mono); }
-.panel-body { padding: 12px; }
-.lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 5px; margin-bottom: 3px; transition: background 0.1s; }
-.lb-row:hover { background: var(--green-glow); }
-.lb-rank { font-size: 13px; font-weight: 700; font-family: var(--mono); width: 22px; text-align: center; flex-shrink: 0; }
-.rank-1 { color: var(--gold); } .rank-2 { color: var(--silver); } .rank-3 { color: var(--bronze); } .rank-other { color: var(--text3); }
-.lb-medal { font-size: 14px; width: 18px; flex-shrink: 0; }
-.lb-team { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lb-pts { font-size: 14px; font-weight: 700; color: var(--green); font-family: var(--mono); flex-shrink: 0; }
-.lb-bar-wrap { width: 70px; flex-shrink: 0; }
-.lb-bar-bg { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-.lb-bar-fill { height: 4px; background: var(--green); border-radius: 2px; }
-.week-selector { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-.wk-btn { padding: 3px 9px; font-size: 11px; border-radius: 3px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--mono); transition: all 0.12s; }
-.wk-btn.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
-.wk-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
-.week-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.week-table th { padding: 6px 8px; text-align: left; color: var(--text3); font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 400; }
-.week-table td { padding: 8px 8px; border-bottom: 1px solid rgba(74,200,92,0.06); }
-.week-table tr:last-child td { border-bottom: none; }
-.week-table tr:hover td { background: var(--green-glow); }
-.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 3px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
-.rb-1 { background: rgba(240,180,41,0.15); color: var(--gold); }
-.rb-2 { background: rgba(176,190,197,0.15); color: var(--silver); }
-.rb-3 { background: rgba(205,139,90,0.15); color: var(--bronze); }
-.rb-o { background: var(--bg4); color: var(--text3); }
-.score-high { color: var(--green); font-family: var(--mono); font-weight: 700; }
-.score-mid { color: var(--text); font-family: var(--mono); font-weight: 700; }
-.score-low { color: var(--text3); font-family: var(--mono); font-weight: 700; }
-.trend-panel { margin-bottom: 20px; }
-.trend-wrap { position: relative; width: 100%; height: 220px; padding: 16px 12px 0; }
-.legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 10px 16px 14px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); font-family: var(--mono); }
-.legend-line { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
-.footer { text-align: center; padding: 20px 0 10px; font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.5px; }
-</style>
-</head>
-<body>
-<div class="dash">
-  <div class="header">
-    <div class="header-left">
-      <h1>Get Quizzicle Trivia</h1>
-      <div class="venue">3 C's Tavern &mdash; Seasonal Scoreboard</div>
-    </div>
-    <div class="season-tabs">
-      <button class="tab" onclick="setSeason(1)">Season 1</button>
-      <button class="tab active" onclick="setSeason(2)">Season 2</button>
-    </div>
-  </div>
 
-  <div class="stat-row" id="stat-row"></div>
+const mono = “‘Courier New’, ‘Monaco’, monospace”
+const sans = “‘Trebuchet MS’, ‘Gill Sans’, sans-serif”
+const display = “Georgia, ‘Times New Roman’, serif”
 
-  <div class="main-grid">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">Season Leaderboard</span>
-        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">Championship pts</span>
-      </div>
-      <div class="panel-body" id="leaderboard-panel" style="padding:8px 6px;max-height:460px;overflow-y:auto;"></div>
-    </div>
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">Weekly Results</span></div>
-      <div class="week-selector" id="week-selector"></div>
-      <div class="panel-body" id="weekly-panel" style="padding:8px;"></div>
-    </div>
-  </div>
+const FIXED = 332
+const FREE_COST = 0.42
 
-  <div class="panel trend-panel">
-    <div class="panel-header">
-      <span class="panel-title">Score Trend — Top Teams</span>
-      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);" id="trend-subtitle"></span>
-    </div>
-    <div class="trend-wrap"><canvas id="trendChart"></canvas></div>
-    <div class="legend" id="trend-legend"></div>
-  </div>
+const NAV = [“Overview”,“Market”,“Financials”,“Projections”,“Roadmap”,“Checklist”]
 
-  <div class="footer">Get Quizzicle Trivia &mdash; 3 C's Tavern &mdash; Season Dashboard</div>
+const COMPETITORS = [
+{ name:“Morning Brew”,      cat:“Newsletter”,      price:“Free / $10+”, gap:“Generic, no audio, no signals” },
+{ name:“Motley Fool”,       cat:“Finance”,         price:”$99/yr”,      gap:“Stock picks only, not personalized” },
+{ name:“Action Network”,    cat:“Sports Betting”,  price:”$8–$20/mo”,   gap:“Sports only, no portfolio layer” },
+{ name:“Bloomberg Terminal”,cat:“Finance”,         price:”$2,000+/mo”,  gap:“Enterprise, no personalization” },
+{ name:“Robinhood Snacks”,  cat:“Finance”,         price:“Free”,        gap:“Shallow, generic, no custom data” },
+{ name:“The Daily Upside”,  cat:“Finance”,         price:“Free”,        gap:“No sports, no audio, no signals” },
+]
+
+const CLUSTERS = [
+{ topic:“Stocks & Markets”,  sources:“Polygon, Finnhub, FMP, FRED”,   output:“Trade / watch / avoid”,         color:T.accent },
+{ topic:“Sports Signals”,    sources:“ESPN, Rotowire, The Odds API”,   output:“Bet / DFS lineup / parlay”,     color:T.amber },
+{ topic:“Crypto”,            sources:“CoinGecko, Glassnode”,           output:“Buy / sell / hold”,             color:”#a78bfa” },
+{ topic:“Macro & Policy”,    sources:“FRED, Reuters, FT RSS”,          output:“Portfolio hedge / biz decision”,color:T.navy },
+{ topic:“Company News”,      sources:“RSS + LLM extraction”,           output:“Long / short / supplier risk”,  color:”#38bdf8” },
+{ topic:“Local News”,        sources:“User-configured RSS”,            output:“Property / business / civic”,   color:”#fb7185” },
+]
+
+const PHASES = [
+{
+phase:“Phase 0”, label:“Foundation”, weeks:“Complete”, color:T.accent,
+items:[
+{ done:true,  text:“Python pipeline — extractor, analyst, scorer” },
+{ done:true,  text:“Supabase backend — auth, storage, DB” },
+{ done:true,  text:“Financial API integrations (Polygon, Finnhub, FMP, FRED, Tiingo)” },
+{ done:true,  text:“THETAWIRE_BRAIN.md heuristic + self-learning loop” },
+{ done:true,  text:“Alpaca paper trading + feedback to scorer” },
+{ done:true,  text:“Confluence signal scoring (dark pool, options, insider, congress)” },
+{ done:false, text:“ElevenLabs TTS wired into pipeline with intro/outro” },
+]
+},
+{
+phase:“Phase 1”, label:“V1 Launch”, weeks:“Weeks 1–6”, color:”#38bdf8”,
+items:[
+{ done:false, text:“Migrate scheduler: Windows Task Scheduler → GitHub Actions” },
+{ done:false, text:“Landing page — Next.js + Vercel, email signup, sample brief” },
+{ done:false, text:“Supabase Auth + onboarding — pick tickers, topics” },
+{ done:false, text:“Podcast-optimized LLM prompt — cold open, transitions, sign-off” },
+{ done:false, text:“pydub intro/outro audio stitching” },
+{ done:false, text:“Daily email delivery via Resend” },
+{ done:false, text:“Stripe subscription checkout — Free vs. Premium $15/mo” },
+{ done:false, text:“Deploy pipeline on Railway — 5:30am daily run” },
+]
+},
+{
+phase:“Phase 2”, label:“Multi-Topic”, weeks:“Weeks 7–12”, color:T.amber,
+items:[
+{ done:false, text:“Integrate The Odds API — NFL, NBA, MLB, NHL lines” },
+{ done:false, text:“Rotowire RSS — injury reports, lineup news, weather” },
+{ done:false, text:“Sports confluence scorer — lines + injuries + weather + history” },
+{ done:false, text:“Expand user interest profile — sports_teams, leagues, bet_types” },
+{ done:false, text:“Interest clustering — shared pipeline runs for overlapping users” },
+{ done:false, text:“Brief history page — 30 days of past briefs” },
+{ done:false, text:“A/B test brief length — 4-min vs 8-min, measure completion” },
+]
+},
+{
+phase:“Phase 3”, label:“Retention”, weeks:“Months 4–6”, color:”#a78bfa”,
+items:[
+{ done:false, text:“Prediction outcome scoring — track ThetaWire calls vs results” },
+{ done:false, text:“Accuracy stats dashboard — surface signal quality to users” },
+{ done:false, text:“Referral program — 1 month free per referred paid user” },
+{ done:false, text:“Weekly deep-dive audio — Saturday long-form edition” },
+{ done:false, text:“Crypto cluster — CoinGecko + Glassnode free tier” },
+{ done:false, text:“Mobile-first PWA — listen on phone without email” },
+]
+},
+{
+phase:“Phase 4”, label:“Scale”, weeks:“Months 7–12”, color:”#fb7185”,
+items:[
+{ done:false, text:“Product Hunt launch” },
+{ done:false, text:“Paid Twitter/X + Reddit ads — $200–500/mo test budget” },
+{ done:false, text:“Higher tier plan — $25/mo: custom voice, deeper reports” },
+{ done:false, text:“SEO content — 2–4 long-form articles/month” },
+{ done:false, text:“Migrate to Prefect Cloud for pipeline orchestration” },
+{ done:false, text:“Evaluate native iOS/Android vs. PWA” },
+]
+},
+]
+
+const CHECKLIST = [
+{ id:“pipeline”,  text:“Pipeline runs daily without intervention”,              detail:“7 consecutive days, zero manual restarts” },
+{ id:“quality”,   text:“Brief quality is something you’d pay for yourself”,     detail:“Read/listen to 10 consecutive briefs and feel informed” },
+{ id:“landing”,   text:“Landing page converts cold visitors to signups”,        detail:“At least 15% email signup rate from test traffic” },
+{ id:“audio”,     text:“Audio brief sounds like a podcast, not a robot”,        detail:“Play it to 3 people — none mention the voice quality” },
+{ id:“stripe”,    text:“Stripe checkout works end-to-end”,                      detail:“A real credit card completes a transaction successfully” },
+{ id:“beta”,      text:“First 10 beta users received briefs for 14 days”,       detail:“Zero failures, feedback collected from at least 5 users” },
+]
+
+const PROJ_DATA = [
+{ month:“M1”,  free:50,   paid:0,   mrr:0,    cost:278,  profit:-278 },
+{ month:“M2”,  free:120,  paid:3,   mrr:45,   cost:332,  profit:-287 },
+{ month:“M3”,  free:250,  paid:8,   mrr:120,  cost:403,  profit:-283 },
+{ month:“M4”,  free:400,  paid:18,  mrr:270,  cost:484,  profit:-214 },
+{ month:“M5”,  free:500,  paid:28,  mrr:420,  cost:622,  profit:-202 },
+{ month:“M6”,  free:600,  paid:42,  mrr:630,  cost:688,  profit:-58  },
+{ month:“M7”,  free:700,  paid:60,  mrr:900,  cost:762,  profit:138  },
+{ month:“M8”,  free:900,  paid:82,  mrr:1230, cost:860,  profit:370  },
+{ month:“M9”,  free:1100, paid:108, mrr:1620, cost:966,  profit:654  },
+{ month:“M10”, free:1400, paid:140, mrr:2100, cost:1103, profit:997  },
+{ month:“M11”, free:1700, paid:178, mrr:2670, cost:1274, profit:1396 },
+{ month:“M12”, free:2000, paid:220, mrr:3300, cost:1458, profit:1842 },
+]
+
+function Stat({ label, value, sub, accent }) {
+return (
+<div style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:8, padding:“14px 18px”, borderTop:`2px solid ${accent||T.accent}` }}>
+<div style={{ fontFamily:sans, fontSize:11, color:T.muted, textTransform:“uppercase”, letterSpacing:“0.1em”, marginBottom:6 }}>{label}</div>
+<div style={{ fontFamily:mono, fontSize:22, fontWeight:700, color:accent||T.accent }}>{value}</div>
+{sub && <div style={{ fontFamily:sans, fontSize:11, color:T.muted, marginTop:4 }}>{sub}</div>}
 </div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<script>
-const DATA = {
-  1: {
-    stats: { events: 9, teams: 34, topTeam: 'Tres Veganos', topPts: 98, bestScore: 57, bestTeam: 'Tres Veganos', bestWeek: 'Feb 10' },
-    leaderboard: [
-      {team:'Tres Veganos',pts:98},{team:'Super Smart Amigos',pts:44},{team:'Prosecco Princesses',pts:18},
-      {team:'Cotton Headed Ninny Muggin',pts:16},{team:'4 Stooges',pts:13},{team:'Illiterate',pts:8},
-      {team:'Taking Up Space',pts:8},{team:'Alaskan Flounder Basket',pts:8},{team:'Wake Up Drunk Man',pts:5},
-      {team:'Team Extreme',pts:3},{team:'Wait This Isnt Eddies',pts:3},{team:'Mystery Inc',pts:3},
-      {team:'Baton Rouge Cindy',pts:3},{team:'Prawn Stars',pts:1}
-    ],
-    weeks: {
-      'Dec 9': [{rank:1,team:'Tres Veganos',score:53},{rank:2,team:'4 Stooges',score:47},{rank:3,team:'Prosecco Princesses',score:44},{rank:4,team:'Team Extreme',score:41},{rank:5,team:'Prawn Stars',score:39},{rank:6,team:'I Forgot My Wallet',score:32},{rank:7,team:"Diddy Didn't Do It",score:27}],
-      'Dec 16': [{rank:1,team:'Tres Veganos',score:46},{rank:2,team:'Prosecco Princesses',score:42},{rank:3,team:'Wake Up Drunk Man',score:38},{rank:4,team:'Mystery Inc',score:32},{rank:5,team:'Three Stooges',score:25},{rank:6,team:'Super Smart Amigos',score:23},{rank:7,team:"Wait This Isn't Eddies",score:21},{rank:8,team:'Gabriel Needs A Raise',score:11}],
-      'Dec 23': [{rank:1,team:'Cotton Headed Ninny Muggin',score:56},{rank:2,team:'Tres Veganos',score:55},{rank:3,team:'Super Smart Amigos',score:39},{rank:4,team:'Were All Trying...',score:37},{rank:5,team:'Real Wafers',score:33},{rank:6,team:'The Six Stooges',score:30},{rank:7,team:'Dos Elfos',score:30}],
-      'Jan 6': [{rank:1,team:'Tres Veganos',score:51},{rank:2,team:'Super Smart Amigos',score:35.5},{rank:3,team:'Illiterate',score:26.5},{rank:4,team:'Bunch Of Stooges',score:25.5},{rank:5,team:'El Jefe Y La Chingona',score:12},{rank:6,team:'Paisons',score:12},{rank:7,team:'We Tried',score:2},{rank:8,team:'Crispi Crew',score:2}],
-      'Jan 13': [{rank:1,team:'Tres Veganos',score:52},{rank:2,team:'Alaskan Flounder Basket',score:51},{rank:3,team:'Super Smart Amigos',score:46},{rank:4,team:'Baton Rouge Cindy',score:39},{rank:5,team:'Technically Tim',score:34},{rank:6,team:'I Forgot My Wallet',score:29},{rank:7,team:'Prosecco Princesses',score:17},{rank:8,team:'Birthday Broads',score:15}],
-      'Jan 20': [{rank:1,team:'Tres Veganos',score:31},{rank:2,team:'Super Smart Amigos',score:30},{rank:3,team:'Prosecco Princesses',score:21},{rank:4,team:'Gabriel Needs A Raise',score:1}],
-      'Jan 27': [{rank:1,team:'Tres Veganos',score:43},{rank:2,team:'Eddie And Mad Dog',score:36},{rank:3,team:'Tuesdays',score:35},{rank:4,team:'Jeopardy Losers Club',score:29},{rank:5,team:'Three Stooges',score:28},{rank:6,team:'Super Smart Amigos',score:27},{rank:7,team:'I Might Be Wrong',score:21},{rank:8,team:'I Forgot My Wallet',score:21}],
-      'Feb 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:38},{rank:3,team:'Moses Supposes',score:33},{rank:4,team:'The Hamsters',score:32},{rank:5,team:"Owen's Grandpa",score:25}],
-      'Feb 10': [{rank:1,team:'Tres Veganos',score:57},{rank:2,team:'Jon And Leck',score:44},{rank:3,team:'Super Smart Amigos',score:42},{rank:4,team:'Prosecco Princesses',score:38},{rank:5,team:'Stupid Cupids',score:34},{rank:6,team:'Marias',score:11}]
-    },
-    trendWeeks: ['Dec 9','Dec 16','Dec 23','Jan 6','Jan 13','Jan 20','Jan 27','Feb 3','Feb 10'],
-    trendTeams: [
-      {name:'Tres Veganos',color:'#4ac85c',data:[53,46,55,51,52,31,43,41,57]},
-      {name:'Super Smart Amigos',color:'#2e8a3c',data:[null,23,39,35.5,46,30,27,38,42]},
-      {name:'Prosecco Princesses',color:'#7aad84',data:[44,42,null,null,17,21,null,null,38]}
-    ]
-  },
-  2: {
-    stats: { events: 8, teams: 50, topTeam: 'Tres Veganos', topPts: 337.5, bestScore: 59, bestTeam: 'Thre Caballeros', bestWeek: 'Mar 24' },
-    leaderboard: [
-      {team:'Tres Veganos',pts:337.5},{team:'Super Smart Amigos',pts:329.5},{team:'Sloppy Joes',pts:171.5},
-      {team:'A Very Unbirthday (Bear)',pts:128},{team:'Tres Caballeros',pts:126},{team:'Gabriel Needs A Raise',pts:66},
-      {team:'Big Booty Bitches',pts:58},{team:'Jack Daniels',pts:50},{team:'Epstein Escapists',pts:44.5},
-      {team:'Are You Cyrious',pts:37},{team:'Golden Toe Bean',pts:36.5},{team:'Awesome Sauce',pts:34.5},
-      {team:'Gabriels Angels',pts:30},{team:'Sorry Val',pts:29},{team:'Better Late Than Pregnant',pts:28},
-      {team:'The Birthday Brigade',pts:27},{team:'2 Chicks 1 Dick',pts:25},{team:'I Forgot My Wallet',pts:23},
-      {team:'Questionable First Date',pts:22},{team:'The Yips',pts:20},{team:'Shit Heads',pts:17},
-      {team:'Underdawgs',pts:9},{team:'Sandra Dee',pts:7},{team:'The Kaczinskis',pts:6}
-    ],
-    weeks: {
-      'Feb 17': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:40},{rank:3,team:'A Very Unbirthday',score:39},{rank:4,team:'Sorry Val',score:29},{rank:5,team:'2 Chicks 1 Dick',score:25},{rank:6,team:'Underdawgs',score:9},{rank:7,team:'Sandra Dee',score:7},{rank:8,team:'The Kaczinskis',score:6}],
-      'Feb 24': [{rank:1,team:'Super Smart Amigos',score:53},{rank:2,team:'Tres Veganos',score:36},{rank:3,team:'Sloppy Joes',score:29},{rank:4,team:'Jack Daniels',score:24},{rank:5,team:'The Yips',score:20},{rank:6,team:'Gabriel Needs A Raise',score:19},{rank:7,team:'Shit Heads',score:17}],
-      'Mar 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Are You Cyrious',score:37},{rank:3,team:'Gabriels Angels',score:30},{rank:4,team:'Birthday Brigade',score:27},{rank:5,team:'Super Smart Amigos',score:25},{rank:6,team:'Tequila Mockingbird',score:15}],
-      'Mar 10': [{rank:1,team:'Big Booty Bitches',score:58},{rank:2,team:'Super Smart Amigos',score:51},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Chicken Wingin It',score:32},{rank:5,team:'Better Late Than Pregnant',score:28},{rank:6,team:'I Forgot My Wallet',score:23},{rank:7,team:'Questionable First Date',score:22}],
-      'Mar 17': [{rank:1,team:'Gucci',score:48},{rank:2,team:'Epstein Escapists',score:44.5},{rank:3,team:"O'tres Veganos",score:41.5},{rank:4,team:'Team Golden Toe Bean',score:36.5},{rank:5,team:'Awesome Sauce',score:34.5},{rank:6,team:'Super Smart Amigos',score:29},{rank:7,team:'Shamrock Shakers',score:28},{rank:8,team:'Sharkbait',score:26},{rank:9,team:'Blueyy',score:24},{rank:10,team:'Lettuce And Tomato',score:20.5}],
-      'Mar 24': [{rank:1,team:'Thre Caballeros',score:59},{rank:2,team:'Super Smart Amigos',score:50.5},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Know Nothings',score:44},{rank:5,team:'Hard R',score:25},{rank:6,team:'Quiztopher + Tierney',score:21},{rank:7,team:'Jerry Berry',score:20},{rank:8,team:'Chama',score:18},{rank:9,team:'Shark Bait',score:16},{rank:10,team:'Hannah Montana',score:15}],
-      'Mar 31': [{rank:1,team:'Gabriel Needs A Raise',score:47},{rank:2,team:'Tres Veganos',score:41},{rank:3,team:'Super Smart Amigos',score:38},{rank:4,team:'Fire And Brimstone',score:37},{rank:5,team:'Samirs Mom',score:34},{rank:6,team:'Two Caballeros',score:25},{rank:7,team:'Jumpin Jerry',score:20},{rank:8,team:'Ball N Chain',score:15},{rank:9,team:'El Grande Americano',score:13},{rank:10,team:'Choo-Choo',score:9}],
-      'Apr 7': [{rank:1,team:'Two 2 Tango',score:45},{rank:2,team:'Super Smart Amigos',score:43},{rank:3,team:'Tres Veganos',score:43},{rank:4,team:'3 Caballeros',score:42},{rank:5,team:'Quiz On My Face',score:30.5},{rank:6,team:'Team Cannoli',score:28},{rank:7,team:'Multiple Scoregasm',score:27.5}]
-    },
-    trendWeeks: ['Feb 17','Feb 24','Mar 3','Mar 10','Mar 17','Mar 24','Mar 31','Apr 7'],
-    trendTeams: [
-      {name:'Tres Veganos',color:'#4ac85c',data:[41,36,41,47,41.5,47,41,43]},
-      {name:'Super Smart Amigos',color:'#2e8a3c',data:[40,53,25,51,29,50.5,38,43]},
-      {name:'Sloppy Joes',color:'#7aad84',data:[null,29,15,32,28,20,20,null]}
-    ]
-  }
-};
-
-let currentSeason = 2;
-let currentWeek = null;
-let chartInstance = null;
-
-function setSeason(s) {
-  currentSeason = s;
-  currentWeek = null;
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === s-1));
-  render();
+)
 }
 
-function render() {
-  const d = DATA[currentSeason];
-  renderStats(d.stats);
-  renderLeaderboard(d.leaderboard);
-  const firstWeek = Object.keys(d.weeks)[0];
-  if (!currentWeek) currentWeek = firstWeek;
-  renderWeekSelector(d);
-  renderWeekly(d.weeks[currentWeek], currentWeek);
-  renderTrend(d);
+function Section({ title, sub, children }) {
+return (
+<div style={{ marginBottom:48 }}>
+<div style={{ marginBottom:20 }}>
+<div style={{ display:“flex”, alignItems:“center”, gap:10, marginBottom:4 }}>
+<div style={{ width:3, height:22, background:T.accent, borderRadius:2 }} />
+<h2 style={{ fontFamily:display, fontSize:22, fontWeight:400, color:T.text, margin:0 }}>{title}</h2>
+</div>
+{sub && <div style={{ fontFamily:sans, fontSize:13, color:T.muted, marginLeft:13 }}>{sub}</div>}
+</div>
+{children}
+</div>
+)
 }
 
-function renderStats(s) {
-  document.getElementById('stat-row').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Nights Hosted</div><div class="stat-value">${s.events}</div><div class="stat-sub">trivia events</div></div>
-    <div class="stat-card"><div class="stat-label">Unique Teams</div><div class="stat-value">${s.teams}</div><div class="stat-sub">season participants</div></div>
-    <div class="stat-card"><div class="stat-label">Season Leader</div><div class="stat-value" style="font-size:15px;line-height:1.3;">${s.topTeam}</div><div class="stat-sub">${s.topPts} championship pts</div></div>
-    <div class="stat-card"><div class="stat-label">Top Score</div><div class="stat-value">${s.bestScore}</div><div class="stat-sub">${s.bestTeam} &middot; ${s.bestWeek}</div></div>
-  `;
+const fmtDollar = v => v < 0 ? `-$${Math.abs(Math.round(v)).toLocaleString()}` : `$${Math.round(v).toLocaleString()}`
+
+export default function ThetaWire() {
+const [activeNav, setActiveNav] = useState(0)
+const [checklist, setChecklist] = useState({})
+const [activePhase, setActivePhase] = useState(0)
+const [projView, setProjView] = useState(“mrr”)
+
+// Financial model state
+const [price, setPrice] = useState(15)
+const [freeUsers, setFreeUsers] = useState(500)
+const [conv, setConv] = useState(5)
+const [churn, setChurn] = useState(5)
+const [tts, setTts] = useState(4.5)
+const [llm, setLlm] = useState(0.5)
+
+const vc = tts + llm + 0.15 + 0.05
+const margin = price - vc
+const fixedOverhead = FIXED + freeUsers * FREE_COST
+const beUsers = margin > 0 ? Math.ceil(fixedOverhead / margin) : Infinity
+const ltv = churn > 0 ? margin / (churn / 100) : 0
+const paidFromFree = Math.round(freeUsers * (conv / 100))
+const marginPct = ((margin / price) * 100)
+
+const beChartData = [10,25,50,75,100,150,200,300,500,750,1000].map(u => ({
+users: u >= 1000 ? `${u/1000}k` : String(u),
+revenue: u * price,
+cost: Math.round(FIXED + u * vc + freeUsers * FREE_COST),
+profit: Math.round(u * price - (FIXED + u * vc + freeUsers * FREE_COST)),
+}))
+
+const priceCompare = [10,12,15,18,22].map(p => ({
+price: `$${p}`,
+be: Math.max(0, Math.ceil(fixedOverhead / (p - vc))),
+margin: Math.round(((p - vc) / p) * 100),
+}))
+
+const checkDone = Object.values(checklist).filter(Boolean).length
+const checkTotal = CHECKLIST.length
+
+const styles = {
+app: {
+background: T.bg,
+minHeight: “100vh”,
+fontFamily: sans,
+color: T.text,
+},
+nav: {
+background: T.surface,
+borderBottom: `1px solid ${T.border}`,
+padding: “0 24px”,
+display: “flex”,
+alignItems: “center”,
+gap: 0,
+position: “sticky”,
+top: 0,
+zIndex: 100,
+},
+logo: {
+fontFamily: display,
+fontSize: 16,
+color: T.accent,
+fontWeight: 700,
+marginRight: 24,
+padding: “14px 0”,
+letterSpacing: “0.05em”,
+borderRight: `1px solid ${T.border}`,
+paddingRight: 24,
+},
+navBtn: (active) => ({
+padding: “14px 16px”,
+fontSize: 12,
+fontFamily: sans,
+letterSpacing: “0.08em”,
+textTransform: “uppercase”,
+color: active ? T.accent : T.muted,
+background: “none”,
+border: “none”,
+borderBottom: active ? `2px solid ${T.accent}` : “2px solid transparent”,
+cursor: “pointer”,
+transition: “color 0.15s”,
+whiteSpace: “nowrap”,
+}),
+main: {
+padding: “32px 28px”,
+maxWidth: 960,
+margin: “0 auto”,
+},
+grid2: { display:“grid”, gridTemplateColumns:“1fr 1fr”, gap:12 },
+grid3: { display:“grid”, gridTemplateColumns:“1fr 1fr 1fr”, gap:12 },
+grid4: { display:“grid”, gridTemplateColumns:“repeat(4, minmax(0,1fr))”, gap:10 },
+card: { background:T.card, border:`1px solid ${T.border}`, borderRadius:10, padding:“18px 20px” },
+label: { fontFamily:sans, fontSize:11, color:T.muted, textTransform:“uppercase”, letterSpacing:“0.08em”, marginBottom:6 },
+tableHead: { fontFamily:sans, fontSize:11, color:T.muted, textTransform:“uppercase”, letterSpacing:“0.08em”, padding:“8px 12px”, borderBottom:`1px solid ${T.border}`, textAlign:“left” },
+tableCell: { fontFamily:sans, fontSize:13, color:T.text, padding:“9px 12px”, borderBottom:`1px solid ${T.dim}` },
 }
 
-function renderLeaderboard(lb) {
-  const maxPts = lb[0].pts;
-  const medals = ['🥇','🥈','🥉'];
-  document.getElementById('leaderboard-panel').innerHTML = lb.map((r,i) => {
-    const pct = Math.round((r.pts / maxPts) * 100);
-    const rankCls = i < 3 ? `rank-${i+1}` : 'rank-other';
-    return `<div class="lb-row">
-      <span class="lb-rank ${rankCls}">${i+1}</span>
-      <span class="lb-medal">${medals[i] || ''}</span>
-      <span class="lb-team">${r.team}</span>
-      <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${pct}%"></div></div></div>
-      <span class="lb-pts">${r.pts}</span>
-    </div>`;
-  }).join('');
+function SliderRow({ label, value, min, max, step, fmt, onChange }) {
+return (
+<div style={{ display:“flex”, alignItems:“center”, gap:10, marginBottom:10 }}>
+<div style={{ fontSize:12, color:T.muted, minWidth:130 }}>{label}</div>
+<input type=“range” min={min} max={max} step={step} value={value}
+onChange={e => onChange(+e.target.value)}
+style={{ flex:1, accentColor:T.accent }} />
+<div style={{ fontFamily:mono, fontSize:13, color:T.accent, minWidth:56, textAlign:“right” }}>{fmt(value)}</div>
+</div>
+)
 }
 
-function renderWeekSelector(d) {
-  document.getElementById('week-selector').innerHTML = Object.keys(d.weeks).map(w =>
-    `<button class="wk-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w}</button>`
-  ).join('');
+const renderOverview = () => (
+<>
+<div style={{ marginBottom:32 }}>
+<div style={{ fontFamily:display, fontSize:36, color:T.text, marginBottom:4 }}>ThetaWire</div>
+<div style={{ fontFamily:sans, fontSize:15, color:T.accent, fontStyle:“italic”, marginBottom:20 }}>Every Morning. Every Edge.</div>
+<div style={{ fontFamily:sans, fontSize:14, color:T.muted, lineHeight:1.7, maxWidth:640 }}>
+Personalized daily intelligence briefings — podcast-style audio digests tailored to each user’s exact interests across finance, sports betting, crypto, macro, and local news. Signal scoring, not noise aggregation.
+</div>
+</div>
+<div style={styles.grid4}>
+<Stat label="Launch Price" value="$15/mo" sub="Premium tier" />
+<Stat label="Break-even" value="~55 users" sub="Paid subscribers" accent={T.amber} />
+<Stat label="Month 12 MRR" value="$3,300" sub="Conservative model" accent="#38bdf8" />
+<Stat label="Cash-flow+" value="Month 7" sub="At base growth rate" accent="#a78bfa" />
+</div>
+<div style={{ height:12 }} />
+<div style={styles.grid4}>
+<Stat label="Unit Margin" value="62%" sub="At $15 / $5.70 VC" />
+<Stat label="LTV (5% churn)" value="~$113" sub="Per paid user" accent={T.amber} />
+<Stat label="Year 1 Paid" value="~220" sub="Conservative target" accent="#38bdf8" />
+<Stat label="Fixed Cost Base" value="$332/mo" sub="Full infra stack" accent="#a78bfa" />
+</div>
+<div style={{ height:32 }} />
+<Section title="Topic Clusters" sub="Every category delivers a downstream action — not just information">
+<div style={{ display:“grid”, gridTemplateColumns:“repeat(3, minmax(0,1fr))”, gap:10 }}>
+{CLUSTERS.map(c => (
+<div key={c.topic} style={{ …styles.card, borderLeft:`3px solid ${c.color}` }}>
+<div style={{ fontSize:13, fontWeight:600, color:T.text, marginBottom:4 }}>{c.topic}</div>
+<div style={{ fontSize:11, color:T.muted, marginBottom:6 }}>{c.sources}</div>
+<div style={{ fontSize:12, color:c.color, fontStyle:“italic” }}>{c.output}</div>
+</div>
+))}
+</div>
+</Section>
+<Section title="Free vs Premium">
+<div style={{ overflowX:“auto” }}>
+<table style={{ width:“100%”, borderCollapse:“collapse” }}>
+<thead>
+<tr>
+{[“Feature”,“Free”,“Premium ($15/mo)”].map(h => <th key={h} style={styles.tableHead}>{h}</th>)}
+</tr>
+</thead>
+<tbody>
+{[
+[“Daily text brief”,“3 topics max”,“Unlimited topics”],
+[“Tickers / teams tracked”,“3–5”,“Unlimited”],
+[“Confluence score detail”,“High/Med/Low only”,“Full signal breakdown”],
+[“Audio brief (podcast)”,”—”,“Daily + weekly deep dive”],
+[“Sports betting signals”,”—”,“Yes — full signal scoring”],
+[“Custom RSS sources”,”—”,“Yes”],
+[“Brief history”,“7 days”,“Full archive”],
+[“Delivery time preference”,”—”,“Yes”],
+].map(([feat, free, prem], i) => (
+<tr key={feat} style={{ background: i%2===0 ? T.surface : “transparent” }}>
+<td style={{ …styles.tableCell, color:T.text }}>{feat}</td>
+<td style={{ …styles.tableCell, color:free===”—” ? T.dim : T.muted, fontFamily: free===”—” ? mono : sans }}>{free}</td>
+<td style={{ …styles.tableCell, color:T.accent, fontFamily:sans }}>{prem}</td>
+</tr>
+))}
+</tbody>
+</table>
+</div>
+</Section>
+</>
+)
+
+const renderMarket = () => (
+<>
+<Section title="Total Addressable Market">
+<div style={styles.grid3}>
+{[
+{ label:“Financial Newsletter & Intel”, value:”$3.1B”, growth:“8% CAGR”, color:T.accent },
+{ label:“Sports Betting Analytics / DFS”, value:”$2.5B”, growth:“US market post-legalization”, color:T.amber },
+{ label:“Audio & Podcast Subscriptions”, value:”$4.0B”, growth:“13% CAGR”, color:”#a78bfa” },
+].map(m => (
+<div key={m.label} style={{ …styles.card, borderTop:`2px solid ${m.color}`, textAlign:“center” }}>
+<div style={{ fontFamily:mono, fontSize:28, color:m.color, marginBottom:6 }}>{m.value}</div>
+<div style={{ fontSize:13, color:T.text, marginBottom:4 }}>{m.label}</div>
+<div style={{ fontSize:11, color:T.muted }}>{m.growth}</div>
+</div>
+))}
+</div>
+<div style={{ marginTop:12, …styles.card, background:T.accentDim, border:`1px solid ${T.accent}33` }}>
+<div style={{ fontSize:13, color:T.accent }}>
+ThetaWire sits at the intersection of all three markets with a personalization layer none of the incumbents match. The audio format + signal scoring creates a category of one.
+</div>
+</div>
+</Section>
+<Section title="Competitive Landscape">
+<table style={{ width:“100%”, borderCollapse:“collapse” }}>
+<thead>
+<tr>{[“Competitor”,“Category”,“Price”,“ThetaWire’s Edge”].map(h=><th key={h} style={styles.tableHead}>{h}</th>)}</tr>
+</thead>
+<tbody>
+{COMPETITORS.map((c,i) => (
+<tr key={c.name} style={{ background: i%2===0 ? T.surface : “transparent” }}>
+<td style={{ …styles.tableCell, fontWeight:600 }}>{c.name}</td>
+<td style={{ …styles.tableCell, color:T.muted }}>{c.cat}</td>
+<td style={{ …styles.tableCell, fontFamily:mono, color:T.amber }}>{c.price}</td>
+<td style={{ …styles.tableCell, color:T.accent }}>{c.gap}</td>
+</tr>
+))}
+</tbody>
+</table>
+</Section>
+<Section title="Customer Profiles">
+<div style={{ display:“grid”, gridTemplateColumns:“1fr 1fr 1fr”, gap:12 }}>
+{[
+{ label:“Primary”, name:“Retail Investor + Sports Fan”, age:“25–45”, desc:“Tracks 5–20 stocks, watches sports seriously, follows crypto casually. Already reads 2–3 newsletters. Would pay to consolidate. Listens during commute.”, wtp:”$12–18/mo”, color:T.accent },
+{ label:“Secondary”, name:“Sports Bettor Who Invests”, age:“22–38”, desc:“Dabbles in DFS and sports betting, also has a brokerage account. Wants injury reports, line movement, and earnings in one brief. High WTP if signal quality is provably useful.”, wtp:”$15–22/mo”, color:T.amber },
+{ label:“Tertiary”, name:“Busy Professional”, age:“30–50”, desc:“Not a trader but holds a 401k and follows the news. Wants to feel informed without 45 minutes of reading. Audio brief while getting ready is a perfect fit.”, wtp:”$10–15/mo”, color:”#a78bfa” },
+].map(p => (
+<div key={p.label} style={{ …styles.card, borderTop:`2px solid ${p.color}` }}>
+<div style={{ fontSize:10, color:p.color, textTransform:“uppercase”, letterSpacing:“0.1em”, marginBottom:4 }}>{p.label}</div>
+<div style={{ fontSize:14, fontWeight:600, color:T.text, marginBottom:2 }}>{p.name}</div>
+<div style={{ fontSize:11, color:T.muted, marginBottom:8 }}>Age {p.age}</div>
+<div style={{ fontSize:12, color:T.muted, lineHeight:1.6, marginBottom:10 }}>{p.desc}</div>
+<div style={{ fontSize:12, color:p.color }}>WTP: {p.wtp}</div>
+</div>
+))}
+</div>
+</Section>
+<Section title="Marketing Phases">
+<div style={{ display:“grid”, gridTemplateColumns:“1fr 1fr”, gap:12 }}>
+{[
+{ phase:“Phase 1”, label:“Beta Launch”, time:“Months 1–3”, color:T.accent, items:[“Waitlist landing page on Vercel”,“Twitter/X: post one public signal daily as product teaser”,“Reddit distribution — r/investing, r/sportsbetting, r/DraftKingsDiscussion”,“30-day free premium trial for first 100 signups”,“Target: 200–400 free users”] },
+{ phase:“Phase 2”, label:“Paid Conversion”, time:“Months 4–6”, color:”#38bdf8”, items:[“Email sequence: Day 7/14/30 — each highlights a missed premium signal”,“Audio player paywall — text loads, audio blurred with Upgrade CTA”,“Referral program: 1 month free per referral”,“Affiliate outreach to finance/sports YouTube channels”,“Target: 5–8% free-to-paid = 15–40 paid users”] },
+{ phase:“Phase 3”, label:“Growth”, time:“Months 7–12”, color:T.amber, items:[“Paid social: Twitter/X + Reddit ads, $200–500/mo”,“SEO: personalized stock brief, sports betting intelligence 2025”,“Product Hunt launch once product is polished”,“Podcast sponsorship / guest appearances”,“Target: 200–300 paid users by month 12”] },
+{ phase:“Year 2”, label:“Scale”, time:“Year 2”, color:”#a78bfa”, items:[“Increase ad spend to $1,000–2,000/mo with validated CAC”,“Affiliate network in finance/sports betting niche”,“Higher tier ($25/mo) with deeper signal access”,“Press outreach: fintech and sports tech publications”,“Target: 500–1,800 paid users”] },
+].map(p => (
+<div key={p.phase} style={{ …styles.card, borderLeft:`3px solid ${p.color}` }}>
+<div style={{ fontSize:10, color:p.color, textTransform:“uppercase”, letterSpacing:“0.1em” }}>{p.phase} — {p.time}</div>
+<div style={{ fontSize:14, fontWeight:600, color:T.text, marginBottom:10, marginTop:2 }}>{p.label}</div>
+{p.items.map(item => (
+<div key={item} style={{ display:“flex”, gap:8, marginBottom:5 }}>
+<span style={{ color:p.color, fontSize:12, marginTop:1 }}>›</span>
+<span style={{ fontSize:12, color:T.muted, lineHeight:1.5 }}>{item}</span>
+</div>
+))}
+</div>
+))}
+</div>
+</Section>
+</>
+)
+
+const renderFinancials = () => (
+<>
+<div style={{ display:“grid”, gridTemplateColumns:“1fr 1fr”, gap:16, marginBottom:24 }}>
+<div style={styles.card}>
+<div style={{ fontSize:12, color:T.muted, textTransform:“uppercase”, letterSpacing:“0.08em”, marginBottom:14 }}>Pricing & Scale</div>
+<SliderRow label=“Price / month” value={price} min={8} max={25} step={1} fmt={v=>`$${v}`} onChange={setPrice} />
+<SliderRow label=“Free users” value={freeUsers} min={0} max={5000} step={50} fmt={v=>v.toLocaleString()} onChange={setFreeUsers} />
+<SliderRow label=“Free → paid conv %” value={conv} min={1} max={20} step={1} fmt={v=>`${v}%`} onChange={setConv} />
+<SliderRow label=“Churn % / month” value={churn} min={1} max={15} step={1} fmt={v=>`${v}%`} onChange={setChurn} />
+</div>
+<div style={styles.card}>
+<div style={{ fontSize:12, color:T.muted, textTransform:“uppercase”, letterSpacing:“0.08em”, marginBottom:14 }}>Variable Cost / Premium User</div>
+<SliderRow label=“TTS (ElevenLabs)” value={tts} min={0.5} max={12} step={0.5} fmt={v=>`$${v.toFixed(2)}`} onChange={setTts} />
+<SliderRow label=“LLM (Claude API)” value={llm} min={0.1} max={3} step={0.1} fmt={v=>`$${v.toFixed(2)}`} onChange={setLlm} />
+<div style={{ marginTop:16, paddingTop:14, borderTop:`1px solid ${T.border}` }}>
+<div style={{ display:“flex”, justifyContent:“space-between”, marginBottom:4 }}>
+<span style={{ fontSize:12, color:T.muted }}>Storage + delivery (fixed)</span>
+<span style={{ fontFamily:mono, fontSize:12, color:T.muted }}>$0.20</span>
+</div>
+<div style={{ display:“flex”, justifyContent:“space-between” }}>
+<span style={{ fontSize:13, fontWeight:600, color:T.text }}>Total variable / user</span>
+<span style={{ fontFamily:mono, fontSize:14, color:T.accent }}>${vc.toFixed(2)}</span>
+</div>
+</div>
+</div>
+</div>
+<div style={{ …styles.grid4, marginBottom:24 }}>
+<Stat label=“Break-even Users” value={beUsers === Infinity ? “∞” : beUsers} sub=“Paid subscribers needed”
+accent={beUsers < 80 ? T.accent : beUsers < 200 ? T.amber : T.red} />
+<Stat label=“Unit Margin” value={`${marginPct.toFixed(0)}%`} sub={`$${margin.toFixed(2)} per user`} accent={margin > 5 ? T.accent : T.red} />
+<Stat label=“Paid from Free (est)” value={paidFromFree} sub={`At ${conv}% conversion`} accent=”#38bdf8” />
+<Stat label=“LTV Estimate” value={`$${Math.round(ltv)}`} sub={`At ${churn}% monthly churn`} accent=”#a78bfa” />
+</div>
+<Section title="Revenue vs Cost Curve">
+<div style={{ height:280 }}>
+<ResponsiveContainer width="100%" height="100%">
+<LineChart data={beChartData} margin={{ top:5, right:20, bottom:5, left:10 }}>
+<CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
+<XAxis dataKey=“users” tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} label={{ value:“paid users”, fill:T.muted, fontSize:11, position:“insideBottomRight”, offset:-10 }} />
+<YAxis tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} tickFormatter={v=>`$${(v/1000).toFixed(0)}k`} />
+<Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:6, fontSize:12 }} labelStyle={{ color:T.muted }} formatter={(v,n) => [`$${Math.round(v).toLocaleString()}`, n]} />
+<ReferenceLine y={0} stroke={T.border} strokeDasharray="4 2" />
+<Line type="monotone" dataKey="revenue" name="Revenue" stroke={T.accent} strokeWidth={2} dot={false} />
+<Line type="monotone" dataKey="cost" name="Total Cost" stroke={T.red} strokeWidth={2} dot={false} strokeDasharray="5 3" />
+</LineChart>
+</ResponsiveContainer>
+</div>
+<div style={{ display:“flex”, gap:20, marginTop:8, fontSize:12, color:T.muted }}>
+<span style={{ display:“flex”, alignItems:“center”, gap:6 }}><span style={{ width:20, height:2, background:T.accent, display:“inline-block” }} />Revenue</span>
+<span style={{ display:“flex”, alignItems:“center”, gap:6 }}><span style={{ width:20, height:2, background:T.red, display:“inline-block”, borderTop:“2px dashed “+T.red }} />Total Cost</span>
+</div>
+</Section>
+<Section title="Break-even by Price Point">
+<table style={{ width:“100%”, borderCollapse:“collapse” }}>
+<thead>
+<tr>{[“Price”,“Variable Cost”,“Contribution”,“Margin %”,“Break-even Users”].map(h=><th key={h} style={{ …styles.tableHead, textAlign:“center” }}>{h}</th>)}</tr>
+</thead>
+<tbody>
+{[10,12,15,18,22].map((p,i) => {
+const cm = p - vc
+const be = cm > 0 ? Math.ceil(fixedOverhead / cm) : Infinity
+const isSelected = p === price
+return (
+<tr key={p} style={{ background: isSelected ? T.accentDim : i%2===0 ? T.surface : “transparent”, cursor:“pointer” }} onClick={() => setPrice(p)}>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color: isSelected ? T.accent : T.text, fontWeight: isSelected ? 700 : 400 }}>${p}/mo</td>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color:T.muted }}>${vc.toFixed(2)}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color: cm > 0 ? T.accent : T.red }}>${cm.toFixed(2)}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, color:T.muted }}>{((cm/p)*100).toFixed(0)}%</td>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color: be < 100 ? T.accent : be < 300 ? T.amber : T.red, fontWeight:600 }}>{be === Infinity ? “∞” : be}</td>
+</tr>
+)
+})}
+</tbody>
+</table>
+<div style={{ marginTop:10, fontSize:12, color:T.muted }}>Click a row to set the active price point.</div>
+</Section>
+<Section title="Fixed Cost Stack">
+<table style={{ width:“100%”, borderCollapse:“collapse” }}>
+<thead><tr>{[“Service”,“Tier”,”$/mo”,“Notes”].map(h=><th key={h} style={styles.tableHead}>{h}</th>)}</tr></thead>
+<tbody>
+{[
+[“Polygon.io”,“Developer”,”$79”,“Stocks, dark pool, options flow”],
+[“Finnhub”,“Professional”,”$50”,“Earnings, insider, sentiment”],
+[“FMP”,“Professional”,”$49”,“Fundamentals, SEC filings”],
+[“Tiingo”,“Power”,”$10”,“EOD data, crypto, news”],
+[“FRED”,“Free”,”$0”,“Macro — always free”],
+[“The Odds API”,“Basic”,”$0–50”,“Sports lines, free tier for early volume”],
+[“Supabase”,“Pro”,”$25”,“DB, auth, storage, edge functions”],
+[“Railway / Render”,“Starter”,”$15”,“Pipeline compute, always-on”],
+[“ElevenLabs”,“Creator → Pro”,”$22–99”,“Scales with user volume”],
+[“Domain + email”,“Misc”,”$5”,“DNS, Resend transactional email”],
+].map(([svc,tier,cost,note],i) => (
+<tr key={svc} style={{ background: i%2===0 ? T.surface : “transparent” }}>
+<td style={{ …styles.tableCell, fontWeight:600 }}>{svc}</td>
+<td style={{ …styles.tableCell, color:T.muted }}>{tier}</td>
+<td style={{ …styles.tableCell, fontFamily:mono, color:T.amber }}>{cost}</td>
+<td style={{ …styles.tableCell, color:T.muted, fontSize:12 }}>{note}</td>
+</tr>
+))}
+<tr style={{ background:T.accentDim }}>
+<td style={{ …styles.tableCell, fontWeight:700, color:T.accent }} colSpan={2}>Total Fixed (production)</td>
+<td style={{ …styles.tableCell, fontFamily:mono, fontWeight:700, color:T.accent }}>$332/mo</td>
+<td style={{ …styles.tableCell, color:T.muted, fontSize:12 }}>With ElevenLabs Pro at 200+ users</td>
+</tr>
+</tbody>
+</table>
+</Section>
+</>
+)
+
+const renderProjections = () => (
+<>
+<div style={{ display:“flex”, gap:8, marginBottom:20 }}>
+{[[“mrr”,“MRR”],[“users”,“Users”],[“profit”,“Profit/Loss”]].map(([k,l]) => (
+<button key={k} onClick={() => setProjView(k)} style={{
+padding:“6px 16px”, fontSize:12, fontFamily:sans, letterSpacing:“0.06em”,
+background: projView===k ? T.accent : “transparent”,
+color: projView===k ? “#000” : T.muted,
+border:`1px solid ${projView===k ? T.accent : T.border}`,
+borderRadius:6, cursor:“pointer”, textTransform:“uppercase”
+}}>{l}</button>
+))}
+</div>
+<div style={{ height:280, marginBottom:24 }}>
+<ResponsiveContainer width="100%" height="100%">
+{projView === “users” ? (
+<BarChart data={PROJ_DATA} margin={{ top:5, right:20, bottom:5, left:10 }}>
+<CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
+<XAxis dataKey=“month” tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} />
+<YAxis tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} />
+<Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:6, fontSize:12 }} labelStyle={{ color:T.muted }} />
+<Bar dataKey="free" name="Free Users" fill={T.navyDim} stackId="a" />
+<Bar dataKey="paid" name="Paid Users" fill={T.accent} stackId="a" radius={[3,3,0,0]} />
+</BarChart>
+) : projView === “profit” ? (
+<BarChart data={PROJ_DATA} margin={{ top:5, right:20, bottom:5, left:10 }}>
+<CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
+<XAxis dataKey=“month” tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} />
+<YAxis tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} tickFormatter={v=>`$${v}`} />
+<Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:6, fontSize:12 }} labelStyle={{ color:T.muted }} formatter={v=>[`$${v}`, “Net P/L”]} />
+<ReferenceLine y={0} stroke={T.muted} strokeDasharray="4 2" />
+<Bar dataKey="profit" name="Net P/L" fill={T.accent}
+radius={[3,3,0,0]}
+label={false}
+/>
+</BarChart>
+) : (
+<LineChart data={PROJ_DATA} margin={{ top:5, right:20, bottom:5, left:10 }}>
+<CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
+<XAxis dataKey=“month” tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} />
+<YAxis tick={{ fill:T.muted, fontSize:11 }} axisLine={{ stroke:T.border }} tickLine={false} tickFormatter={v=>`$${v}`} />
+<Tooltip contentStyle={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:6, fontSize:12 }} labelStyle={{ color:T.muted }} formatter={v=>[`$${v}`, “MRR”]} />
+<Line type=“monotone” dataKey=“mrr” name=“MRR” stroke={T.accent} strokeWidth={2.5} dot={{ fill:T.accent, r:3 }} />
+<Line type="monotone" dataKey="cost" name="Cost" stroke={T.red} strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
+</LineChart>
+)}
+</ResponsiveContainer>
+</div>
+<Section title="Month-by-Month Detail">
+<table style={{ width:“100%”, borderCollapse:“collapse” }}>
+<thead><tr>{[“Month”,“Free”,“Paid”,“MRR”,“Costs”,“Net P/L”].map(h=><th key={h} style={{ …styles.tableHead, textAlign:“center” }}>{h}</th>)}</tr></thead>
+<tbody>
+{PROJ_DATA.map((r,i) => (
+<tr key={r.month} style={{ background: i%2===0 ? T.surface : “transparent” }}>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color:T.muted }}>{r.month}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, color:T.muted }}>{r.free.toLocaleString()}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, color:T.accent, fontWeight:600 }}>{r.paid}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color:T.text }}>${r.mrr.toLocaleString()}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, color:T.muted }}>${r.cost.toLocaleString()}</td>
+<td style={{ …styles.tableCell, textAlign:“center”, fontFamily:mono, fontWeight:600, color: r.profit >= 0 ? T.accent : T.red }}>{r.profit >= 0 ? “+$”+r.profit.toLocaleString() : “-$”+Math.abs(r.profit).toLocaleString()}</td>
+</tr>
+))}
+</tbody>
+</table>
+</Section>
+<Section title="Year 2 Scenarios">
+<div style={styles.grid3}>
+{[
+{ label:“Conservative”, users:“500”, mrr:”$7,500”, revenue:”$72K”, profit:”$38K”, note:“5% conversion, word-of-mouth only”, color:T.muted },
+{ label:“Base Case”, users:“900”, mrr:”$13,500”, revenue:”$130K”, profit:”$80K”, note:“7% conv + referral program”, color:T.accent },
+{ label:“Aggressive”, users:“1,800”, mrr:”$27,000”, revenue:”$260K”, profit:”$175K”, note:“10% conv + $500/mo paid acquisition”, color:T.amber },
+].map(s => (
+<div key={s.label} style={{ …styles.card, borderTop:`2px solid ${s.color}` }}>
+<div style={{ fontSize:10, color:s.color, textTransform:“uppercase”, letterSpacing:“0.1em”, marginBottom:6 }}>{s.label}</div>
+<div style={{ fontFamily:mono, fontSize:24, color:s.color, marginBottom:2 }}>{s.mrr}</div>
+<div style={{ fontSize:12, color:T.muted, marginBottom:10 }}>MRR at year end</div>
+<div style={{ display:“flex”, justifyContent:“space-between”, marginBottom:4 }}>
+<span style={{ fontSize:12, color:T.muted }}>Paid users</span>
+<span style={{ fontFamily:mono, fontSize:12, color:T.text }}>{s.users}</span>
+</div>
+<div style={{ display:“flex”, justifyContent:“space-between”, marginBottom:4 }}>
+<span style={{ fontSize:12, color:T.muted }}>Annual revenue</span>
+<span style={{ fontFamily:mono, fontSize:12, color:T.text }}>{s.revenue}</span>
+</div>
+<div style={{ display:“flex”, justifyContent:“space-between”, marginBottom:10 }}>
+<span style={{ fontSize:12, color:T.muted }}>Net profit</span>
+<span style={{ fontFamily:mono, fontSize:12, color:s.color }}>{s.profit}</span>
+</div>
+<div style={{ fontSize:11, color:T.muted, fontStyle:“italic” }}>{s.note}</div>
+</div>
+))}
+</div>
+</Section>
+</>
+)
+
+const renderRoadmap = () => (
+<>
+<div style={{ display:“flex”, gap:6, marginBottom:24, flexWrap:“wrap” }}>
+{PHASES.map((p,i) => (
+<button key={p.phase} onClick={() => setActivePhase(i)} style={{
+padding:“8px 18px”, fontSize:12, fontFamily:sans,
+background: activePhase===i ? p.color : “transparent”,
+color: activePhase===i ? “#000” : T.muted,
+border:`1px solid ${activePhase===i ? p.color : T.border}`,
+borderRadius:20, cursor:“pointer”, whiteSpace:“nowrap”,
+fontWeight: activePhase===i ? 600 : 400,
+}}>
+{p.phase}: {p.label}
+</button>
+))}
+</div>
+{PHASES.map((p, pi) => pi === activePhase && (
+<div key={p.phase}>
+<div style={{ …styles.card, marginBottom:16, borderLeft:`4px solid ${p.color}` }}>
+<div style={{ display:“flex”, justifyContent:“space-between”, alignItems:“flex-start” }}>
+<div>
+<div style={{ fontSize:10, color:p.color, textTransform:“uppercase”, letterSpacing:“0.1em” }}>{p.phase}</div>
+<div style={{ fontSize:22, fontFamily:display, color:T.text, margin:“4px 0” }}>{p.label}</div>
+</div>
+<div style={{ fontFamily:mono, fontSize:13, color:T.muted, background:T.surface, padding:“6px 12px”, borderRadius:6, border:`1px solid ${T.border}` }}>{p.weeks}</div>
+</div>
+</div>
+<div style={{ display:“grid”, gap:8 }}>
+{p.items.map((item, ii) => (
+<div key={ii} style={{ …styles.card, display:“flex”, alignItems:“flex-start”, gap:14, padding:“14px 18px” }}>
+<div style={{ width:22, height:22, borderRadius:“50%”, border:`2px solid ${item.done ? p.color : T.border}`, background: item.done ? p.color : “transparent”, display:“flex”, alignItems:“center”, justifyContent:“center”, flexShrink:0, marginTop:1 }}>
+{item.done && <span style={{ color:”#000”, fontSize:12, fontWeight:700 }}>✓</span>}
+</div>
+<div style={{ fontSize:13, color: item.done ? T.muted : T.text, textDecoration: item.done ? “line-through” : “none”, lineHeight:1.5 }}>{item.text}</div>
+{item.done && <div style={{ marginLeft:“auto”, fontSize:11, color:p.color, whiteSpace:“nowrap” }}>Done</div>}
+</div>
+))}
+</div>
+<div style={{ marginTop:14, display:“flex”, alignItems:“center”, gap:10 }}>
+<div style={{ flex:1, height:4, background:T.dim, borderRadius:2, overflow:“hidden” }}>
+<div style={{ height:“100%”, background:p.color, borderRadius:2, width:`${(p.items.filter(i=>i.done).length / p.items.length) * 100}%`, transition:“width 0.3s” }} />
+</div>
+<div style={{ fontFamily:mono, fontSize:12, color:T.muted }}>
+{p.items.filter(i=>i.done).length}/{p.items.length} complete
+</div>
+</div>
+</div>
+))}
+</>
+)
+
+const renderChecklist = () => (
+<>
+<div style={{ …styles.card, marginBottom:24, borderTop:`2px solid ${checkDone === checkTotal ? T.accent : T.amber}` }}>
+<div style={{ display:“flex”, justifyContent:“space-between”, alignItems:“center” }}>
+<div>
+<div style={{ fontSize:14, fontWeight:600, color:T.text }}>Launch Readiness</div>
+<div style={{ fontSize:12, color:T.muted, marginTop:2 }}>All six must be true before charging money</div>
+</div>
+<div style={{ textAlign:“right” }}>
+<div style={{ fontFamily:mono, fontSize:28, color: checkDone === checkTotal ? T.accent : T.amber }}>{checkDone}/{checkTotal}</div>
+<div style={{ fontSize:11, color:T.muted }}>criteria met</div>
+</div>
+</div>
+<div style={{ marginTop:14, height:6, background:T.dim, borderRadius:3, overflow:“hidden” }}>
+<div style={{ height:“100%”, background: checkDone === checkTotal ? T.accent : T.amber, borderRadius:3, width:`${(checkDone/checkTotal)*100}%`, transition:“width 0.3s” }} />
+</div>
+</div>
+<div style={{ display:“grid”, gap:10 }}>
+{CHECKLIST.map(item => {
+const done = checklist[item.id]
+return (
+<div key={item.id} onClick={() => setChecklist(c => ({ …c, [item.id]: !c[item.id] }))}
+style={{ …styles.card, cursor:“pointer”, display:“flex”, gap:16, alignItems:“flex-start”, padding:“18px 20px”, borderLeft:`3px solid ${done ? T.accent : T.border}`, background: done ? T.accentDim : T.card, transition:“all 0.15s” }}>
+<div style={{ width:24, height:24, borderRadius:6, border:`2px solid ${done ? T.accent : T.border}`, background: done ? T.accent : “transparent”, display:“flex”, alignItems:“center”, justifyContent:“center”, flexShrink:0, marginTop:1 }}>
+{done && <span style={{ color:”#000”, fontSize:14, fontWeight:800 }}>✓</span>}
+</div>
+<div>
+<div style={{ fontSize:14, color: done ? T.accent : T.text, fontWeight:done ? 600 : 400, marginBottom:4 }}>{item.text}</div>
+<div style={{ fontSize:12, color:T.muted }}>{item.detail}</div>
+</div>
+</div>
+)
+})}
+</div>
+{checkDone === checkTotal && (
+<div style={{ marginTop:20, …styles.card, background:T.accentDim, border:`1px solid ${T.accent}`, textAlign:“center”, padding:24 }}>
+<div style={{ fontFamily:display, fontSize:22, color:T.accent, marginBottom:6 }}>You’re ready to launch.</div>
+<div style={{ fontSize:13, color:T.muted }}>All criteria met — time to charge your first subscriber.</div>
+</div>
+)}
+</>
+)
+
+return (
+<div style={styles.app}>
+<div style={styles.nav}>
+<div style={styles.logo}>ThetaWire</div>
+{NAV.map((n,i) => (
+<button key={n} style={styles.navBtn(activeNav===i)} onClick={() => setActiveNav(i)}>{n}</button>
+))}
+</div>
+<div style={styles.main}>
+{activeNav === 0 && renderOverview()}
+{activeNav === 1 && renderMarket()}
+{activeNav === 2 && renderFinancials()}
+{activeNav === 3 && renderProjections()}
+{activeNav === 4 && renderRoadmap()}
+{activeNav === 5 && renderChecklist()}
+</div>
+</div>
+)
 }
-
-function selectWeek(w) {
-  currentWeek = w;
-  document.querySelectorAll('.wk-btn').forEach(b => b.classList.toggle('active', b.textContent === w));
-  renderWeekly(DATA[currentSeason].weeks[w], w);
-}
-
-function renderWeekly(teams, week) {
-  if (!teams) return;
-  const maxScore = Math.max(...teams.map(t => t.score));
-  const rbCls = r => r===1?'rb-1':r===2?'rb-2':r===3?'rb-3':'rb-o';
-  const sCls = s => s >= maxScore*0.85 ? 'score-high' : s >= maxScore*0.6 ? 'score-mid' : 'score-low';
-  document.getElementById('weekly-panel').innerHTML = `
-    <table class="week-table">
-      <thead><tr><th>Rank</th><th>Team</th><th style="text-align:right">Score</th></tr></thead>
-      <tbody>${teams.map(t=>`<tr>
-        <td><span class="rank-badge ${rbCls(t.rank)}">${t.rank}</span></td>
-        <td style="color:var(--text)">${t.team}</td>
-        <td class="${sCls(t.score)}" style="text-align:right">${t.score}</td>
-      </tr>`).join('')}</tbody>
-    </table>`;
-}
-
-function renderTrend(d) {
-  document.getElementById('trend-subtitle').textContent = `Top 3 teams · ${d.trendWeeks.length} weeks`;
-  document.getElementById('trend-legend').innerHTML = d.trendTeams.map(t =>
-    `<span class="legend-item"><span class="legend-line" style="background:${t.color}"></span>${t.name}</span>`
-  ).join('');
-
-  const canvas = document.getElementById('trendChart');
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-  chartInstance = new Chart(canvas, {
-    type: 'line',
-    data: {
-      labels: d.trendWeeks,
-      datasets: d.trendTeams.map(t => ({
-        label: t.name,
-        data: t.data,
-        borderColor: t.color,
-        backgroundColor: t.color + '20',
-        borderWidth: 2,
-        pointBackgroundColor: t.color,
-        pointRadius: 4,
-        pointHoverRadius: 6,
-        tension: 0.3,
-        spanGaps: true
-      }))
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: '#1f211f',
-          borderColor: 'rgba(74,200,92,0.3)',
-          borderWidth: 1,
-          titleColor: '#9aab9a',
-          bodyColor: '#e8ece8',
-          padding: 10
-        }
-      },
-      scales: {
-        x: {
-          grid: { color: 'rgba(74,200,92,0.07)' },
-          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 }, autoSkip: false }
-        },
-        y: {
-          grid: { color: 'rgba(74,200,92,0.07)' },
-          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 } },
-          min: 0
-        }
-      }
-    }
-  });
-}
-
-render();
-</script>
-</body>
-</html>
