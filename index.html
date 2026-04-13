@@ -1,780 +1,310 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
-<meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
-<meta name="apple-mobile-web-app-title" content="ThetaWire"/>
-<meta name="theme-color" content="#080e1a"/>
-<title>ThetaWire</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Get Quizzicle Trivia — 3 C's Tavern</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;background:#080e1a;-webkit-text-size-adjust:100%;overflow:hidden}
-body{color:#e8f0ff;font-family:'Trebuchet MS','Gill Sans',sans-serif;-webkit-tap-highlight-color:transparent}
-#root{height:100%;display:flex;flex-direction:column}
-#err{display:none;position:fixed;inset:0;background:#080e1a;color:#e05060;font-family:monospace;font-size:13px;padding:40px 20px;white-space:pre-wrap;z-index:9999}
-input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer}
-input[type=range]::-webkit-slider-runnable-track{height:4px;background:#1a2d45;border-radius:2px}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#00c896;margin-top:-10px;box-shadow:0 0 0 3px rgba(0,200,150,.2)}
-button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
-::-webkit-scrollbar{display:none}
-table{border-collapse:collapse;width:100%}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #111211; --bg2: #181a18; --bg3: #1f211f; --bg4: #262926;
+  --border: rgba(74,200,92,0.15); --border2: rgba(74,200,92,0.3);
+  --green: #4ac85c; --green2: #2e8a3c; --green-dim: rgba(74,200,92,0.12); --green-glow: rgba(74,200,92,0.08);
+  --text: #e8ece8; --text2: #9aab9a; --text3: #5a6b5a;
+  --gold: #f0b429; --silver: #b0bec5; --bronze: #cd8b5a;
+  --font: 'Space Grotesk', sans-serif; --mono: 'Space Mono', monospace;
+}
+body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+.dash { max-width: 960px; margin: 0 auto; padding: 28px 20px; }
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+.header-left h1 { font-size: 24px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; line-height: 1; }
+.header-left .venue { font-size: 12px; color: var(--text2); margin-top: 5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
+.season-tabs { display: flex; gap: 6px; }
+.tab { padding: 7px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
+.tab.active { background: var(--green); color: #0a1a0c; border-color: var(--green); }
+.tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
+@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
+.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--green); line-height: 1; font-family: var(--mono); }
+.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
+.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+@media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
+.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); font-family: var(--mono); }
+.panel-body { padding: 12px; }
+.lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 5px; margin-bottom: 3px; transition: background 0.1s; }
+.lb-row:hover { background: var(--green-glow); }
+.lb-rank { font-size: 13px; font-weight: 700; font-family: var(--mono); width: 22px; text-align: center; flex-shrink: 0; }
+.rank-1 { color: var(--gold); } .rank-2 { color: var(--silver); } .rank-3 { color: var(--bronze); } .rank-other { color: var(--text3); }
+.lb-medal { font-size: 14px; width: 18px; flex-shrink: 0; }
+.lb-team { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lb-pts { font-size: 14px; font-weight: 700; color: var(--green); font-family: var(--mono); flex-shrink: 0; }
+.lb-bar-wrap { width: 70px; flex-shrink: 0; }
+.lb-bar-bg { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
+.lb-bar-fill { height: 4px; background: var(--green); border-radius: 2px; }
+.week-selector { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+.wk-btn { padding: 3px 9px; font-size: 11px; border-radius: 3px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--mono); transition: all 0.12s; }
+.wk-btn.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.wk-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+.week-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.week-table th { padding: 6px 8px; text-align: left; color: var(--text3); font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 400; }
+.week-table td { padding: 8px 8px; border-bottom: 1px solid rgba(74,200,92,0.06); }
+.week-table tr:last-child td { border-bottom: none; }
+.week-table tr:hover td { background: var(--green-glow); }
+.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 3px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
+.rb-1 { background: rgba(240,180,41,0.15); color: var(--gold); }
+.rb-2 { background: rgba(176,190,197,0.15); color: var(--silver); }
+.rb-3 { background: rgba(205,139,90,0.15); color: var(--bronze); }
+.rb-o { background: var(--bg4); color: var(--text3); }
+.score-high { color: var(--green); font-family: var(--mono); font-weight: 700; }
+.score-mid { color: var(--text); font-family: var(--mono); font-weight: 700; }
+.score-low { color: var(--text3); font-family: var(--mono); font-weight: 700; }
+.trend-panel { margin-bottom: 20px; }
+.trend-wrap { position: relative; width: 100%; height: 220px; padding: 16px 12px 0; }
+.legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 10px 16px 14px; }
+.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); font-family: var(--mono); }
+.legend-line { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
+.footer { text-align: center; padding: 20px 0 10px; font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.5px; }
 </style>
 </head>
 <body>
-<div id="err"></div>
-<div id="root"></div>
+<div class="dash">
+  <div class="header">
+    <div class="header-left">
+      <h1>Get Quizzicle Trivia</h1>
+      <div class="venue">3 C's Tavern &mdash; Seasonal Scoreboard</div>
+    </div>
+    <div class="season-tabs">
+      <button class="tab" onclick="setSeason(1)">Season 1</button>
+      <button class="tab active" onclick="setSeason(2)">Season 2</button>
+    </div>
+  </div>
 
-<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <div class="stat-row" id="stat-row"></div>
 
-<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-header">
+        <span class="panel-title">Season Leaderboard</span>
+        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">Championship pts</span>
+      </div>
+      <div class="panel-body" id="leaderboard-panel" style="padding:8px 6px;max-height:460px;overflow-y:auto;"></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-title">Weekly Results</span></div>
+      <div class="week-selector" id="week-selector"></div>
+      <div class="panel-body" id="weekly-panel" style="padding:8px;"></div>
+    </div>
+  </div>
 
+  <div class="panel trend-panel">
+    <div class="panel-header">
+      <span class="panel-title">Score Trend — Top Teams</span>
+      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);" id="trend-subtitle"></span>
+    </div>
+    <div class="trend-wrap"><canvas id="trendChart"></canvas></div>
+    <div class="legend" id="trend-legend"></div>
+  </div>
+
+  <div class="footer">Get Quizzicle Trivia &mdash; 3 C's Tavern &mdash; Season Dashboard</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-window.onerror = function(msg, src, line, col, err) {
-  var el = document.getElementById('err');
-  el.style.display = 'block';
-  el.textContent = 'Error: ' + msg + '\nLine: ' + line + '\n' + (err ? err.stack : '');
+const DATA = {
+  1: {
+    stats: { events: 9, teams: 34, topTeam: 'Tres Veganos', topPts: 98, bestScore: 57, bestTeam: 'Tres Veganos', bestWeek: 'Feb 10' },
+    leaderboard: [
+      {team:'Tres Veganos',pts:98},{team:'Super Smart Amigos',pts:44},{team:'Prosecco Princesses',pts:18},
+      {team:'Cotton Headed Ninny Muggin',pts:16},{team:'4 Stooges',pts:13},{team:'Illiterate',pts:8},
+      {team:'Taking Up Space',pts:8},{team:'Alaskan Flounder Basket',pts:8},{team:'Wake Up Drunk Man',pts:5},
+      {team:'Team Extreme',pts:3},{team:'Wait This Isnt Eddies',pts:3},{team:'Mystery Inc',pts:3},
+      {team:'Baton Rouge Cindy',pts:3},{team:'Prawn Stars',pts:1}
+    ],
+    weeks: {
+      'Dec 9': [{rank:1,team:'Tres Veganos',score:53},{rank:2,team:'4 Stooges',score:47},{rank:3,team:'Prosecco Princesses',score:44},{rank:4,team:'Team Extreme',score:41},{rank:5,team:'Prawn Stars',score:39},{rank:6,team:'I Forgot My Wallet',score:32},{rank:7,team:"Diddy Didn't Do It",score:27}],
+      'Dec 16': [{rank:1,team:'Tres Veganos',score:46},{rank:2,team:'Prosecco Princesses',score:42},{rank:3,team:'Wake Up Drunk Man',score:38},{rank:4,team:'Mystery Inc',score:32},{rank:5,team:'Three Stooges',score:25},{rank:6,team:'Super Smart Amigos',score:23},{rank:7,team:"Wait This Isn't Eddies",score:21},{rank:8,team:'Gabriel Needs A Raise',score:11}],
+      'Dec 23': [{rank:1,team:'Cotton Headed Ninny Muggin',score:56},{rank:2,team:'Tres Veganos',score:55},{rank:3,team:'Super Smart Amigos',score:39},{rank:4,team:'Were All Trying...',score:37},{rank:5,team:'Real Wafers',score:33},{rank:6,team:'The Six Stooges',score:30},{rank:7,team:'Dos Elfos',score:30}],
+      'Jan 6': [{rank:1,team:'Tres Veganos',score:51},{rank:2,team:'Super Smart Amigos',score:35.5},{rank:3,team:'Illiterate',score:26.5},{rank:4,team:'Bunch Of Stooges',score:25.5},{rank:5,team:'El Jefe Y La Chingona',score:12},{rank:6,team:'Paisons',score:12},{rank:7,team:'We Tried',score:2},{rank:8,team:'Crispi Crew',score:2}],
+      'Jan 13': [{rank:1,team:'Tres Veganos',score:52},{rank:2,team:'Alaskan Flounder Basket',score:51},{rank:3,team:'Super Smart Amigos',score:46},{rank:4,team:'Baton Rouge Cindy',score:39},{rank:5,team:'Technically Tim',score:34},{rank:6,team:'I Forgot My Wallet',score:29},{rank:7,team:'Prosecco Princesses',score:17},{rank:8,team:'Birthday Broads',score:15}],
+      'Jan 20': [{rank:1,team:'Tres Veganos',score:31},{rank:2,team:'Super Smart Amigos',score:30},{rank:3,team:'Prosecco Princesses',score:21},{rank:4,team:'Gabriel Needs A Raise',score:1}],
+      'Jan 27': [{rank:1,team:'Tres Veganos',score:43},{rank:2,team:'Eddie And Mad Dog',score:36},{rank:3,team:'Tuesdays',score:35},{rank:4,team:'Jeopardy Losers Club',score:29},{rank:5,team:'Three Stooges',score:28},{rank:6,team:'Super Smart Amigos',score:27},{rank:7,team:'I Might Be Wrong',score:21},{rank:8,team:'I Forgot My Wallet',score:21}],
+      'Feb 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:38},{rank:3,team:'Moses Supposes',score:33},{rank:4,team:'The Hamsters',score:32},{rank:5,team:"Owen's Grandpa",score:25}],
+      'Feb 10': [{rank:1,team:'Tres Veganos',score:57},{rank:2,team:'Jon And Leck',score:44},{rank:3,team:'Super Smart Amigos',score:42},{rank:4,team:'Prosecco Princesses',score:38},{rank:5,team:'Stupid Cupids',score:34},{rank:6,team:'Marias',score:11}]
+    },
+    trendWeeks: ['Dec 9','Dec 16','Dec 23','Jan 6','Jan 13','Jan 20','Jan 27','Feb 3','Feb 10'],
+    trendTeams: [
+      {name:'Tres Veganos',color:'#4ac85c',data:[53,46,55,51,52,31,43,41,57]},
+      {name:'Super Smart Amigos',color:'#2e8a3c',data:[null,23,39,35.5,46,30,27,38,42]},
+      {name:'Prosecco Princesses',color:'#7aad84',data:[44,42,null,null,17,21,null,null,38]}
+    ]
+  },
+  2: {
+    stats: { events: 8, teams: 50, topTeam: 'Tres Veganos', topPts: 337.5, bestScore: 59, bestTeam: 'Thre Caballeros', bestWeek: 'Mar 24' },
+    leaderboard: [
+      {team:'Tres Veganos',pts:337.5},{team:'Super Smart Amigos',pts:329.5},{team:'Sloppy Joes',pts:171.5},
+      {team:'A Very Unbirthday (Bear)',pts:128},{team:'Tres Caballeros',pts:126},{team:'Gabriel Needs A Raise',pts:66},
+      {team:'Big Booty Bitches',pts:58},{team:'Jack Daniels',pts:50},{team:'Epstein Escapists',pts:44.5},
+      {team:'Are You Cyrious',pts:37},{team:'Golden Toe Bean',pts:36.5},{team:'Awesome Sauce',pts:34.5},
+      {team:'Gabriels Angels',pts:30},{team:'Sorry Val',pts:29},{team:'Better Late Than Pregnant',pts:28},
+      {team:'The Birthday Brigade',pts:27},{team:'2 Chicks 1 Dick',pts:25},{team:'I Forgot My Wallet',pts:23},
+      {team:'Questionable First Date',pts:22},{team:'The Yips',pts:20},{team:'Shit Heads',pts:17},
+      {team:'Underdawgs',pts:9},{team:'Sandra Dee',pts:7},{team:'The Kaczinskis',pts:6}
+    ],
+    weeks: {
+      'Feb 17': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:40},{rank:3,team:'A Very Unbirthday',score:39},{rank:4,team:'Sorry Val',score:29},{rank:5,team:'2 Chicks 1 Dick',score:25},{rank:6,team:'Underdawgs',score:9},{rank:7,team:'Sandra Dee',score:7},{rank:8,team:'The Kaczinskis',score:6}],
+      'Feb 24': [{rank:1,team:'Super Smart Amigos',score:53},{rank:2,team:'Tres Veganos',score:36},{rank:3,team:'Sloppy Joes',score:29},{rank:4,team:'Jack Daniels',score:24},{rank:5,team:'The Yips',score:20},{rank:6,team:'Gabriel Needs A Raise',score:19},{rank:7,team:'Shit Heads',score:17}],
+      'Mar 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Are You Cyrious',score:37},{rank:3,team:'Gabriels Angels',score:30},{rank:4,team:'Birthday Brigade',score:27},{rank:5,team:'Super Smart Amigos',score:25},{rank:6,team:'Tequila Mockingbird',score:15}],
+      'Mar 10': [{rank:1,team:'Big Booty Bitches',score:58},{rank:2,team:'Super Smart Amigos',score:51},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Chicken Wingin It',score:32},{rank:5,team:'Better Late Than Pregnant',score:28},{rank:6,team:'I Forgot My Wallet',score:23},{rank:7,team:'Questionable First Date',score:22}],
+      'Mar 17': [{rank:1,team:'Gucci',score:48},{rank:2,team:'Epstein Escapists',score:44.5},{rank:3,team:"O'tres Veganos",score:41.5},{rank:4,team:'Team Golden Toe Bean',score:36.5},{rank:5,team:'Awesome Sauce',score:34.5},{rank:6,team:'Super Smart Amigos',score:29},{rank:7,team:'Shamrock Shakers',score:28},{rank:8,team:'Sharkbait',score:26},{rank:9,team:'Blueyy',score:24},{rank:10,team:'Lettuce And Tomato',score:20.5}],
+      'Mar 24': [{rank:1,team:'Thre Caballeros',score:59},{rank:2,team:'Super Smart Amigos',score:50.5},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Know Nothings',score:44},{rank:5,team:'Hard R',score:25},{rank:6,team:'Quiztopher + Tierney',score:21},{rank:7,team:'Jerry Berry',score:20},{rank:8,team:'Chama',score:18},{rank:9,team:'Shark Bait',score:16},{rank:10,team:'Hannah Montana',score:15}],
+      'Mar 31': [{rank:1,team:'Gabriel Needs A Raise',score:47},{rank:2,team:'Tres Veganos',score:41},{rank:3,team:'Super Smart Amigos',score:38},{rank:4,team:'Fire And Brimstone',score:37},{rank:5,team:'Samirs Mom',score:34},{rank:6,team:'Two Caballeros',score:25},{rank:7,team:'Jumpin Jerry',score:20},{rank:8,team:'Ball N Chain',score:15},{rank:9,team:'El Grande Americano',score:13},{rank:10,team:'Choo-Choo',score:9}],
+      'Apr 7': [{rank:1,team:'Two 2 Tango',score:45},{rank:2,team:'Super Smart Amigos',score:43},{rank:3,team:'Tres Veganos',score:43},{rank:4,team:'3 Caballeros',score:42},{rank:5,team:'Quiz On My Face',score:30.5},{rank:6,team:'Team Cannoli',score:28},{rank:7,team:'Multiple Scoregasm',score:27.5}]
+    },
+    trendWeeks: ['Feb 17','Feb 24','Mar 3','Mar 10','Mar 17','Mar 24','Mar 31','Apr 7'],
+    trendTeams: [
+      {name:'Tres Veganos',color:'#4ac85c',data:[41,36,41,47,41.5,47,41,43]},
+      {name:'Super Smart Amigos',color:'#2e8a3c',data:[40,53,25,51,29,50.5,38,43]},
+      {name:'Sloppy Joes',color:'#7aad84',data:[null,29,15,32,28,20,20,null]}
+    ]
+  }
 };
 
-(function() {
-'use strict';
+let currentSeason = 2;
+let currentWeek = null;
+let chartInstance = null;
 
-if (!window.React || !window.ReactDOM) {
-  document.getElementById('err').style.display = 'block';
-  document.getElementById('err').textContent = 'React failed to load. Check your internet connection.';
-  return;
+function setSeason(s) {
+  currentSeason = s;
+  currentWeek = null;
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === s-1));
+  render();
 }
 
-var h = React.createElement;
-var useState = React.useState;
-var useEffect = React.useEffect;
-var useRef = React.useRef;
-var useMemo = React.useMemo;
-
-// ── Theme ────────────────────────────────────────────────────────
-var C = {
-  bg:'#080e1a', surface:'#0d1626', card:'#111d30', border:'#1a2d45',
-  accent:'#00c896', accentDim:'#0a3028', dim:'#1e2e42',
-  text:'#e8f0ff', muted:'#5a7090', amber:'#f0a040', red:'#e05060',
-  blue:'#38bdf8', purple:'#a78bfa', pink:'#fb7185', yellow:'#fbbf24'
-};
-var mono  = "'Courier New',monospace";
-var serif = "Georgia,serif";
-var sans  = "'Trebuchet MS',sans-serif";
-
-// ── Data ─────────────────────────────────────────────────────────
-var FIXED = 332, FREE_COST = 0.42;
-
-var CLUSTERS = [
-  {topic:'Stocks & Markets', src:'Polygon, Finnhub, FMP, FRED',  out:'Trade / watch / avoid',     color:C.accent},
-  {topic:'Sports Signals',   src:'ESPN, Rotowire, Odds API',     out:'Bet / DFS lineup / parlay', color:C.amber},
-  {topic:'Crypto',           src:'CoinGecko, Glassnode',         out:'Buy / sell / hold',         color:C.purple},
-  {topic:'Macro & Policy',   src:'FRED, Reuters, FT RSS',        out:'Portfolio hedge / biz call',color:C.blue},
-  {topic:'Company News',     src:'RSS + LLM extraction',         out:'Long / short / risk',       color:C.pink},
-  {topic:'Local News',       src:'User-configured RSS',          out:'Property / biz / civic',    color:C.yellow}
-];
-
-var COMPS = [
-  {name:'Morning Brew',       cat:'Newsletter',     price:'Free / $10+',   gap:'Generic, no audio or signals'},
-  {name:'Motley Fool',        cat:'Finance',        price:'$99/yr',        gap:'Picks only, not personalized'},
-  {name:'Action Network',     cat:'Sports Betting', price:'$8–$20/mo',     gap:'Sports only, no portfolio layer'},
-  {name:'Bloomberg Terminal', cat:'Finance',        price:'$2,000+/mo',    gap:'Enterprise, no personalization'},
-  {name:'Robinhood Snacks',   cat:'Finance',        price:'Free',          gap:'Shallow, no custom signals'}
-];
-
-var PROJ = [
-  {m:'M1',  free:50,   paid:0,   mrr:0,    cost:278,  pl:-278},
-  {m:'M2',  free:120,  paid:3,   mrr:45,   cost:332,  pl:-287},
-  {m:'M3',  free:250,  paid:8,   mrr:120,  cost:403,  pl:-283},
-  {m:'M4',  free:400,  paid:18,  mrr:270,  cost:484,  pl:-214},
-  {m:'M5',  free:500,  paid:28,  mrr:420,  cost:622,  pl:-202},
-  {m:'M6',  free:600,  paid:42,  mrr:630,  cost:688,  pl:-58},
-  {m:'M7',  free:700,  paid:60,  mrr:900,  cost:762,  pl:138},
-  {m:'M8',  free:900,  paid:82,  mrr:1230, cost:860,  pl:370},
-  {m:'M9',  free:1100, paid:108, mrr:1620, cost:966,  pl:654},
-  {m:'M10', free:1400, paid:140, mrr:2100, cost:1103, pl:997},
-  {m:'M11', free:1700, paid:178, mrr:2670, cost:1274, pl:1396},
-  {m:'M12', free:2000, paid:220, mrr:3300, cost:1458, pl:1842}
-];
-
-var PHASES = [
-  {id:'P0', label:'Foundation', time:'Complete \u2713', color:C.accent, items:[
-    {done:true,  t:'Python pipeline — extractor, analyst, scorer'},
-    {done:true,  t:'Supabase backend — auth, storage, DB'},
-    {done:true,  t:'Financial APIs (Polygon, Finnhub, FMP, FRED, Tiingo)'},
-    {done:true,  t:'THETAWIRE_BRAIN.md heuristic + self-learning loop'},
-    {done:true,  t:'Alpaca paper trading + scorer feedback loop'},
-    {done:true,  t:'Confluence scoring — dark pool, options, insider, congress'},
-    {done:false, t:'ElevenLabs TTS wired in with intro/outro stitching'}
-  ]},
-  {id:'P1', label:'V1 Launch', time:'Weeks 1\u20136', color:C.blue, items:[
-    {done:false, t:'Scheduler \u2192 GitHub Actions cron'},
-    {done:false, t:'Landing page — Vercel, email signup, sample brief'},
-    {done:false, t:'Supabase Auth + onboarding — tickers + topics'},
-    {done:false, t:'Podcast LLM prompt — cold open, transitions, sign-off'},
-    {done:false, t:'pydub intro/outro audio stitching'},
-    {done:false, t:'Daily email delivery via Resend'},
-    {done:false, t:'Stripe checkout — Free vs Premium $15/mo'},
-    {done:false, t:'Pipeline on Railway — 5:30am daily run'}
-  ]},
-  {id:'P2', label:'Multi-Topic', time:'Weeks 7\u201312', color:C.amber, items:[
-    {done:false, t:'The Odds API — NFL, NBA, MLB, NHL lines'},
-    {done:false, t:'Rotowire RSS — injuries, lineups, weather'},
-    {done:false, t:'Sports confluence scorer'},
-    {done:false, t:'Expand interest profile — teams, leagues, bet types'},
-    {done:false, t:'Interest clustering — shared pipeline runs'},
-    {done:false, t:'Brief history page — 30 days'},
-    {done:false, t:'A/B test brief length — 4-min vs 8-min'}
-  ]},
-  {id:'P3', label:'Retention', time:'Months 4\u20136', color:C.purple, items:[
-    {done:false, t:'Prediction outcome scoring — calls vs results'},
-    {done:false, t:'Accuracy stats dashboard for users'},
-    {done:false, t:'Referral program — 1 month free per referral'},
-    {done:false, t:'Saturday weekly deep-dive audio edition'},
-    {done:false, t:'Crypto cluster — CoinGecko + Glassnode'},
-    {done:false, t:'Mobile-first PWA'}
-  ]},
-  {id:'P4', label:'Scale', time:'Months 7\u201312', color:C.pink, items:[
-    {done:false, t:'Product Hunt launch'},
-    {done:false, t:'Paid Twitter/X + Reddit ads — $200\u2013500/mo'},
-    {done:false, t:'Higher tier — $25/mo deep signal access'},
-    {done:false, t:'SEO content — 2\u20134 articles/month'},
-    {done:false, t:'Prefect Cloud for orchestration'},
-    {done:false, t:'Evaluate native iOS/Android vs PWA'}
-  ]}
-];
-
-var CHECKS = [
-  {id:'pipeline', t:'Pipeline runs daily without intervention',     d:'7 consecutive days, zero manual restarts'},
-  {id:'quality',  t:"Brief quality is something you'd pay for",     d:'Listen to 10 consecutive briefs and feel informed'},
-  {id:'landing',  t:'Landing page converts cold visitors',          d:'At least 15% email signup rate from test traffic'},
-  {id:'audio',    t:'Audio sounds like a podcast, not a robot',     d:'3 people listen \u2014 none mention the voice quality'},
-  {id:'stripe',   t:'Stripe checkout works end-to-end',             d:'A real card completes a transaction successfully'},
-  {id:'beta',     t:'10 beta users received briefs for 14 days',    d:'Zero failures, feedback from at least 5 users'}
-];
-
-// ── SVG Charts ───────────────────────────────────────────────────
-
-function mkTicks(minV, maxV) {
-  var range = maxV - minV || 1;
-  var mag = Math.pow(10, Math.floor(Math.log10(range / 4)));
-  var step = Math.ceil((range / 4) / mag) * mag;
-  if (step === 0) step = 1;
-  var ticks = [];
-  var start = Math.ceil(minV / step) * step;
-  for (var v = start; v <= maxV + step * 0.01; v += step) {
-    ticks.push(Math.round(v));
-  }
-  return ticks;
+function render() {
+  const d = DATA[currentSeason];
+  renderStats(d.stats);
+  renderLeaderboard(d.leaderboard);
+  const firstWeek = Object.keys(d.weeks)[0];
+  if (!currentWeek) currentWeek = firstWeek;
+  renderWeekSelector(d);
+  renderWeekly(d.weeks[currentWeek], currentWeek);
+  renderTrend(d);
 }
 
-function fmtY(v) {
-  if (v >= 1000) return '$' + (v/1000) + 'k';
-  if (v <= -1000) return '-$' + (Math.abs(v)/1000) + 'k';
-  return '$' + v;
+function renderStats(s) {
+  document.getElementById('stat-row').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Nights Hosted</div><div class="stat-value">${s.events}</div><div class="stat-sub">trivia events</div></div>
+    <div class="stat-card"><div class="stat-label">Unique Teams</div><div class="stat-value">${s.teams}</div><div class="stat-sub">season participants</div></div>
+    <div class="stat-card"><div class="stat-label">Season Leader</div><div class="stat-value" style="font-size:15px;line-height:1.3;">${s.topTeam}</div><div class="stat-sub">${s.topPts} championship pts</div></div>
+    <div class="stat-card"><div class="stat-label">Top Score</div><div class="stat-value">${s.bestScore}</div><div class="stat-sub">${s.bestTeam} &middot; ${s.bestWeek}</div></div>
+  `;
 }
 
-function LineChart(props) {
-  var data = props.data, series = props.series, height = props.height || 180;
-  var W = 300, H = height, pL = 46, pR = 8, pT = 8, pB = 22;
-  var cW = W - pL - pR, cH = H - pT - pB, n = data.length;
-  var allV = [];
-  series.forEach(function(s) { data.forEach(function(d) { allV.push(d[s.key]); }); });
-  var minV = Math.min.apply(null, [0].concat(allV));
-  var maxV = Math.max.apply(null, allV);
-  var range = maxV - minV || 1;
-  function px(i) { return pL + (i / (n - 1)) * cW; }
-  function py(v) { return pT + cH - ((v - minV) / range) * cH; }
-  var ticks = mkTicks(minV, maxV);
-  var skip = Math.ceil(n / 6);
-  var children = [];
-  ticks.forEach(function(v) {
-    children.push(h('line', {key:'g'+v, x1:pL, x2:W-pR, y1:py(v), y2:py(v), stroke:C.dim, strokeWidth:.5, strokeDasharray:'3 3'}));
-    children.push(h('text', {key:'t'+v, x:pL-4, y:py(v)+4, textAnchor:'end', fontSize:9, fill:C.muted, fontFamily:mono}, fmtY(v)));
-  });
-  if (minV < 0) {
-    children.push(h('line', {key:'zero', x1:pL, x2:W-pR, y1:py(0), y2:py(0), stroke:C.muted, strokeWidth:1, strokeDasharray:'4 3'}));
-  }
-  data.forEach(function(d, i) {
-    if (i % skip === 0) {
-      children.push(h('text', {key:'x'+i, x:px(i), y:H-2, textAnchor:'middle', fontSize:9, fill:C.muted, fontFamily:sans}, d.m || ''));
-    }
-  });
-  series.forEach(function(s) {
-    var pts = data.map(function(d,i) { return px(i)+','+py(d[s.key]); }).join(' ');
-    children.push(h('polyline', {key:'l'+s.key, points:pts, fill:'none', stroke:s.color, strokeWidth:2, strokeLinecap:'round', strokeLinejoin:'round', strokeDasharray:s.dashed?'6 3':null}));
-    children.push(h('circle', {key:'d'+s.key, cx:px(n-1), cy:py(data[n-1][s.key]), r:3, fill:s.color}));
-  });
-  return h('svg', {viewBox:'0 0 '+W+' '+H, width:'100%', height:height, style:{display:'block',overflow:'visible'}}, children);
+function renderLeaderboard(lb) {
+  const maxPts = lb[0].pts;
+  const medals = ['🥇','🥈','🥉'];
+  document.getElementById('leaderboard-panel').innerHTML = lb.map((r,i) => {
+    const pct = Math.round((r.pts / maxPts) * 100);
+    const rankCls = i < 3 ? `rank-${i+1}` : 'rank-other';
+    return `<div class="lb-row">
+      <span class="lb-rank ${rankCls}">${i+1}</span>
+      <span class="lb-medal">${medals[i] || ''}</span>
+      <span class="lb-team">${r.team}</span>
+      <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${pct}%"></div></div></div>
+      <span class="lb-pts">${r.pts}</span>
+    </div>`;
+  }).join('');
 }
 
-function BarChart(props) {
-  var data = props.data, yKey = props.yKey, colorFn = props.colorFn, height = props.height || 180;
-  var W = 300, H = height, pL = 46, pR = 8, pT = 8, pB = 22;
-  var cW = W - pL - pR, cH = H - pT - pB, n = data.length;
-  var allV = data.map(function(d) { return d[yKey]; });
-  var minV = Math.min.apply(null, [0].concat(allV));
-  var maxV = Math.max.apply(null, allV);
-  var range = maxV - minV || 1;
-  function py(v) { return pT + cH - ((v - minV) / range) * cH; }
-  var zero = py(0);
-  var barW = (cW / n) * 0.6;
-  var ticks = mkTicks(minV, maxV);
-  var skip = Math.ceil(n / 6);
-  var children = [];
-  ticks.forEach(function(v) {
-    children.push(h('line', {key:'g'+v, x1:pL, x2:W-pR, y1:py(v), y2:py(v), stroke:C.dim, strokeWidth:.5, strokeDasharray:'3 3'}));
-    children.push(h('text', {key:'t'+v, x:pL-4, y:py(v)+4, textAnchor:'end', fontSize:9, fill:C.muted, fontFamily:mono}, fmtY(v)));
-  });
-  children.push(h('line', {key:'zero', x1:pL, x2:W-pR, y1:zero, y2:zero, stroke:C.muted, strokeWidth:1}));
-  data.forEach(function(d, i) {
-    var v = d[yKey];
-    var bx = pL + (i / n) * cW + (cW / n - barW) / 2;
-    var by = v >= 0 ? py(v) : zero;
-    var bh = Math.max(Math.abs(py(v) - zero), 1);
-    children.push(h('rect', {key:'b'+i, x:bx, y:by, width:barW, height:bh, fill:colorFn(v), rx:2}));
-    if (i % skip === 0) {
-      children.push(h('text', {key:'x'+i, x:pL+(i/n)*cW+(cW/n)/2, y:H-2, textAnchor:'middle', fontSize:9, fill:C.muted, fontFamily:sans}, d.m || ''));
-    }
-  });
-  return h('svg', {viewBox:'0 0 '+W+' '+H, width:'100%', height:height, style:{display:'block',overflow:'visible'}}, children);
+function renderWeekSelector(d) {
+  document.getElementById('week-selector').innerHTML = Object.keys(d.weeks).map(w =>
+    `<button class="wk-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w}</button>`
+  ).join('');
 }
 
-function StackedBar(props) {
-  var data = props.data, height = props.height || 180;
-  var W = 300, H = height, pL = 46, pR = 8, pT = 8, pB = 22;
-  var cW = W - pL - pR, cH = H - pT - pB, n = data.length;
-  var maxV = Math.max.apply(null, data.map(function(d) { return d.free + d.paid; }));
-  function py(v) { return pT + cH - (v / maxV) * cH; }
-  var barW = (cW / n) * 0.6;
-  var skip = Math.ceil(n / 6);
-  var ticks = [0, Math.round(maxV * 0.5 / 100) * 100, maxV];
-  var children = [];
-  ticks.forEach(function(v) {
-    children.push(h('line', {key:'g'+v, x1:pL, x2:W-pR, y1:py(v), y2:py(v), stroke:C.dim, strokeWidth:.5, strokeDasharray:'3 3'}));
-    children.push(h('text', {key:'t'+v, x:pL-4, y:py(v)+4, textAnchor:'end', fontSize:9, fill:C.muted, fontFamily:mono}, v >= 1000 ? (v/1000)+'k' : String(v)}));
-  });
-  data.forEach(function(d, i) {
-    var bx = pL + (i / n) * cW + (cW / n - barW) / 2;
-    var fH = (d.free / maxV) * cH;
-    var pH = (d.paid / maxV) * cH;
-    children.push(h('rect', {key:'f'+i, x:bx, y:pT+cH-fH-pH, width:barW, height:fH, fill:C.dim}));
-    children.push(h('rect', {key:'p'+i, x:bx, y:pT+cH-pH, width:barW, height:Math.max(pH,1), fill:C.accent, rx:2}));
-    if (i % skip === 0) {
-      children.push(h('text', {key:'x'+i, x:pL+(i/n)*cW+(cW/n)/2, y:H-2, textAnchor:'middle', fontSize:9, fill:C.muted, fontFamily:sans}, d.m || ''));
-    }
-  });
-  return h('svg', {viewBox:'0 0 '+W+' '+H, width:'100%', height:height, style:{display:'block',overflow:'visible'}}, children);
+function selectWeek(w) {
+  currentWeek = w;
+  document.querySelectorAll('.wk-btn').forEach(b => b.classList.toggle('active', b.textContent === w));
+  renderWeekly(DATA[currentSeason].weeks[w], w);
 }
 
-// ── UI Helpers ───────────────────────────────────────────────────
-
-function card(extra) {
-  return Object.assign({background:C.card, border:'1px solid '+C.border, borderRadius:10, padding:'14px 16px'}, extra || {});
+function renderWeekly(teams, week) {
+  if (!teams) return;
+  const maxScore = Math.max(...teams.map(t => t.score));
+  const rbCls = r => r===1?'rb-1':r===2?'rb-2':r===3?'rb-3':'rb-o';
+  const sCls = s => s >= maxScore*0.85 ? 'score-high' : s >= maxScore*0.6 ? 'score-mid' : 'score-low';
+  document.getElementById('weekly-panel').innerHTML = `
+    <table class="week-table">
+      <thead><tr><th>Rank</th><th>Team</th><th style="text-align:right">Score</th></tr></thead>
+      <tbody>${teams.map(t=>`<tr>
+        <td><span class="rank-badge ${rbCls(t.rank)}">${t.rank}</span></td>
+        <td style="color:var(--text)">${t.team}</td>
+        <td class="${sCls(t.score)}" style="text-align:right">${t.score}</td>
+      </tr>`).join('')}</tbody>
+    </table>`;
 }
 
-function Stat(props) {
-  return h('div', {style:{background:C.card,border:'1px solid '+C.border,borderRadius:8,padding:'12px 14px',borderTop:'2px solid '+(props.color||C.accent)}},
-    h('div', {style:{fontFamily:sans,fontSize:10,color:C.muted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:5}}, props.label),
-    h('div', {style:{fontFamily:mono,fontSize:20,fontWeight:700,color:props.color||C.accent}}, props.value),
-    props.sub ? h('div', {style:{fontFamily:sans,fontSize:10,color:C.muted,marginTop:3}}, props.sub) : null
-  );
-}
+function renderTrend(d) {
+  document.getElementById('trend-subtitle').textContent = `Top 3 teams · ${d.trendWeeks.length} weeks`;
+  document.getElementById('trend-legend').innerHTML = d.trendTeams.map(t =>
+    `<span class="legend-item"><span class="legend-line" style="background:${t.color}"></span>${t.name}</span>`
+  ).join('');
 
-function STitle(props) {
-  return h('div', {style:{marginBottom:14}},
-    h('div', {style:{display:'flex',alignItems:'center',gap:8,marginBottom:3}},
-      h('div', {style:{width:3,height:18,background:C.accent,borderRadius:2}}),
-      h('h2', {style:{fontFamily:serif,fontSize:18,fontWeight:400,color:C.text,margin:0}}, props.title)
-    ),
-    props.sub ? h('div', {style:{fontSize:12,color:C.muted,paddingLeft:11}}, props.sub) : null
-  );
-}
+  const canvas = document.getElementById('trendChart');
+  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
 
-function Slider(props) {
-  return h('div', {style:{marginBottom:14}},
-    h('div', {style:{display:'flex',justifyContent:'space-between',marginBottom:4}},
-      h('span', {style:{fontSize:12,color:C.muted}}, props.label),
-      h('span', {style:{fontFamily:mono,fontSize:13,color:C.accent,fontWeight:700}}, props.fmt(props.value))
-    ),
-    h('input', {type:'range', min:props.min, max:props.max, step:props.step, value:props.value, onChange:function(e){props.onChange(+e.target.value)}})
-  );
-}
-
-function ScrollTable(props) {
-  return h('div', {style:{overflowX:'auto',WebkitOverflowScrolling:'touch',margin:'0 -16px',padding:'0 16px'}},
-    h('table', {style:{minWidth:320}},
-      h('thead', null, h('tr', null, props.headers.map(function(hdr, i) {
-        return h('th', {key:i, style:{fontFamily:sans,fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.07em',padding:'8px 10px',borderBottom:'1px solid '+C.border,textAlign:'left',whiteSpace:'nowrap'}}, hdr);
-      }))),
-      h('tbody', null, props.rows.map(function(row, ri) {
-        return h('tr', {key:ri, style:{background:ri%2===0?C.surface:'transparent'}},
-          row.map(function(cell, ci) {
-            var txt = (cell && cell.text !== undefined) ? cell.text : cell;
-            var col = (cell && cell.color) ? cell.color : C.text;
-            var ff  = (cell && cell.mono) ? mono : sans;
-            var fw  = (cell && cell.bold) ? 600 : 400;
-            return h('td', {key:ci, style:{fontSize:13,color:col,padding:'9px 10px',borderBottom:'1px solid '+C.dim,fontFamily:ff,fontWeight:fw,whiteSpace:ci<2?'nowrap':undefined}}, txt);
-          })
-        );
+  chartInstance = new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: d.trendWeeks,
+      datasets: d.trendTeams.map(t => ({
+        label: t.name,
+        data: t.data,
+        borderColor: t.color,
+        backgroundColor: t.color + '20',
+        borderWidth: 2,
+        pointBackgroundColor: t.color,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.3,
+        spanGaps: true
       }))
-    )
-  );
-}
-
-function Legend(props) {
-  return h('div', {style:{display:'flex',gap:16,fontSize:11,color:C.muted,margin:'8px 0 16px'}},
-    props.items.map(function(item) {
-      return h('span', {key:item.label, style:{display:'flex',alignItems:'center',gap:5}},
-        h('span', {style:{width:item.bar?14:16,height:item.bar?8:2,background:item.color,display:'inline-block',borderRadius:item.bar?2:0}}),
-        item.label
-      );
-    })
-  );
-}
-
-// ── Overview ─────────────────────────────────────────────────────
-
-function Overview() {
-  return h('div', null,
-    h('div', {style:{marginBottom:24}},
-      h('div', {style:{fontFamily:serif,fontSize:32,color:C.text,lineHeight:1.1}}, 'ThetaWire'),
-      h('div', {style:{fontFamily:sans,fontSize:13,color:C.accent,fontStyle:'italic',margin:'4px 0 10px'}}, 'Every Morning. Every Edge.'),
-      h('div', {style:{fontSize:13,color:C.muted,lineHeight:1.7}}, 'Personalized daily podcast briefings — finance, sports betting signals, crypto, macro & local news. Signal scoring, not noise aggregation.')
-    ),
-    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}},
-      h(Stat, {label:'Launch Price', value:'$15/mo', sub:'Premium tier'}),
-      h(Stat, {label:'Break-even', value:'~55 users', sub:'Paid subscribers', color:C.amber}),
-      h(Stat, {label:'Month 12 MRR', value:'$3,300', sub:'Conservative model', color:C.blue}),
-      h(Stat, {label:'Cash-flow+', value:'Month 7', sub:'Base growth rate', color:C.purple})
-    ),
-    h('div', {style:{height:20}}),
-    h(STitle, {title:'Topic Clusters', sub:'Every category drives a downstream action'}),
-    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}},
-      CLUSTERS.map(function(c) {
-        return h('div', {key:c.topic, style:card({borderLeft:'3px solid '+c.color})},
-          h('div', {style:{fontSize:12,fontWeight:600,color:C.text,marginBottom:3}}, c.topic),
-          h('div', {style:{fontSize:10,color:C.muted,marginBottom:4}}, c.src),
-          h('div', {style:{fontSize:11,color:c.color,fontStyle:'italic'}}, c.out)
-        );
-      })
-    ),
-    h('div', {style:{height:20}}),
-    h(STitle, {title:'Free vs Premium'}),
-    h(ScrollTable, {
-      headers: ['Feature', 'Free', '$15/mo'],
-      rows: [
-        [{text:'Daily text brief'}, {text:'3 topics'}, {text:'Unlimited', color:C.accent}],
-        [{text:'Tickers / teams'}, {text:'3\u20135', color:C.muted}, {text:'Unlimited', color:C.accent}],
-        [{text:'Confluence detail'}, {text:'H/M/L only', color:C.muted}, {text:'Full breakdown', color:C.accent}],
-        [{text:'Audio podcast'}, {text:'\u2014', color:C.dim, mono:true}, {text:'Daily + weekly', color:C.accent}],
-        [{text:'Sports betting'}, {text:'\u2014', color:C.dim, mono:true}, {text:'Full scoring', color:C.accent}],
-        [{text:'Brief history'}, {text:'7 days', color:C.muted}, {text:'Full archive', color:C.accent}]
-      ]
-    })
-  );
-}
-
-// ── Market ───────────────────────────────────────────────────────
-
-function Market() {
-  return h('div', null,
-    h(STitle, {title:'Total Addressable Market'}),
-    h('div', {style:{display:'grid',gap:10,marginBottom:20}},
-      [{label:'Financial Newsletter & Intel', value:'$3.1B', note:'8% CAGR', color:C.accent},
-       {label:'Sports Betting Analytics/DFS',  value:'$2.5B', note:'US market post-legalization', color:C.amber},
-       {label:'Audio & Podcast Subscriptions', value:'$4.0B', note:'13% CAGR', color:C.purple}]
-      .map(function(m) {
-        return h('div', {key:m.label, style:card({display:'flex',alignItems:'center',gap:14,borderLeft:'3px solid '+m.color})},
-          h('div', {style:{fontFamily:mono,fontSize:22,color:m.color,minWidth:60}}, m.value),
-          h('div', null,
-            h('div', {style:{fontSize:13,color:C.text}}, m.label),
-            h('div', {style:{fontSize:11,color:C.muted}}, m.note)
-          )
-        );
-      })
-    ),
-    h(STitle, {title:'Competitive Landscape'}),
-    h(ScrollTable, {
-      headers: ['Competitor', 'Category', 'Price', 'Gap ThetaWire Exploits'],
-      rows: COMPS.map(function(c) {
-        return [{text:c.name,bold:true}, {text:c.cat,color:C.muted}, {text:c.price,color:C.amber,mono:true}, {text:c.gap,color:C.accent}];
-      })
-    }),
-    h('div', {style:{height:20}}),
-    h(STitle, {title:'Customer Profiles'}),
-    h('div', {style:{display:'grid',gap:10}},
-      [{label:'Primary', name:'Retail Investor + Sports Fan', age:'25\u201345', desc:'Tracks 5\u201320 stocks, watches sports seriously. Pays for newsletters. Listens during commute.', wtp:'$12\u201318/mo', color:C.accent},
-       {label:'Secondary', name:'Sports Bettor Who Invests', age:'22\u201338', desc:'DFS, sports betting, and a brokerage account. High WTP for proven signals.', wtp:'$15\u201322/mo', color:C.amber},
-       {label:'Tertiary', name:'Busy Professional', age:'30\u201350', desc:'Holds a 401k, wants to feel informed without 45 minutes of reading.', wtp:'$10\u201315/mo', color:C.purple}]
-      .map(function(p) {
-        return h('div', {key:p.label, style:card({borderTop:'2px solid '+p.color})},
-          h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}},
-            h('div', null,
-              h('div', {style:{fontSize:10,color:p.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, p.label),
-              h('div', {style:{fontSize:14,fontWeight:600,color:C.text,marginTop:2}}, p.name),
-              h('div', {style:{fontSize:11,color:C.muted}}, 'Age ' + p.age)
-            ),
-            h('div', {style:{background:p.color+'22',border:'1px solid '+p.color+'55',borderRadius:6,padding:'4px 10px',fontSize:11,color:p.color,fontFamily:mono,whiteSpace:'nowrap'}}, p.wtp)
-          ),
-          h('div', {style:{fontSize:12,color:C.muted,lineHeight:1.6}}, p.desc)
-        );
-      })
-    ),
-    h('div', {style:{height:20}}),
-    h(STitle, {title:'Marketing Phases'}),
-    h('div', {style:{display:'grid',gap:10}},
-      [{phase:'Phase 1',label:'Beta Launch',time:'Months 1\u20133',color:C.accent,
-        items:['Waitlist landing page + email capture','Twitter/X: post one public signal daily','Reddit: r/investing, r/sportsbetting, r/DraftKings','30-day free premium trial for first 100','Target: 200\u2013400 free users']},
-       {phase:'Phase 2',label:'Paid Conversion',time:'Months 4\u20136',color:C.blue,
-        items:['Email sequence D7/D14/D30 \u2014 missed signals','Audio player paywall with Upgrade CTA','Referral: 1 month free per referred paid user','Affiliate outreach to finance/sports YouTube','Target: 15\u201340 paid users']},
-       {phase:'Phase 3',label:'Growth',time:'Months 7\u201312',color:C.amber,
-        items:['Paid social: Twitter/X + Reddit $200\u2013500/mo','SEO: personalized brief, sports intel 2025','Product Hunt launch','Podcast guest spots / sponsorships','Target: 200\u2013300 paid users']}]
-      .map(function(p) {
-        return h('div', {key:p.phase, style:card({borderLeft:'3px solid '+p.color})},
-          h('div', {style:{fontSize:10,color:p.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, p.phase + ' \u2014 ' + p.time),
-          h('div', {style:{fontSize:14,fontWeight:600,color:C.text,margin:'3px 0 10px'}}, p.label),
-          p.items.map(function(it) {
-            return h('div', {key:it, style:{display:'flex',gap:8,marginBottom:5}},
-              h('span', {style:{color:p.color,fontSize:13,flexShrink:0}}, '\u203a'),
-              h('span', {style:{fontSize:12,color:C.muted,lineHeight:1.5}}, it)
-            );
-          })
-        );
-      })
-    )
-  );
-}
-
-// ── Financials ───────────────────────────────────────────────────
-
-function Financials() {
-  var s0 = useState(15); var price = s0[0]; var setPrice = s0[1];
-  var s1 = useState(500); var freeU = s1[0]; var setFreeU = s1[1];
-  var s2 = useState(5); var conv = s2[0]; var setConv = s2[1];
-  var s3 = useState(5); var churn = s3[0]; var setChurn = s3[1];
-  var s4 = useState(4.5); var tts = s4[0]; var setTts = s4[1];
-  var s5 = useState(0.5); var llm = s5[0]; var setLlm = s5[1];
-
-  var vc = +(tts + llm + 0.2).toFixed(2);
-  var margin = +(price - vc).toFixed(2);
-  var overhead = FIXED + freeU * FREE_COST;
-  var be = margin > 0 ? Math.ceil(overhead / margin) : null;
-  var ltv = churn > 0 ? Math.round(margin / (churn / 100)) : 0;
-  var pctM = margin > 0 ? ((margin / price) * 100).toFixed(0) : '0';
-
-  var chartData = [10,25,50,100,200,300,500,750,1000].map(function(u) {
-    return {m: u >= 1000 ? (u/1000)+'k' : String(u), rev: u * price, cost: Math.round(FIXED + u * vc + freeU * FREE_COST)};
-  });
-
-  return h('div', null,
-    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}},
-      h(Stat, {label:'Break-even', value:be===null?'\u221e':be, sub:'paid users', color:be===null?C.red:be<100?C.accent:be<300?C.amber:C.red}),
-      h(Stat, {label:'Unit Margin', value:pctM+'%', sub:'$'+margin+'/user', color:margin>5?C.accent:C.red}),
-      h(Stat, {label:'Paid from Free', value:Math.round(freeU*(conv/100)), sub:'At '+conv+'% conv', color:C.blue}),
-      h(Stat, {label:'LTV', value:'$'+ltv, sub:'At '+churn+'% churn', color:C.purple})
-    ),
-    h('div', {style:card({marginBottom:12})},
-      h('div', {style:{fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:14}}, 'Pricing & Scale'),
-      h(Slider, {label:'Price / month', value:price, min:8, max:25, step:1, fmt:function(v){return '$'+v+'/mo';}, onChange:setPrice}),
-      h(Slider, {label:'Free users', value:freeU, min:0, max:5000, step:50, fmt:function(v){return v.toLocaleString();}, onChange:setFreeU}),
-      h(Slider, {label:'Free \u2192 paid %', value:conv, min:1, max:20, step:1, fmt:function(v){return v+'%';}, onChange:setConv}),
-      h(Slider, {label:'Monthly churn', value:churn, min:1, max:15, step:1, fmt:function(v){return v+'%';}, onChange:setChurn})
-    ),
-    h('div', {style:card({marginBottom:16})},
-      h('div', {style:{fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:14}}, 'Variable Cost / Premium User'),
-      h(Slider, {label:'TTS (ElevenLabs)', value:tts, min:0.5, max:12, step:0.5, fmt:function(v){return '$'+v.toFixed(2);}, onChange:setTts}),
-      h(Slider, {label:'LLM (Claude API)', value:llm, min:0.1, max:3, step:0.1, fmt:function(v){return '$'+v.toFixed(2);}, onChange:setLlm}),
-      h('div', {style:{borderTop:'1px solid '+C.border,paddingTop:12,marginTop:4}},
-        h('div', {style:{display:'flex',justifyContent:'space-between',marginBottom:4}},
-          h('span', {style:{fontSize:12,color:C.muted}}, 'Storage + delivery'),
-          h('span', {style:{fontFamily:mono,fontSize:12,color:C.muted}}, '$0.20')
-        ),
-        h('div', {style:{display:'flex',justifyContent:'space-between'}},
-          h('span', {style:{fontSize:13,fontWeight:600,color:C.text}}, 'Total variable / user'),
-          h('span', {style:{fontFamily:mono,fontSize:15,color:C.accent,fontWeight:700}}, '$'+vc)
-        )
-      )
-    ),
-    h(STitle, {title:'Revenue vs Cost'}),
-    h(LineChart, {data:chartData, height:175, series:[{key:'rev',color:C.accent},{key:'cost',color:C.red,dashed:true}]}),
-    h(Legend, {items:[{label:'Revenue',color:C.accent},{label:'Total Cost',color:C.red}]}),
-    h(STitle, {title:'Break-even by Price Point', sub:'Tap a row to set active price'}),
-    h('div', {style:{overflowX:'auto',WebkitOverflowScrolling:'touch',margin:'0 -16px',padding:'0 16px'}},
-      h('table', {style:{minWidth:310}},
-        h('thead', null, h('tr', null,
-          ['Price','Margin','Margin %','Break-even'].map(function(hdr) {
-            return h('th', {key:hdr, style:{fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.07em',padding:'8px 10px',borderBottom:'1px solid '+C.border,textAlign:'center'}}, hdr);
-          })
-        )),
-        h('tbody', null, [10,12,15,18,22].map(function(p, i) {
-          var cm = +(p - vc).toFixed(2);
-          var bep = cm > 0 ? Math.ceil(overhead / cm) : '\u221e';
-          var sel = p === price;
-          var beColor = typeof bep === 'number' ? (bep < 100 ? C.accent : bep < 300 ? C.amber : C.red) : C.red;
-          return h('tr', {key:p, style:{background:sel?C.accentDim:i%2===0?C.surface:'transparent',cursor:'pointer'}, onClick:function(){setPrice(p);}},
-            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',fontFamily:mono,color:sel?C.accent:C.text,fontWeight:sel?700:400}}, '$'+p),
-            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',fontFamily:mono,color:cm>0?C.accent:C.red}}, '$'+cm),
-            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',color:C.muted}}, ((cm/p)*100).toFixed(0)+'%'),
-            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',fontFamily:mono,fontWeight:600,color:beColor}}, bep)
-          );
-        }))
-      )
-    ),
-    h('div', {style:{height:20}}),
-    h(STitle, {title:'Fixed Cost Stack'}),
-    h(ScrollTable, {
-      headers: ['Service', 'Plan', '$/mo'],
-      rows: [
-        [{text:'Polygon.io',bold:true},{text:'Developer',color:C.muted},{text:'$79',color:C.amber,mono:true}],
-        [{text:'Finnhub',bold:true},{text:'Professional',color:C.muted},{text:'$50',color:C.amber,mono:true}],
-        [{text:'FMP',bold:true},{text:'Professional',color:C.muted},{text:'$49',color:C.amber,mono:true}],
-        [{text:'Tiingo',bold:true},{text:'Power',color:C.muted},{text:'$10',color:C.amber,mono:true}],
-        [{text:'FRED',bold:true},{text:'Free',color:C.muted},{text:'$0',color:C.muted,mono:true}],
-        [{text:'The Odds API',bold:true},{text:'Basic',color:C.muted},{text:'$0\u201350',color:C.amber,mono:true}],
-        [{text:'Supabase',bold:true},{text:'Pro',color:C.muted},{text:'$25',color:C.amber,mono:true}],
-        [{text:'Railway',bold:true},{text:'Starter',color:C.muted},{text:'$15',color:C.amber,mono:true}],
-        [{text:'ElevenLabs',bold:true},{text:'Creator\u2192Pro',color:C.muted},{text:'$22\u201399',color:C.amber,mono:true}],
-        [{text:'Domain + email',bold:true},{text:'Misc',color:C.muted},{text:'$5',color:C.amber,mono:true}],
-        [{text:'Total Fixed',bold:true,color:C.accent},{text:'',color:C.muted},{text:'$332/mo',color:C.accent,mono:true,bold:true}]
-      ]
-    })
-  );
-}
-
-// ── Projections ──────────────────────────────────────────────────
-
-function Projections() {
-  var sv = useState('mrr'); var view = sv[0]; var setView = sv[1];
-  return h('div', null,
-    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}},
-      h(Stat, {label:'Month 12 MRR', value:'$3,300', sub:'220 paid users'}),
-      h(Stat, {label:'Cash-flow+', value:'Month 7', sub:'$138/mo profit', color:C.amber}),
-      h(Stat, {label:'Year 1 Revenue', value:'~$16K', sub:'Cumulative', color:C.blue}),
-      h(Stat, {label:'LTV (5% churn)', value:'~$113', sub:'Per paid user', color:C.purple})
-    ),
-    h('div', {style:{display:'flex',gap:6,marginBottom:16}},
-      [['mrr','MRR'],['users','Users'],['pl','P/L']].map(function(pair) {
-        var k=pair[0], l=pair[1];
-        return h('button', {key:k, onClick:function(){setView(k);}, style:{
-          padding:'7px 18px', fontSize:12, fontFamily:sans, letterSpacing:'0.06em',
-          background:view===k?C.accent:'transparent', color:view===k?'#000':C.muted,
-          border:'1px solid '+(view===k?C.accent:C.border), borderRadius:20,
-          textTransform:'uppercase', fontWeight:view===k?600:400
-        }}, l);
-      })
-    ),
-    view==='mrr'   ? h(LineChart,   {data:PROJ, height:175, series:[{key:'mrr',color:C.accent},{key:'cost',color:C.red,dashed:true}]}) : null,
-    view==='users' ? h(StackedBar,  {data:PROJ, height:175}) : null,
-    view==='pl'    ? h(BarChart,    {data:PROJ, height:175, yKey:'pl', colorFn:function(v){return v>=0?C.accent:C.red;}}) : null,
-    view==='mrr'   ? h(Legend, {items:[{label:'MRR',color:C.accent},{label:'Cost',color:C.red}]}) : null,
-    view==='users' ? h(Legend, {items:[{label:'Paid',color:C.accent,bar:true},{label:'Free',color:C.dim,bar:true}]}) : null,
-    h(STitle, {title:'Month-by-Month'}),
-    h(ScrollTable, {
-      headers: ['Mo','Free','Paid','MRR','P/L'],
-      rows: PROJ.map(function(r) {
-        return [
-          {text:r.m, color:C.muted, mono:true},
-          {text:r.free.toLocaleString(), color:C.muted},
-          {text:r.paid, color:C.accent, bold:true},
-          {text:'$'+r.mrr.toLocaleString(), mono:true},
-          {text:(r.pl>=0?'+$':'-$')+Math.abs(r.pl).toLocaleString(), color:r.pl>=0?C.accent:C.red, mono:true, bold:true}
-        ];
-      })
-    }),
-    h('div', {style:{height:20}}),
-    h(STitle, {title:'Year 2 Scenarios'}),
-    h('div', {style:{display:'grid',gap:10}},
-      [{label:'Conservative',users:'500',mrr:'$7,500',profit:'$38K',note:'5% conv, word-of-mouth only',color:C.muted},
-       {label:'Base Case',users:'900',mrr:'$13,500',profit:'$80K',note:'7% conv + referral program',color:C.accent},
-       {label:'Aggressive',users:'1,800',mrr:'$27,000',profit:'$175K',note:'10% conv + paid acquisition',color:C.amber}]
-      .map(function(sc) {
-        return h('div', {key:sc.label, style:card({borderTop:'2px solid '+sc.color})},
-          h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}},
-            h('div', null,
-              h('div', {style:{fontSize:10,color:sc.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, sc.label),
-              h('div', {style:{fontFamily:mono,fontSize:20,color:sc.color,margin:'4px 0 2px'}}, sc.mrr),
-              h('div', {style:{fontSize:11,color:C.muted}}, 'MRR at year end \u00b7 '+sc.users+' paid users')
-            ),
-            h('div', {style:{textAlign:'right'}},
-              h('div', {style:{fontSize:10,color:C.muted}}, 'Net profit'),
-              h('div', {style:{fontFamily:mono,fontSize:16,color:sc.color,fontWeight:700}}, sc.profit)
-            )
-          ),
-          h('div', {style:{fontSize:11,color:C.muted,marginTop:8,fontStyle:'italic'}}, sc.note)
-        );
-      })
-    )
-  );
-}
-
-// ── Roadmap ──────────────────────────────────────────────────────
-
-function Roadmap() {
-  var sa = useState(0); var active = sa[0]; var setActive = sa[1];
-  var phase = PHASES[active];
-  var done = phase.items.filter(function(i){return i.done;}).length;
-  return h('div', null,
-    h('div', {style:{display:'flex',gap:6,overflowX:'auto',WebkitOverflowScrolling:'touch',margin:'0 -16px 16px',padding:'0 16px 4px',scrollbarWidth:'none'}},
-      PHASES.map(function(p, i) {
-        return h('button', {key:p.id, onClick:function(){setActive(i);}, style:{
-          padding:'8px 16px', fontSize:12, fontFamily:sans, whiteSpace:'nowrap',
-          background:active===i?p.color:'transparent', color:active===i?'#000':C.muted,
-          border:'1px solid '+(active===i?p.color:C.border), borderRadius:20,
-          fontWeight:active===i?600:400, flexShrink:0
-        }}, p.id+': '+p.label);
-      })
-    ),
-    h('div', {style:card({borderLeft:'4px solid '+phase.color,marginBottom:16})},
-      h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},
-        h('div', null,
-          h('div', {style:{fontSize:10,color:phase.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, phase.id),
-          h('div', {style:{fontFamily:serif,fontSize:20,color:C.text,margin:'3px 0 2px'}}, phase.label)
-        ),
-        h('div', {style:{background:C.surface,border:'1px solid '+C.border,borderRadius:6,padding:'5px 11px',fontFamily:mono,fontSize:12,color:C.muted}}, phase.time)
-      ),
-      h('div', {style:{marginTop:12,height:5,background:C.dim,borderRadius:3,overflow:'hidden'}},
-        h('div', {style:{height:'100%',background:phase.color,borderRadius:3,width:((done/phase.items.length)*100)+'%',transition:'width 0.3s'}})
-      ),
-      h('div', {style:{textAlign:'right',fontSize:11,color:C.muted,marginTop:4}}, done+'/'+phase.items.length+' complete')
-    ),
-    h('div', {style:{display:'grid',gap:8}},
-      phase.items.map(function(item, ii) {
-        return h('div', {key:ii, style:card({display:'flex',alignItems:'flex-start',gap:12,padding:'12px 14px'})},
-          h('div', {style:{width:22,height:22,borderRadius:'50%',border:'2px solid '+(item.done?phase.color:C.border),background:item.done?phase.color:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}},
-            item.done ? h('span', {style:{color:'#000',fontSize:12,fontWeight:800}}, '\u2713') : null
-          ),
-          h('div', {style:{fontSize:13,color:item.done?C.muted:C.text,textDecoration:item.done?'line-through':'none',lineHeight:1.5,flex:1}}, item.t),
-          item.done ? h('div', {style:{fontSize:10,color:phase.color,flexShrink:0,marginTop:3}}, 'Done') : null
-        );
-      })
-    )
-  );
-}
-
-// ── Checklist ────────────────────────────────────────────────────
-
-function Checklist() {
-  var sc = useState({}); var checks = sc[0]; var setChecks = sc[1];
-  var done = Object.keys(checks).filter(function(k){return checks[k];}).length;
-  var allDone = done === CHECKS.length;
-  return h('div', null,
-    h('div', {style:card({borderTop:'2px solid '+(allDone?C.accent:C.amber),marginBottom:20})},
-      h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},
-        h('div', null,
-          h('div', {style:{fontSize:15,fontWeight:600,color:C.text}}, 'Launch Readiness'),
-          h('div', {style:{fontSize:12,color:C.muted,marginTop:2}}, 'All 6 must be true before charging anyone')
-        ),
-        h('div', {style:{textAlign:'right'}},
-          h('div', {style:{fontFamily:mono,fontSize:30,color:allDone?C.accent:C.amber,lineHeight:1}}, done+'/'+CHECKS.length),
-          h('div', {style:{fontSize:10,color:C.muted}}, 'criteria met')
-        )
-      ),
-      h('div', {style:{marginTop:12,height:6,background:C.dim,borderRadius:3,overflow:'hidden'}},
-        h('div', {style:{height:'100%',background:allDone?C.accent:C.amber,borderRadius:3,width:((done/CHECKS.length)*100)+'%',transition:'width 0.4s'}})
-      )
-    ),
-    h('div', {style:{display:'grid',gap:10}},
-      CHECKS.map(function(item) {
-        var isDone = !!checks[item.id];
-        return h('div', {key:item.id,
-          onClick:function(){setChecks(function(c){var n=Object.assign({},c);n[item.id]=!n[item.id];return n;});},
-          style:card({borderLeft:'3px solid '+(isDone?C.accent:C.border),background:isDone?C.accentDim:C.card,transition:'all 0.2s',cursor:'pointer',userSelect:'none'})},
-          h('div', {style:{display:'flex',gap:14,alignItems:'flex-start'}},
-            h('div', {style:{width:26,height:26,borderRadius:7,border:'2px solid '+(isDone?C.accent:C.border),background:isDone?C.accent:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1,transition:'all 0.2s'}},
-              isDone ? h('span', {style:{color:'#000',fontSize:14,fontWeight:800}}, '\u2713') : null
-            ),
-            h('div', {style:{flex:1}},
-              h('div', {style:{fontSize:14,color:isDone?C.accent:C.text,fontWeight:isDone?600:400,marginBottom:3}}, item.t),
-              h('div', {style:{fontSize:12,color:C.muted}}, item.d)
-            )
-          )
-        );
-      })
-    ),
-    allDone ? h('div', {style:card({marginTop:16,background:C.accentDim,border:'1px solid '+C.accent,textAlign:'center',padding:'22px 16px'})},
-      h('div', {style:{fontFamily:serif,fontSize:22,color:C.accent,marginBottom:6}}, "You're ready to launch. \uD83D\uDE80"),
-      h('div', {style:{fontSize:13,color:C.muted}}, "All criteria met \u2014 go find your first subscriber.")
-    ) : null
-  );
-}
-
-// ── Nav Icons ────────────────────────────────────────────────────
-
-function Icon(props) {
-  var col = props.active ? C.accent : C.muted;
-  var s = {width:22,height:22,viewBox:'0 0 24 24',fill:'none',stroke:col,strokeWidth:'1.8',strokeLinecap:'round',strokeLinejoin:'round'};
-  if (props.id==='overview')    return h('svg',s,h('rect',{x:'3',y:'3',width:'7',height:'7',rx:'1'}),h('rect',{x:'14',y:'3',width:'7',height:'7',rx:'1'}),h('rect',{x:'3',y:'14',width:'7',height:'7',rx:'1'}),h('rect',{x:'14',y:'14',width:'7',height:'7',rx:'1'}));
-  if (props.id==='market')      return h('svg',s,h('polyline',{points:'22 7 13.5 15.5 8.5 10.5 2 17'}),h('polyline',{points:'16 7 22 7 22 13'}));
-  if (props.id==='financials')  return h('svg',s,h('line',{x1:'12',y1:'2',x2:'12',y2:'22'}),h('path',{d:'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'}));
-  if (props.id==='projections') return h('svg',s,h('polyline',{points:'3 17 9 11 13 15 21 7'}),h('line',{x1:'3',y1:'21',x2:'21',y2:'21'}));
-  if (props.id==='roadmap')     return h('svg',s,h('line',{x1:'8',y1:'6',x2:'21',y2:'6'}),h('line',{x1:'8',y1:'12',x2:'21',y2:'12'}),h('line',{x1:'8',y1:'18',x2:'21',y2:'18'}),h('line',{x1:'3',y1:'6',x2:'3.01',y2:'6'}),h('line',{x1:'3',y1:'12',x2:'3.01',y2:'12'}),h('line',{x1:'3',y1:'18',x2:'3.01',y2:'18'}));
-  if (props.id==='checklist')   return h('svg',s,h('path',{d:'M22 11.08V12a10 10 0 1 1-5.93-9.14'}),h('polyline',{points:'22 4 12 14.01 9 11.01'}));
-  return null;
-}
-
-var NAV = [
-  {id:'overview',    label:'Overview'},
-  {id:'market',      label:'Market'},
-  {id:'financials',  label:'Financials'},
-  {id:'projections', label:'Forecast'},
-  {id:'roadmap',     label:'Roadmap'},
-  {id:'checklist',   label:'Launch'}
-];
-
-var SECTIONS = {
-  overview:    Overview,
-  market:      Market,
-  financials:  Financials,
-  projections: Projections,
-  roadmap:     Roadmap,
-  checklist:   Checklist
-};
-
-// ── App ──────────────────────────────────────────────────────────
-
-function App() {
-  var sn = useState('overview'); var nav = sn[0]; var setNav = sn[1];
-  var scrollRef = useRef(null);
-  useEffect(function() { if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [nav]);
-
-  return h('div', {style:{display:'flex',flexDirection:'column',height:'100%',background:C.bg}},
-    h('div', {style:{background:C.surface,borderBottom:'1px solid '+C.border,flexShrink:0,padding:'calc(env(safe-area-inset-top) + 10px) 16px 10px',display:'flex',alignItems:'center',justifyContent:'space-between'}},
-      h('div', null,
-        h('div', {style:{fontFamily:serif,fontSize:18,color:C.accent,fontWeight:700}}, 'ThetaWire'),
-        h('div', {style:{fontSize:10,color:C.muted}}, 'Business Plan 2025')
-      ),
-      h('div', {style:{background:C.accentDim,border:'1px solid '+C.accent+'33',borderRadius:6,padding:'4px 10px',fontSize:11,color:C.accent,fontFamily:sans}},
-        NAV.find(function(n){return n.id===nav;}).label
-      )
-    ),
-    h('div', {ref:scrollRef, style:{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',padding:'20px 16px'}},
-      h(SECTIONS[nav], null),
-      h('div', {style:{height:'calc(env(safe-area-inset-bottom) + 74px)'}})
-    ),
-    h('div', {style:{background:C.surface,borderTop:'1px solid '+C.border,paddingBottom:'env(safe-area-inset-bottom)',display:'flex',flexShrink:0,zIndex:50}},
-      NAV.map(function(item) {
-        var active = nav === item.id;
-        return h('button', {
-          key:item.id,
-          onClick:function(){setNav(item.id);},
-          style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:3,padding:'8px 2px',background:'none',border:'none',minHeight:54,color:active?C.accent:C.muted,transition:'color 0.15s'}
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#1f211f',
+          borderColor: 'rgba(74,200,92,0.3)',
+          borderWidth: 1,
+          titleColor: '#9aab9a',
+          bodyColor: '#e8ece8',
+          padding: 10
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(74,200,92,0.07)' },
+          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 }, autoSkip: false }
         },
-          h(Icon, {id:item.id, active:active}),
-          h('div', {style:{fontFamily:sans,fontSize:9,letterSpacing:'0.04em',textTransform:'uppercase',fontWeight:active?600:400}}, item.label),
-          active ? h('div', {style:{width:4,height:4,borderRadius:'50%',background:C.accent,marginTop:1}}) : null
-        );
-      })
-    )
-  );
+        y: {
+          grid: { color: 'rgba(74,200,92,0.07)' },
+          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 } },
+          min: 0
+        }
+      }
+    }
+  });
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(h(App, null));
-
-})();
+render();
 </script>
-
 </body>
 </html>
