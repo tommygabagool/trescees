@@ -2,789 +2,778 @@
 
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-<meta name="apple-mobile-web-app-title" content="ThetaWire" />
-<meta name="theme-color" content="#080e1a" />
-<title>ThetaWire — Business Plan</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="ThetaWire"/>
+<meta name="theme-color" content="#080e1a"/>
+<title>ThetaWire</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{height:100%;background:#080e1a;-webkit-text-size-adjust:100%;font-size:16px}
-body{height:100%;background:#080e1a;color:#e8f0ff;font-family:'Trebuchet MS','Gill Sans',sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
-#root{height:100%}
+html,body{height:100%;background:#080e1a;-webkit-text-size-adjust:100%;overflow:hidden}
+body{color:#e8f0ff;font-family:'Trebuchet MS','Gill Sans',sans-serif;-webkit-tap-highlight-color:transparent}
+#root{height:100%;display:flex;flex-direction:column}
+#err{display:none;position:fixed;inset:0;background:#080e1a;color:#e05060;font-family:monospace;font-size:13px;padding:40px 20px;white-space:pre-wrap;z-index:9999}
 input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:28px;background:transparent;cursor:pointer}
 input[type=range]::-webkit-slider-runnable-track{height:4px;background:#1a2d45;border-radius:2px}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:#00c896;margin-top:-9px;box-shadow:0 0 0 3px rgba(0,200,150,.2)}
-input[type=range]:active::-webkit-slider-thumb{box-shadow:0 0 0 6px rgba(0,200,150,.25)}
-button{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
-table{border-collapse:collapse;width:100%}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:24px;height:24px;border-radius:50%;background:#00c896;margin-top:-10px;box-shadow:0 0 0 3px rgba(0,200,150,.2)}
+button{-webkit-tap-highlight-color:transparent;touch-action:manipulation;cursor:pointer}
 ::-webkit-scrollbar{display:none}
-#loading{position:fixed;inset:0;background:#080e1a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:9999;padding-top:env(safe-area-inset-top)}
-.spin{width:32px;height:32px;border:2px solid #1a2d45;border-top-color:#00c896;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-.loading-text{font-family:'Trebuchet MS',sans-serif;font-size:13px;color:#5a7090;letter-spacing:.08em;text-transform:uppercase}
+table{border-collapse:collapse;width:100%}
 </style>
 </head>
 <body>
-
-<div id="loading">
-  <div class="spin"></div>
-  <div class="loading-text">Loading ThetaWire</div>
-</div>
+<div id="err"></div>
 <div id="root"></div>
 
-<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
 
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script crossorigin="anonymous" src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
 
-<script src="https://unpkg.com/recharts/umd/Recharts.js" crossorigin></script>
-
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-<script type="text/babel">
-const { useState, useEffect, useRef } = React;
-const { LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip,
-        ResponsiveContainer, ReferenceLine, CartesianGrid, Cell } = Recharts;
-
-document.getElementById('loading').style.display = 'none';
-
-/* ── THEME ───────────────────────────────────────────────────────── */
-const T = {
-  bg:'#080e1a', surface:'#0d1626', card:'#111d30', border:'#1a2d45',
-  accent:'#00c896', accentDim:'#0a3028', navy:'#1a4a7a', navyDim:'#0d2540',
-  text:'#e8f0ff', muted:'#5a7090', dim:'#1e2e42', amber:'#f0a040',
-  red:'#e05060', white:'#ffffff',
+<script>
+window.onerror = function(msg, src, line, col, err) {
+  var el = document.getElementById('err');
+  el.style.display = 'block';
+  el.textContent = 'Error: ' + msg + '\nLine: ' + line + '\n' + (err ? err.stack : '');
 };
-const mono = "'Courier New','Monaco',monospace";
-const serif = "Georgia,'Times New Roman',serif";
-const sans  = "'Trebuchet MS','Gill Sans',sans-serif";
 
-/* ── DATA ────────────────────────────────────────────────────────── */
-const FIXED = 332, FREE_COST = 0.42;
+(function() {
+'use strict';
 
-const CLUSTERS = [
-  { topic:'Stocks & Markets',  sources:'Polygon, Finnhub, FMP, FRED',  output:'Trade / watch / avoid',       color:T.accent  },
-  { topic:'Sports Signals',    sources:'ESPN, Rotowire, The Odds API', output:'Bet / DFS lineup / parlay',   color:T.amber   },
-  { topic:'Crypto',            sources:'CoinGecko, Glassnode',         output:'Buy / sell / hold',           color:'#a78bfa' },
-  { topic:'Macro & Policy',    sources:'FRED, Reuters, FT RSS',        output:'Portfolio hedge / biz call',  color:'#38bdf8' },
-  { topic:'Company News',      sources:'RSS + LLM extraction',         output:'Long / short / risk',         color:'#fb7185' },
-  { topic:'Local News',        sources:'User-configured RSS',          output:'Property / business / civic', color:'#fbbf24' },
+if (!window.React || !window.ReactDOM) {
+  document.getElementById('err').style.display = 'block';
+  document.getElementById('err').textContent = 'React failed to load. Check your internet connection.';
+  return;
+}
+
+var h = React.createElement;
+var useState = React.useState;
+var useEffect = React.useEffect;
+var useRef = React.useRef;
+var useMemo = React.useMemo;
+
+// ── Theme ────────────────────────────────────────────────────────
+var C = {
+  bg:'#080e1a', surface:'#0d1626', card:'#111d30', border:'#1a2d45',
+  accent:'#00c896', accentDim:'#0a3028', dim:'#1e2e42',
+  text:'#e8f0ff', muted:'#5a7090', amber:'#f0a040', red:'#e05060',
+  blue:'#38bdf8', purple:'#a78bfa', pink:'#fb7185', yellow:'#fbbf24'
+};
+var mono  = "'Courier New',monospace";
+var serif = "Georgia,serif";
+var sans  = "'Trebuchet MS',sans-serif";
+
+// ── Data ─────────────────────────────────────────────────────────
+var FIXED = 332, FREE_COST = 0.42;
+
+var CLUSTERS = [
+  {topic:'Stocks & Markets', src:'Polygon, Finnhub, FMP, FRED',  out:'Trade / watch / avoid',     color:C.accent},
+  {topic:'Sports Signals',   src:'ESPN, Rotowire, Odds API',     out:'Bet / DFS lineup / parlay', color:C.amber},
+  {topic:'Crypto',           src:'CoinGecko, Glassnode',         out:'Buy / sell / hold',         color:C.purple},
+  {topic:'Macro & Policy',   src:'FRED, Reuters, FT RSS',        out:'Portfolio hedge / biz call',color:C.blue},
+  {topic:'Company News',     src:'RSS + LLM extraction',         out:'Long / short / risk',       color:C.pink},
+  {topic:'Local News',       src:'User-configured RSS',          out:'Property / biz / civic',    color:C.yellow}
 ];
 
-const COMPETITORS = [
-  { name:'Morning Brew',       cat:'Newsletter',     price:'Free / $10+',  gap:'Generic, no audio, no signals'         },
-  { name:'Motley Fool',        cat:'Finance',        price:'$99/yr',       gap:'Picks only, not personalized'          },
-  { name:'Action Network',     cat:'Sports Betting', price:'$8–$20/mo',    gap:'Sports only, no portfolio layer'       },
-  { name:'Bloomberg Terminal', cat:'Finance',        price:'$2,000+/mo',   gap:'Enterprise, no personalization'        },
-  { name:'Robinhood Snacks',   cat:'Finance',        price:'Free',         gap:'Shallow, generic, no custom data'      },
-  { name:'The Daily Upside',   cat:'Finance',        price:'Free',         gap:'No sports, no audio, no signals'       },
+var COMPS = [
+  {name:'Morning Brew',       cat:'Newsletter',     price:'Free / $10+',   gap:'Generic, no audio or signals'},
+  {name:'Motley Fool',        cat:'Finance',        price:'$99/yr',        gap:'Picks only, not personalized'},
+  {name:'Action Network',     cat:'Sports Betting', price:'$8–$20/mo',     gap:'Sports only, no portfolio layer'},
+  {name:'Bloomberg Terminal', cat:'Finance',        price:'$2,000+/mo',    gap:'Enterprise, no personalization'},
+  {name:'Robinhood Snacks',   cat:'Finance',        price:'Free',          gap:'Shallow, no custom signals'}
 ];
 
-const PROJ = [
-  {m:'M1', free:50,   paid:0,   mrr:0,    cost:278,  profit:-278},
-  {m:'M2', free:120,  paid:3,   mrr:45,   cost:332,  profit:-287},
-  {m:'M3', free:250,  paid:8,   mrr:120,  cost:403,  profit:-283},
-  {m:'M4', free:400,  paid:18,  mrr:270,  cost:484,  profit:-214},
-  {m:'M5', free:500,  paid:28,  mrr:420,  cost:622,  profit:-202},
-  {m:'M6', free:600,  paid:42,  mrr:630,  cost:688,  profit:-58 },
-  {m:'M7', free:700,  paid:60,  mrr:900,  cost:762,  profit:138 },
-  {m:'M8', free:900,  paid:82,  mrr:1230, cost:860,  profit:370 },
-  {m:'M9', free:1100, paid:108, mrr:1620, cost:966,  profit:654 },
-  {m:'M10',free:1400, paid:140, mrr:2100, cost:1103, profit:997 },
-  {m:'M11',free:1700, paid:178, mrr:2670, cost:1274, profit:1396},
-  {m:'M12',free:2000, paid:220, mrr:3300, cost:1458, profit:1842},
+var PROJ = [
+  {m:'M1',  free:50,   paid:0,   mrr:0,    cost:278,  pl:-278},
+  {m:'M2',  free:120,  paid:3,   mrr:45,   cost:332,  pl:-287},
+  {m:'M3',  free:250,  paid:8,   mrr:120,  cost:403,  pl:-283},
+  {m:'M4',  free:400,  paid:18,  mrr:270,  cost:484,  pl:-214},
+  {m:'M5',  free:500,  paid:28,  mrr:420,  cost:622,  pl:-202},
+  {m:'M6',  free:600,  paid:42,  mrr:630,  cost:688,  pl:-58},
+  {m:'M7',  free:700,  paid:60,  mrr:900,  cost:762,  pl:138},
+  {m:'M8',  free:900,  paid:82,  mrr:1230, cost:860,  pl:370},
+  {m:'M9',  free:1100, paid:108, mrr:1620, cost:966,  pl:654},
+  {m:'M10', free:1400, paid:140, mrr:2100, cost:1103, pl:997},
+  {m:'M11', free:1700, paid:178, mrr:2670, cost:1274, pl:1396},
+  {m:'M12', free:2000, paid:220, mrr:3300, cost:1458, pl:1842}
 ];
 
-const PHASES = [
-  { phase:'P0', label:'Foundation', time:'Complete ✓', color:T.accent, items:[
+var PHASES = [
+  {id:'P0', label:'Foundation', time:'Complete \u2713', color:C.accent, items:[
     {done:true,  t:'Python pipeline — extractor, analyst, scorer'},
     {done:true,  t:'Supabase backend — auth, storage, DB'},
-    {done:true,  t:'Financial APIs — Polygon, Finnhub, FMP, FRED, Tiingo'},
-    {done:true,  t:'THETAWIRE_BRAIN.md heuristic + learning loop'},
+    {done:true,  t:'Financial APIs (Polygon, Finnhub, FMP, FRED, Tiingo)'},
+    {done:true,  t:'THETAWIRE_BRAIN.md heuristic + self-learning loop'},
     {done:true,  t:'Alpaca paper trading + scorer feedback loop'},
     {done:true,  t:'Confluence scoring — dark pool, options, insider, congress'},
-    {done:false, t:'ElevenLabs TTS wired into pipeline with intro/outro'},
+    {done:false, t:'ElevenLabs TTS wired in with intro/outro stitching'}
   ]},
-  { phase:'P1', label:'V1 Launch', time:'Weeks 1–6', color:'#38bdf8', items:[
-    {done:false, t:'Scheduler: Windows Task Scheduler → GitHub Actions'},
-    {done:false, t:'Landing page — Next.js + Vercel, email signup'},
-    {done:false, t:'Supabase Auth + onboarding flow — tickers + topics'},
+  {id:'P1', label:'V1 Launch', time:'Weeks 1\u20136', color:C.blue, items:[
+    {done:false, t:'Scheduler \u2192 GitHub Actions cron'},
+    {done:false, t:'Landing page — Vercel, email signup, sample brief'},
+    {done:false, t:'Supabase Auth + onboarding — tickers + topics'},
     {done:false, t:'Podcast LLM prompt — cold open, transitions, sign-off'},
     {done:false, t:'pydub intro/outro audio stitching'},
     {done:false, t:'Daily email delivery via Resend'},
     {done:false, t:'Stripe checkout — Free vs Premium $15/mo'},
-    {done:false, t:'Deploy pipeline on Railway — 5:30am daily'},
+    {done:false, t:'Pipeline on Railway — 5:30am daily run'}
   ]},
-  { phase:'P2', label:'Multi-Topic', time:'Weeks 7–12', color:T.amber, items:[
+  {id:'P2', label:'Multi-Topic', time:'Weeks 7\u201312', color:C.amber, items:[
     {done:false, t:'The Odds API — NFL, NBA, MLB, NHL lines'},
-    {done:false, t:'Rotowire RSS — injury reports, lineup, weather'},
+    {done:false, t:'Rotowire RSS — injuries, lineups, weather'},
     {done:false, t:'Sports confluence scorer'},
     {done:false, t:'Expand interest profile — teams, leagues, bet types'},
     {done:false, t:'Interest clustering — shared pipeline runs'},
     {done:false, t:'Brief history page — 30 days'},
-    {done:false, t:'A/B test brief length — 4-min vs 8-min'},
+    {done:false, t:'A/B test brief length — 4-min vs 8-min'}
   ]},
-  { phase:'P3', label:'Retention', time:'Months 4–6', color:'#a78bfa', items:[
+  {id:'P3', label:'Retention', time:'Months 4\u20136', color:C.purple, items:[
     {done:false, t:'Prediction outcome scoring — calls vs results'},
     {done:false, t:'Accuracy stats dashboard for users'},
     {done:false, t:'Referral program — 1 month free per referral'},
-    {done:false, t:'Weekly deep-dive Saturday audio edition'},
+    {done:false, t:'Saturday weekly deep-dive audio edition'},
     {done:false, t:'Crypto cluster — CoinGecko + Glassnode'},
-    {done:false, t:'Mobile-first PWA'},
+    {done:false, t:'Mobile-first PWA'}
   ]},
-  { phase:'P4', label:'Scale', time:'Months 7–12', color:'#fb7185', items:[
+  {id:'P4', label:'Scale', time:'Months 7\u201312', color:C.pink, items:[
     {done:false, t:'Product Hunt launch'},
-    {done:false, t:'Paid Twitter/X + Reddit ads — $200–500/mo'},
-    {done:false, t:'Higher tier plan — $25/mo deep signal access'},
-    {done:false, t:'SEO content — 2–4 articles/month'},
-    {done:false, t:'Migrate to Prefect Cloud orchestration'},
-    {done:false, t:'Evaluate native iOS/Android vs PWA'},
-  ]},
+    {done:false, t:'Paid Twitter/X + Reddit ads — $200\u2013500/mo'},
+    {done:false, t:'Higher tier — $25/mo deep signal access'},
+    {done:false, t:'SEO content — 2\u20134 articles/month'},
+    {done:false, t:'Prefect Cloud for orchestration'},
+    {done:false, t:'Evaluate native iOS/Android vs PWA'}
+  ]}
 ];
 
-const CHECKLIST = [
-  {id:'pipeline', t:'Pipeline runs daily without intervention',       d:'7 consecutive days, zero manual restarts'},
-  {id:'quality',  t:"Brief quality is something you'd pay for yourself", d:'Listen to 10 consecutive briefs and feel informed'},
-  {id:'landing',  t:'Landing page converts cold visitors',            d:'At least 15% email signup rate from test traffic'},
-  {id:'audio',    t:'Audio sounds like a podcast, not a robot',       d:'3 people listen — none mention the voice quality'},
-  {id:'stripe',   t:'Stripe checkout works end-to-end',               d:'A real card completes a transaction successfully'},
-  {id:'beta',     t:'10 beta users received briefs for 14 days',      d:'Zero failures, feedback from at least 5 users'},
+var CHECKS = [
+  {id:'pipeline', t:'Pipeline runs daily without intervention',     d:'7 consecutive days, zero manual restarts'},
+  {id:'quality',  t:"Brief quality is something you'd pay for",     d:'Listen to 10 consecutive briefs and feel informed'},
+  {id:'landing',  t:'Landing page converts cold visitors',          d:'At least 15% email signup rate from test traffic'},
+  {id:'audio',    t:'Audio sounds like a podcast, not a robot',     d:'3 people listen \u2014 none mention the voice quality'},
+  {id:'stripe',   t:'Stripe checkout works end-to-end',             d:'A real card completes a transaction successfully'},
+  {id:'beta',     t:'10 beta users received briefs for 14 days',    d:'Zero failures, feedback from at least 5 users'}
 ];
 
-/* ── SHARED UI ───────────────────────────────────────────────────── */
-const s = {
-  card:(extra={}) => ({ background:T.card, border:`1px solid ${T.border}`, borderRadius:10, padding:'14px 16px', ...extra }),
-  label: { fontFamily:sans, fontSize:11, color:T.muted, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:6 },
-  th: { fontFamily:sans, fontSize:11, color:T.muted, textTransform:'uppercase', letterSpacing:'0.07em', padding:'8px 10px', borderBottom:`1px solid ${T.border}`, textAlign:'left', whiteSpace:'nowrap' },
-  td: { fontFamily:sans, fontSize:13, color:T.text, padding:'9px 10px', borderBottom:`1px solid ${T.dim}` },
-};
+// ── SVG Charts ───────────────────────────────────────────────────
 
-function Stat({ label, value, sub, color }) {
-  return (
-    <div style={{ background:T.card, border:`1px solid ${T.border}`, borderRadius:8,
-      padding:'12px 14px', borderTop:`2px solid ${color||T.accent}` }}>
-      <div style={{ fontFamily:sans, fontSize:10, color:T.muted, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:5 }}>{label}</div>
-      <div style={{ fontFamily:mono, fontSize:20, fontWeight:700, color:color||T.accent }}>{value}</div>
-      {sub && <div style={{ fontFamily:sans, fontSize:10, color:T.muted, marginTop:3 }}>{sub}</div>}
-    </div>
+function mkTicks(minV, maxV) {
+  var range = maxV - minV || 1;
+  var mag = Math.pow(10, Math.floor(Math.log10(range / 4)));
+  var step = Math.ceil((range / 4) / mag) * mag;
+  if (step === 0) step = 1;
+  var ticks = [];
+  var start = Math.ceil(minV / step) * step;
+  for (var v = start; v <= maxV + step * 0.01; v += step) {
+    ticks.push(Math.round(v));
+  }
+  return ticks;
+}
+
+function fmtY(v) {
+  if (v >= 1000) return '$' + (v/1000) + 'k';
+  if (v <= -1000) return '-$' + (Math.abs(v)/1000) + 'k';
+  return '$' + v;
+}
+
+function LineChart(props) {
+  var data = props.data, series = props.series, height = props.height || 180;
+  var W = 300, H = height, pL = 46, pR = 8, pT = 8, pB = 22;
+  var cW = W - pL - pR, cH = H - pT - pB, n = data.length;
+  var allV = [];
+  series.forEach(function(s) { data.forEach(function(d) { allV.push(d[s.key]); }); });
+  var minV = Math.min.apply(null, [0].concat(allV));
+  var maxV = Math.max.apply(null, allV);
+  var range = maxV - minV || 1;
+  function px(i) { return pL + (i / (n - 1)) * cW; }
+  function py(v) { return pT + cH - ((v - minV) / range) * cH; }
+  var ticks = mkTicks(minV, maxV);
+  var skip = Math.ceil(n / 6);
+  var children = [];
+  ticks.forEach(function(v) {
+    children.push(h('line', {key:'g'+v, x1:pL, x2:W-pR, y1:py(v), y2:py(v), stroke:C.dim, strokeWidth:.5, strokeDasharray:'3 3'}));
+    children.push(h('text', {key:'t'+v, x:pL-4, y:py(v)+4, textAnchor:'end', fontSize:9, fill:C.muted, fontFamily:mono}, fmtY(v)));
+  });
+  if (minV < 0) {
+    children.push(h('line', {key:'zero', x1:pL, x2:W-pR, y1:py(0), y2:py(0), stroke:C.muted, strokeWidth:1, strokeDasharray:'4 3'}));
+  }
+  data.forEach(function(d, i) {
+    if (i % skip === 0) {
+      children.push(h('text', {key:'x'+i, x:px(i), y:H-2, textAnchor:'middle', fontSize:9, fill:C.muted, fontFamily:sans}, d.m || ''));
+    }
+  });
+  series.forEach(function(s) {
+    var pts = data.map(function(d,i) { return px(i)+','+py(d[s.key]); }).join(' ');
+    children.push(h('polyline', {key:'l'+s.key, points:pts, fill:'none', stroke:s.color, strokeWidth:2, strokeLinecap:'round', strokeLinejoin:'round', strokeDasharray:s.dashed?'6 3':null}));
+    children.push(h('circle', {key:'d'+s.key, cx:px(n-1), cy:py(data[n-1][s.key]), r:3, fill:s.color}));
+  });
+  return h('svg', {viewBox:'0 0 '+W+' '+H, width:'100%', height:height, style:{display:'block',overflow:'visible'}}, children);
+}
+
+function BarChart(props) {
+  var data = props.data, yKey = props.yKey, colorFn = props.colorFn, height = props.height || 180;
+  var W = 300, H = height, pL = 46, pR = 8, pT = 8, pB = 22;
+  var cW = W - pL - pR, cH = H - pT - pB, n = data.length;
+  var allV = data.map(function(d) { return d[yKey]; });
+  var minV = Math.min.apply(null, [0].concat(allV));
+  var maxV = Math.max.apply(null, allV);
+  var range = maxV - minV || 1;
+  function py(v) { return pT + cH - ((v - minV) / range) * cH; }
+  var zero = py(0);
+  var barW = (cW / n) * 0.6;
+  var ticks = mkTicks(minV, maxV);
+  var skip = Math.ceil(n / 6);
+  var children = [];
+  ticks.forEach(function(v) {
+    children.push(h('line', {key:'g'+v, x1:pL, x2:W-pR, y1:py(v), y2:py(v), stroke:C.dim, strokeWidth:.5, strokeDasharray:'3 3'}));
+    children.push(h('text', {key:'t'+v, x:pL-4, y:py(v)+4, textAnchor:'end', fontSize:9, fill:C.muted, fontFamily:mono}, fmtY(v)));
+  });
+  children.push(h('line', {key:'zero', x1:pL, x2:W-pR, y1:zero, y2:zero, stroke:C.muted, strokeWidth:1}));
+  data.forEach(function(d, i) {
+    var v = d[yKey];
+    var bx = pL + (i / n) * cW + (cW / n - barW) / 2;
+    var by = v >= 0 ? py(v) : zero;
+    var bh = Math.max(Math.abs(py(v) - zero), 1);
+    children.push(h('rect', {key:'b'+i, x:bx, y:by, width:barW, height:bh, fill:colorFn(v), rx:2}));
+    if (i % skip === 0) {
+      children.push(h('text', {key:'x'+i, x:pL+(i/n)*cW+(cW/n)/2, y:H-2, textAnchor:'middle', fontSize:9, fill:C.muted, fontFamily:sans}, d.m || ''));
+    }
+  });
+  return h('svg', {viewBox:'0 0 '+W+' '+H, width:'100%', height:height, style:{display:'block',overflow:'visible'}}, children);
+}
+
+function StackedBar(props) {
+  var data = props.data, height = props.height || 180;
+  var W = 300, H = height, pL = 46, pR = 8, pT = 8, pB = 22;
+  var cW = W - pL - pR, cH = H - pT - pB, n = data.length;
+  var maxV = Math.max.apply(null, data.map(function(d) { return d.free + d.paid; }));
+  function py(v) { return pT + cH - (v / maxV) * cH; }
+  var barW = (cW / n) * 0.6;
+  var skip = Math.ceil(n / 6);
+  var ticks = [0, Math.round(maxV * 0.5 / 100) * 100, maxV];
+  var children = [];
+  ticks.forEach(function(v) {
+    children.push(h('line', {key:'g'+v, x1:pL, x2:W-pR, y1:py(v), y2:py(v), stroke:C.dim, strokeWidth:.5, strokeDasharray:'3 3'}));
+    children.push(h('text', {key:'t'+v, x:pL-4, y:py(v)+4, textAnchor:'end', fontSize:9, fill:C.muted, fontFamily:mono}, v >= 1000 ? (v/1000)+'k' : String(v)}));
+  });
+  data.forEach(function(d, i) {
+    var bx = pL + (i / n) * cW + (cW / n - barW) / 2;
+    var fH = (d.free / maxV) * cH;
+    var pH = (d.paid / maxV) * cH;
+    children.push(h('rect', {key:'f'+i, x:bx, y:pT+cH-fH-pH, width:barW, height:fH, fill:C.dim}));
+    children.push(h('rect', {key:'p'+i, x:bx, y:pT+cH-pH, width:barW, height:Math.max(pH,1), fill:C.accent, rx:2}));
+    if (i % skip === 0) {
+      children.push(h('text', {key:'x'+i, x:pL+(i/n)*cW+(cW/n)/2, y:H-2, textAnchor:'middle', fontSize:9, fill:C.muted, fontFamily:sans}, d.m || ''));
+    }
+  });
+  return h('svg', {viewBox:'0 0 '+W+' '+H, width:'100%', height:height, style:{display:'block',overflow:'visible'}}, children);
+}
+
+// ── UI Helpers ───────────────────────────────────────────────────
+
+function card(extra) {
+  return Object.assign({background:C.card, border:'1px solid '+C.border, borderRadius:10, padding:'14px 16px'}, extra || {});
+}
+
+function Stat(props) {
+  return h('div', {style:{background:C.card,border:'1px solid '+C.border,borderRadius:8,padding:'12px 14px',borderTop:'2px solid '+(props.color||C.accent)}},
+    h('div', {style:{fontFamily:sans,fontSize:10,color:C.muted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:5}}, props.label),
+    h('div', {style:{fontFamily:mono,fontSize:20,fontWeight:700,color:props.color||C.accent}}, props.value),
+    props.sub ? h('div', {style:{fontFamily:sans,fontSize:10,color:C.muted,marginTop:3}}, props.sub) : null
   );
 }
 
-function SectionTitle({ title, sub }) {
-  return (
-    <div style={{ marginBottom:16 }}>
-      <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:3 }}>
-        <div style={{ width:3, height:18, background:T.accent, borderRadius:2, flexShrink:0 }} />
-        <h2 style={{ fontFamily:serif, fontSize:19, fontWeight:400, color:T.text, margin:0 }}>{title}</h2>
-      </div>
-      {sub && <div style={{ fontFamily:sans, fontSize:12, color:T.muted, paddingLeft:11 }}>{sub}</div>}
-    </div>
+function STitle(props) {
+  return h('div', {style:{marginBottom:14}},
+    h('div', {style:{display:'flex',alignItems:'center',gap:8,marginBottom:3}},
+      h('div', {style:{width:3,height:18,background:C.accent,borderRadius:2}}),
+      h('h2', {style:{fontFamily:serif,fontSize:18,fontWeight:400,color:C.text,margin:0}}, props.title)
+    ),
+    props.sub ? h('div', {style:{fontSize:12,color:C.muted,paddingLeft:11}}, props.sub) : null
   );
 }
 
-function SliderRow({ label, value, min, max, step, fmt, onChange }) {
-  return (
-    <div style={{ marginBottom:12 }}>
-      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:4 }}>
-        <span style={{ fontSize:12, color:T.muted }}>{label}</span>
-        <span style={{ fontFamily:mono, fontSize:13, color:T.accent, fontWeight:700 }}>{fmt(value)}</span>
-      </div>
-      <input type="range" min={min} max={max} step={step} value={value}
-        onChange={e => onChange(+e.target.value)}
-        style={{ accentColor:T.accent }} />
-    </div>
+function Slider(props) {
+  return h('div', {style:{marginBottom:14}},
+    h('div', {style:{display:'flex',justifyContent:'space-between',marginBottom:4}},
+      h('span', {style:{fontSize:12,color:C.muted}}, props.label),
+      h('span', {style:{fontFamily:mono,fontSize:13,color:C.accent,fontWeight:700}}, props.fmt(props.value))
+    ),
+    h('input', {type:'range', min:props.min, max:props.max, step:props.step, value:props.value, onChange:function(e){props.onChange(+e.target.value)}})
   );
 }
 
-const ttFmt = { contentStyle:{ background:T.card, border:`1px solid ${T.border}`, borderRadius:6, fontSize:12, fontFamily:sans }, labelStyle:{ color:T.muted } };
+function ScrollTable(props) {
+  return h('div', {style:{overflowX:'auto',WebkitOverflowScrolling:'touch',margin:'0 -16px',padding:'0 16px'}},
+    h('table', {style:{minWidth:320}},
+      h('thead', null, h('tr', null, props.headers.map(function(hdr, i) {
+        return h('th', {key:i, style:{fontFamily:sans,fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.07em',padding:'8px 10px',borderBottom:'1px solid '+C.border,textAlign:'left',whiteSpace:'nowrap'}}, hdr);
+      }))),
+      h('tbody', null, props.rows.map(function(row, ri) {
+        return h('tr', {key:ri, style:{background:ri%2===0?C.surface:'transparent'}},
+          row.map(function(cell, ci) {
+            var txt = (cell && cell.text !== undefined) ? cell.text : cell;
+            var col = (cell && cell.color) ? cell.color : C.text;
+            var ff  = (cell && cell.mono) ? mono : sans;
+            var fw  = (cell && cell.bold) ? 600 : 400;
+            return h('td', {key:ci, style:{fontSize:13,color:col,padding:'9px 10px',borderBottom:'1px solid '+C.dim,fontFamily:ff,fontWeight:fw,whiteSpace:ci<2?'nowrap':undefined}}, txt);
+          })
+        );
+      }))
+    )
+  );
+}
 
-/* ── NAV ICONS (SVG paths) ───────────────────────────────────────── */
-const Icons = {
-  overview:   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>,
-  market:     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>,
-  financials: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>,
-  projections:<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><polyline points="3 17 9 11 13 15 21 7"/><line x1="3" y1="21" x2="21" y2="21"/></svg>,
-  roadmap:    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>,
-  checklist:  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>,
-};
-const NAV_ITEMS = [
-  { key:'overview',    label:'Overview'  },
-  { key:'market',      label:'Market'    },
-  { key:'financials',  label:'Financials'},
-  { key:'projections', label:'Projections'},
-  { key:'roadmap',     label:'Roadmap'   },
-  { key:'checklist',   label:'Launch'    },
-];
+function Legend(props) {
+  return h('div', {style:{display:'flex',gap:16,fontSize:11,color:C.muted,margin:'8px 0 16px'}},
+    props.items.map(function(item) {
+      return h('span', {key:item.label, style:{display:'flex',alignItems:'center',gap:5}},
+        h('span', {style:{width:item.bar?14:16,height:item.bar?8:2,background:item.color,display:'inline-block',borderRadius:item.bar?2:0}}),
+        item.label
+      );
+    })
+  );
+}
 
-/* ══════════════════════════════════════════════════════════════════
-   SECTIONS
-══════════════════════════════════════════════════════════════════ */
+// ── Overview ─────────────────────────────────────────────────────
 
 function Overview() {
-  return (
-    <div>
-      <div style={{ marginBottom:24 }}>
-        <div style={{ fontFamily:serif, fontSize:32, color:T.text, lineHeight:1.1 }}>ThetaWire</div>
-        <div style={{ fontFamily:sans, fontSize:13, color:T.accent, fontStyle:'italic', margin:'4px 0 10px' }}>Every Morning. Every Edge.</div>
-        <div style={{ fontSize:13, color:T.muted, lineHeight:1.7 }}>
-          Personalized daily podcast briefings — finance, sports betting signals, crypto, macro & local news. Signal scoring, not noise aggregation.
-        </div>
-      </div>
-
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:10 }}>
-        <Stat label="Launch Price"  value="$15/mo"  sub="Premium tier" />
-        <Stat label="Break-even"    value="~55 users" sub="Paid subscribers" color={T.amber} />
-        <Stat label="Month 12 MRR"  value="$3,300"  sub="Conservative model" color="#38bdf8" />
-        <Stat label="Cash-flow +"   value="Month 7" sub="Base growth rate" color="#a78bfa" />
-      </div>
-
-      <div style={{ height:16 }} />
-      <SectionTitle title="Topic Clusters" sub="Every category → a downstream action" />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8 }}>
-        {CLUSTERS.map(c => (
-          <div key={c.topic} style={{ ...s.card(), borderLeft:`3px solid ${c.color}` }}>
-            <div style={{ fontSize:12, fontWeight:600, color:T.text, marginBottom:3 }}>{c.topic}</div>
-            <div style={{ fontSize:10, color:T.muted, marginBottom:5 }}>{c.sources}</div>
-            <div style={{ fontSize:11, color:c.color, fontStyle:'italic' }}>{c.output}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ height:20 }} />
-      <SectionTitle title="Free vs Premium" />
-      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', margin:'0 -16px', padding:'0 16px' }}>
-        <table style={{ minWidth:480 }}>
-          <thead>
-            <tr>{['Feature','Free','$15/mo'].map(h => <th key={h} style={s.th}>{h}</th>)}</tr>
-          </thead>
-          <tbody>
-            {[
-              ['Daily text brief','3 topics','Unlimited'],
-              ['Tickers / teams','3–5','Unlimited'],
-              ['Confluence detail','H/M/L only','Full breakdown'],
-              ['Audio podcast','—','Daily + weekly'],
-              ['Sports betting signals','—','Full scoring'],
-              ['Custom RSS','—','Yes'],
-              ['Brief history','7 days','Full archive'],
-            ].map(([f,fr,pr], i) => (
-              <tr key={f} style={{ background: i%2===0 ? T.surface : 'transparent' }}>
-                <td style={{ ...s.td }}>{f}</td>
-                <td style={{ ...s.td, color:fr==='—' ? T.dim : T.muted, fontFamily:fr==='—' ? mono : sans }}>{fr}</td>
-                <td style={{ ...s.td, color:T.accent }}>{pr}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+  return h('div', null,
+    h('div', {style:{marginBottom:24}},
+      h('div', {style:{fontFamily:serif,fontSize:32,color:C.text,lineHeight:1.1}}, 'ThetaWire'),
+      h('div', {style:{fontFamily:sans,fontSize:13,color:C.accent,fontStyle:'italic',margin:'4px 0 10px'}}, 'Every Morning. Every Edge.'),
+      h('div', {style:{fontSize:13,color:C.muted,lineHeight:1.7}}, 'Personalized daily podcast briefings — finance, sports betting signals, crypto, macro & local news. Signal scoring, not noise aggregation.')
+    ),
+    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:10}},
+      h(Stat, {label:'Launch Price', value:'$15/mo', sub:'Premium tier'}),
+      h(Stat, {label:'Break-even', value:'~55 users', sub:'Paid subscribers', color:C.amber}),
+      h(Stat, {label:'Month 12 MRR', value:'$3,300', sub:'Conservative model', color:C.blue}),
+      h(Stat, {label:'Cash-flow+', value:'Month 7', sub:'Base growth rate', color:C.purple})
+    ),
+    h('div', {style:{height:20}}),
+    h(STitle, {title:'Topic Clusters', sub:'Every category drives a downstream action'}),
+    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}},
+      CLUSTERS.map(function(c) {
+        return h('div', {key:c.topic, style:card({borderLeft:'3px solid '+c.color})},
+          h('div', {style:{fontSize:12,fontWeight:600,color:C.text,marginBottom:3}}, c.topic),
+          h('div', {style:{fontSize:10,color:C.muted,marginBottom:4}}, c.src),
+          h('div', {style:{fontSize:11,color:c.color,fontStyle:'italic'}}, c.out)
+        );
+      })
+    ),
+    h('div', {style:{height:20}}),
+    h(STitle, {title:'Free vs Premium'}),
+    h(ScrollTable, {
+      headers: ['Feature', 'Free', '$15/mo'],
+      rows: [
+        [{text:'Daily text brief'}, {text:'3 topics'}, {text:'Unlimited', color:C.accent}],
+        [{text:'Tickers / teams'}, {text:'3\u20135', color:C.muted}, {text:'Unlimited', color:C.accent}],
+        [{text:'Confluence detail'}, {text:'H/M/L only', color:C.muted}, {text:'Full breakdown', color:C.accent}],
+        [{text:'Audio podcast'}, {text:'\u2014', color:C.dim, mono:true}, {text:'Daily + weekly', color:C.accent}],
+        [{text:'Sports betting'}, {text:'\u2014', color:C.dim, mono:true}, {text:'Full scoring', color:C.accent}],
+        [{text:'Brief history'}, {text:'7 days', color:C.muted}, {text:'Full archive', color:C.accent}]
+      ]
+    })
   );
 }
+
+// ── Market ───────────────────────────────────────────────────────
 
 function Market() {
-  return (
-    <div>
-      <SectionTitle title="Total Addressable Market" />
-      <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:10, marginBottom:20 }}>
-        {[
-          { label:'Financial Newsletter & Intel', value:'$3.1B', note:'8% CAGR', color:T.accent },
-          { label:'Sports Betting Analytics/DFS',  value:'$2.5B', note:'US market post-legalization', color:T.amber },
-          { label:'Audio & Podcast Subscriptions', value:'$4.0B', note:'13% CAGR', color:'#a78bfa' },
-        ].map(m => (
-          <div key={m.label} style={{ ...s.card(), display:'flex', alignItems:'center', gap:14, borderLeft:`3px solid ${m.color}` }}>
-            <div style={{ fontFamily:mono, fontSize:24, color:m.color, minWidth:60 }}>{m.value}</div>
-            <div>
-              <div style={{ fontSize:13, color:T.text }}>{m.label}</div>
-              <div style={{ fontSize:11, color:T.muted }}>{m.note}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <SectionTitle title="Competitive Landscape" />
-      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', margin:'0 -16px', padding:'0 16px' }}>
-        <table style={{ minWidth:520 }}>
-          <thead><tr>{['Competitor','Category','Price','Gap'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
-          <tbody>
-            {COMPETITORS.map((c,i) => (
-              <tr key={c.name} style={{ background: i%2===0 ? T.surface : 'transparent' }}>
-                <td style={{ ...s.td, fontWeight:600, whiteSpace:'nowrap' }}>{c.name}</td>
-                <td style={{ ...s.td, color:T.muted, whiteSpace:'nowrap' }}>{c.cat}</td>
-                <td style={{ ...s.td, fontFamily:mono, color:T.amber, whiteSpace:'nowrap' }}>{c.price}</td>
-                <td style={{ ...s.td, color:T.accent, fontSize:12 }}>{c.gap}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={{ height:20 }} />
-      <SectionTitle title="Customer Profiles" />
-      <div style={{ display:'grid', gap:10 }}>
-        {[
-          { label:'Primary', name:'Retail Investor + Sports Fan', age:'25–45', desc:'Tracks 5–20 stocks, watches sports seriously, follows crypto casually. Pays for newsletters. Listens during commute or workout.', wtp:'$12–18/mo', color:T.accent },
-          { label:'Secondary', name:'Sports Bettor Who Invests', age:'22–38', desc:'DFS, sports betting, and a brokerage account. Wants injury reports, line movement, and earnings in one brief. High WTP for proven signals.', wtp:'$15–22/mo', color:T.amber },
-          { label:'Tertiary', name:'Busy Professional', age:'30–50', desc:'Not a trader but holds a 401k. Wants to feel informed without 45 minutes of reading. Audio brief while getting ready.', wtp:'$10–15/mo', color:'#a78bfa' },
-        ].map(p => (
-          <div key={p.label} style={{ ...s.card(), borderTop:`2px solid ${p.color}` }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6 }}>
-              <div>
-                <div style={{ fontSize:10, color:p.color, textTransform:'uppercase', letterSpacing:'0.1em' }}>{p.label}</div>
-                <div style={{ fontSize:15, fontWeight:600, color:T.text, marginTop:2 }}>{p.name}</div>
-                <div style={{ fontSize:11, color:T.muted }}>Age {p.age}</div>
-              </div>
-              <div style={{ background:p.color+'22', border:`1px solid ${p.color}55`, borderRadius:6, padding:'4px 10px', fontSize:11, color:p.color, fontFamily:mono, whiteSpace:'nowrap' }}>{p.wtp}</div>
-            </div>
-            <div style={{ fontSize:12, color:T.muted, lineHeight:1.6 }}>{p.desc}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{ height:20 }} />
-      <SectionTitle title="Marketing Phases" />
-      <div style={{ display:'grid', gap:10 }}>
-        {[
-          { phase:'Phase 1', label:'Beta Launch', time:'Months 1–3', color:T.accent, items:['Waitlist landing page on Vercel','Twitter/X: post one public signal daily','Reddit: r/investing, r/sportsbetting, r/DraftKings','30-day free premium trial for first 100','Target: 200–400 free users'] },
-          { phase:'Phase 2', label:'Paid Conversion', time:'Months 4–6', color:'#38bdf8', items:['Email sequence D7/D14/D30 — missed premium signals','Audio player paywall with Upgrade CTA','Referral program: 1 month free per referral','Affiliate outreach to finance/sports YouTube','Target: 15–40 paid users'] },
-          { phase:'Phase 3', label:'Growth', time:'Months 7–12', color:T.amber, items:['Paid social: Twitter/X + Reddit $200–500/mo','SEO: personalized brief, sports betting intel 2025','Product Hunt launch','Podcast sponsorship / guest spots','Target: 200–300 paid users'] },
-        ].map(p => (
-          <div key={p.phase} style={{ ...s.card(), borderLeft:`3px solid ${p.color}` }}>
-            <div style={{ fontSize:10, color:p.color, textTransform:'uppercase', letterSpacing:'0.1em' }}>{p.phase} — {p.time}</div>
-            <div style={{ fontSize:15, fontWeight:600, color:T.text, margin:'3px 0 10px' }}>{p.label}</div>
-            {p.items.map(item => (
-              <div key={item} style={{ display:'flex', gap:8, marginBottom:5 }}>
-                <span style={{ color:p.color, fontSize:13, marginTop:1, flexShrink:0 }}>›</span>
-                <span style={{ fontSize:12, color:T.muted, lineHeight:1.5 }}>{item}</span>
-              </div>
-            ))}
-          </div>
-        ))}
-      </div>
-    </div>
+  return h('div', null,
+    h(STitle, {title:'Total Addressable Market'}),
+    h('div', {style:{display:'grid',gap:10,marginBottom:20}},
+      [{label:'Financial Newsletter & Intel', value:'$3.1B', note:'8% CAGR', color:C.accent},
+       {label:'Sports Betting Analytics/DFS',  value:'$2.5B', note:'US market post-legalization', color:C.amber},
+       {label:'Audio & Podcast Subscriptions', value:'$4.0B', note:'13% CAGR', color:C.purple}]
+      .map(function(m) {
+        return h('div', {key:m.label, style:card({display:'flex',alignItems:'center',gap:14,borderLeft:'3px solid '+m.color})},
+          h('div', {style:{fontFamily:mono,fontSize:22,color:m.color,minWidth:60}}, m.value),
+          h('div', null,
+            h('div', {style:{fontSize:13,color:C.text}}, m.label),
+            h('div', {style:{fontSize:11,color:C.muted}}, m.note)
+          )
+        );
+      })
+    ),
+    h(STitle, {title:'Competitive Landscape'}),
+    h(ScrollTable, {
+      headers: ['Competitor', 'Category', 'Price', 'Gap ThetaWire Exploits'],
+      rows: COMPS.map(function(c) {
+        return [{text:c.name,bold:true}, {text:c.cat,color:C.muted}, {text:c.price,color:C.amber,mono:true}, {text:c.gap,color:C.accent}];
+      })
+    }),
+    h('div', {style:{height:20}}),
+    h(STitle, {title:'Customer Profiles'}),
+    h('div', {style:{display:'grid',gap:10}},
+      [{label:'Primary', name:'Retail Investor + Sports Fan', age:'25\u201345', desc:'Tracks 5\u201320 stocks, watches sports seriously. Pays for newsletters. Listens during commute.', wtp:'$12\u201318/mo', color:C.accent},
+       {label:'Secondary', name:'Sports Bettor Who Invests', age:'22\u201338', desc:'DFS, sports betting, and a brokerage account. High WTP for proven signals.', wtp:'$15\u201322/mo', color:C.amber},
+       {label:'Tertiary', name:'Busy Professional', age:'30\u201350', desc:'Holds a 401k, wants to feel informed without 45 minutes of reading.', wtp:'$10\u201315/mo', color:C.purple}]
+      .map(function(p) {
+        return h('div', {key:p.label, style:card({borderTop:'2px solid '+p.color})},
+          h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:6}},
+            h('div', null,
+              h('div', {style:{fontSize:10,color:p.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, p.label),
+              h('div', {style:{fontSize:14,fontWeight:600,color:C.text,marginTop:2}}, p.name),
+              h('div', {style:{fontSize:11,color:C.muted}}, 'Age ' + p.age)
+            ),
+            h('div', {style:{background:p.color+'22',border:'1px solid '+p.color+'55',borderRadius:6,padding:'4px 10px',fontSize:11,color:p.color,fontFamily:mono,whiteSpace:'nowrap'}}, p.wtp)
+          ),
+          h('div', {style:{fontSize:12,color:C.muted,lineHeight:1.6}}, p.desc)
+        );
+      })
+    ),
+    h('div', {style:{height:20}}),
+    h(STitle, {title:'Marketing Phases'}),
+    h('div', {style:{display:'grid',gap:10}},
+      [{phase:'Phase 1',label:'Beta Launch',time:'Months 1\u20133',color:C.accent,
+        items:['Waitlist landing page + email capture','Twitter/X: post one public signal daily','Reddit: r/investing, r/sportsbetting, r/DraftKings','30-day free premium trial for first 100','Target: 200\u2013400 free users']},
+       {phase:'Phase 2',label:'Paid Conversion',time:'Months 4\u20136',color:C.blue,
+        items:['Email sequence D7/D14/D30 \u2014 missed signals','Audio player paywall with Upgrade CTA','Referral: 1 month free per referred paid user','Affiliate outreach to finance/sports YouTube','Target: 15\u201340 paid users']},
+       {phase:'Phase 3',label:'Growth',time:'Months 7\u201312',color:C.amber,
+        items:['Paid social: Twitter/X + Reddit $200\u2013500/mo','SEO: personalized brief, sports intel 2025','Product Hunt launch','Podcast guest spots / sponsorships','Target: 200\u2013300 paid users']}]
+      .map(function(p) {
+        return h('div', {key:p.phase, style:card({borderLeft:'3px solid '+p.color})},
+          h('div', {style:{fontSize:10,color:p.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, p.phase + ' \u2014 ' + p.time),
+          h('div', {style:{fontSize:14,fontWeight:600,color:C.text,margin:'3px 0 10px'}}, p.label),
+          p.items.map(function(it) {
+            return h('div', {key:it, style:{display:'flex',gap:8,marginBottom:5}},
+              h('span', {style:{color:p.color,fontSize:13,flexShrink:0}}, '\u203a'),
+              h('span', {style:{fontSize:12,color:C.muted,lineHeight:1.5}}, it)
+            );
+          })
+        );
+      })
+    )
   );
 }
+
+// ── Financials ───────────────────────────────────────────────────
 
 function Financials() {
-  const [price, setPrice]       = useState(15);
-  const [freeU, setFreeU]       = useState(500);
-  const [conv,  setConv]        = useState(5);
-  const [churn, setChurn]       = useState(5);
-  const [tts,   setTts]         = useState(4.5);
-  const [llm,   setLlm]         = useState(0.5);
+  var s0 = useState(15); var price = s0[0]; var setPrice = s0[1];
+  var s1 = useState(500); var freeU = s1[0]; var setFreeU = s1[1];
+  var s2 = useState(5); var conv = s2[0]; var setConv = s2[1];
+  var s3 = useState(5); var churn = s3[0]; var setChurn = s3[1];
+  var s4 = useState(4.5); var tts = s4[0]; var setTts = s4[1];
+  var s5 = useState(0.5); var llm = s5[0]; var setLlm = s5[1];
 
-  const vc         = tts + llm + 0.2;
-  const margin     = price - vc;
-  const overhead   = FIXED + freeU * FREE_COST;
-  const be         = margin > 0 ? Math.ceil(overhead / margin) : Infinity;
-  const ltv        = churn > 0 ? (margin / (churn / 100)) : 0;
-  const pctMargin  = (margin / price * 100);
+  var vc = +(tts + llm + 0.2).toFixed(2);
+  var margin = +(price - vc).toFixed(2);
+  var overhead = FIXED + freeU * FREE_COST;
+  var be = margin > 0 ? Math.ceil(overhead / margin) : null;
+  var ltv = churn > 0 ? Math.round(margin / (churn / 100)) : 0;
+  var pctM = margin > 0 ? ((margin / price) * 100).toFixed(0) : '0';
 
-  const chartData = [10,25,50,100,150,200,300,500,750,1000].map(u => ({
-    u: u >= 1000 ? `${u/1000}k` : String(u),
-    rev: u * price,
-    cost: Math.round(FIXED + u * vc + freeU * FREE_COST),
-  }));
+  var chartData = [10,25,50,100,200,300,500,750,1000].map(function(u) {
+    return {m: u >= 1000 ? (u/1000)+'k' : String(u), rev: u * price, cost: Math.round(FIXED + u * vc + freeU * FREE_COST)};
+  });
 
-  return (
-    <div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
-        <Stat label="Break-even" value={be===Infinity ? '∞' : be} sub="paid users needed"
-          color={be < 100 ? T.accent : be < 300 ? T.amber : T.red} />
-        <Stat label="Unit Margin" value={`${pctMargin.toFixed(0)}%`} sub={`$${margin.toFixed(2)}/user`}
-          color={margin > 5 ? T.accent : T.red} />
-        <Stat label="Paid from Free" value={Math.round(freeU*(conv/100))} sub={`At ${conv}% conv`} color="#38bdf8" />
-        <Stat label="LTV" value={`$${Math.round(ltv)}`} sub={`At ${churn}% churn`} color="#a78bfa" />
-      </div>
-
-      <div style={{ ...s.card(), marginBottom:12 }}>
-        <div style={{ fontSize:11, color:T.muted, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:14 }}>Pricing & Scale</div>
-        <SliderRow label="Price / month" value={price} min={8} max={25} step={1} fmt={v=>`$${v}/mo`} onChange={setPrice} />
-        <SliderRow label="Free users"    value={freeU} min={0} max={5000} step={50} fmt={v=>v.toLocaleString()} onChange={setFreeU} />
-        <SliderRow label="Free → paid %" value={conv}  min={1} max={20} step={1} fmt={v=>`${v}%`} onChange={setConv} />
-        <SliderRow label="Monthly churn" value={churn} min={1} max={15} step={1} fmt={v=>`${v}%`} onChange={setChurn} />
-      </div>
-
-      <div style={{ ...s.card(), marginBottom:16 }}>
-        <div style={{ fontSize:11, color:T.muted, textTransform:'uppercase', letterSpacing:'0.08em', marginBottom:14 }}>Variable Cost / Premium User</div>
-        <SliderRow label="TTS (ElevenLabs)" value={tts} min={0.5} max={12} step={0.5} fmt={v=>`$${v.toFixed(2)}`} onChange={setTts} />
-        <SliderRow label="LLM (Claude API)" value={llm} min={0.1} max={3}  step={0.1} fmt={v=>`$${v.toFixed(2)}`} onChange={setLlm} />
-        <div style={{ borderTop:`1px solid ${T.border}`, paddingTop:12, marginTop:4 }}>
-          <div style={{ display:'flex', justifyContent:'space-between' }}>
-            <span style={{ fontSize:12, color:T.muted }}>Storage + delivery (fixed est.)</span>
-            <span style={{ fontFamily:mono, fontSize:12, color:T.muted }}>$0.20</span>
-          </div>
-          <div style={{ display:'flex', justifyContent:'space-between', marginTop:6 }}>
-            <span style={{ fontSize:13, fontWeight:600, color:T.text }}>Total variable / user</span>
-            <span style={{ fontFamily:mono, fontSize:15, color:T.accent, fontWeight:700 }}>${vc.toFixed(2)}</span>
-          </div>
-        </div>
-      </div>
-
-      <SectionTitle title="Revenue vs Cost" />
-      <div style={{ height:200, marginBottom:16 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={chartData} margin={{ top:5, right:10, bottom:5, left:0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
-            <XAxis dataKey="u" tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false} />
-            <YAxis tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false}
-              tickFormatter={v => v >= 1000 ? `$${v/1000}k` : `$${v}`} width={40} />
-            <Tooltip {...ttFmt} formatter={(v,n) => [`$${Math.round(v).toLocaleString()}`, n]} />
-            <Line type="monotone" dataKey="rev"  name="Revenue"    stroke={T.accent} strokeWidth={2} dot={false} />
-            <Line type="monotone" dataKey="cost" name="Total Cost" stroke={T.red}    strokeWidth={2} dot={false} strokeDasharray="5 3" />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-      <div style={{ display:'flex', gap:16, fontSize:11, color:T.muted, marginBottom:20 }}>
-        <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:16, height:2, background:T.accent, display:'inline-block' }} />Revenue</span>
-        <span style={{ display:'flex', alignItems:'center', gap:5 }}><span style={{ width:16, height:2, background:T.red, display:'inline-block' }} />Total Cost</span>
-      </div>
-
-      <SectionTitle title="Break-even by Price Point" sub="Tap a row to set active price" />
-      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', margin:'0 -16px', padding:'0 16px' }}>
-        <table style={{ minWidth:380 }}>
-          <thead><tr>{['Price','Margin','Margin %','Break-even'].map(h=><th key={h} style={{ ...s.th, textAlign:'center' }}>{h}</th>)}</tr></thead>
-          <tbody>
-            {[10,12,15,18,22].map((p,i) => {
-              const cm = (p - vc), bep = cm > 0 ? Math.ceil(overhead/cm) : '∞';
-              const sel = p === price;
-              return (
-                <tr key={p} style={{ background: sel ? T.accentDim : i%2===0 ? T.surface : 'transparent', cursor:'pointer' }}
-                  onClick={() => setPrice(p)}>
-                  <td style={{ ...s.td, textAlign:'center', fontFamily:mono, color:sel ? T.accent : T.text, fontWeight:sel?700:400 }}>${p}</td>
-                  <td style={{ ...s.td, textAlign:'center', fontFamily:mono, color:cm>0?T.accent:T.red }}>${cm.toFixed(2)}</td>
-                  <td style={{ ...s.td, textAlign:'center', color:T.muted }}>{((cm/p)*100).toFixed(0)}%</td>
-                  <td style={{ ...s.td, textAlign:'center', fontFamily:mono, fontWeight:600,
-                    color: typeof bep==='number' && bep<100 ? T.accent : typeof bep==='number' && bep<300 ? T.amber : T.red }}>{bep}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={{ height:20 }} />
-      <SectionTitle title="Fixed Cost Stack" />
-      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', margin:'0 -16px', padding:'0 16px' }}>
-        <table style={{ minWidth:400 }}>
-          <thead><tr>{['Service','Plan','$/mo'].map(h=><th key={h} style={s.th}>{h}</th>)}</tr></thead>
-          <tbody>
-            {[
-              ['Polygon.io','Developer','$79'],
-              ['Finnhub','Professional','$50'],
-              ['FMP','Professional','$49'],
-              ['Tiingo','Power','$10'],
-              ['FRED','Free','$0'],
-              ['The Odds API','Basic','$0–50'],
-              ['Supabase','Pro','$25'],
-              ['Railway','Starter','$15'],
-              ['ElevenLabs','Creator→Pro','$22–99'],
-              ['Domain + email','Misc','$5'],
-            ].map(([svc,tier,cost],i) => (
-              <tr key={svc} style={{ background: i%2===0 ? T.surface : 'transparent' }}>
-                <td style={{ ...s.td, fontWeight:600, whiteSpace:'nowrap' }}>{svc}</td>
-                <td style={{ ...s.td, color:T.muted, fontSize:12 }}>{tier}</td>
-                <td style={{ ...s.td, fontFamily:mono, color:T.amber }}>{cost}</td>
-              </tr>
-            ))}
-            <tr style={{ background:T.accentDim }}>
-              <td style={{ ...s.td, fontWeight:700, color:T.accent }} colSpan={2}>Total Fixed (production)</td>
-              <td style={{ ...s.td, fontFamily:mono, fontWeight:700, color:T.accent }}>$332/mo</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+  return h('div', null,
+    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}},
+      h(Stat, {label:'Break-even', value:be===null?'\u221e':be, sub:'paid users', color:be===null?C.red:be<100?C.accent:be<300?C.amber:C.red}),
+      h(Stat, {label:'Unit Margin', value:pctM+'%', sub:'$'+margin+'/user', color:margin>5?C.accent:C.red}),
+      h(Stat, {label:'Paid from Free', value:Math.round(freeU*(conv/100)), sub:'At '+conv+'% conv', color:C.blue}),
+      h(Stat, {label:'LTV', value:'$'+ltv, sub:'At '+churn+'% churn', color:C.purple})
+    ),
+    h('div', {style:card({marginBottom:12})},
+      h('div', {style:{fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:14}}, 'Pricing & Scale'),
+      h(Slider, {label:'Price / month', value:price, min:8, max:25, step:1, fmt:function(v){return '$'+v+'/mo';}, onChange:setPrice}),
+      h(Slider, {label:'Free users', value:freeU, min:0, max:5000, step:50, fmt:function(v){return v.toLocaleString();}, onChange:setFreeU}),
+      h(Slider, {label:'Free \u2192 paid %', value:conv, min:1, max:20, step:1, fmt:function(v){return v+'%';}, onChange:setConv}),
+      h(Slider, {label:'Monthly churn', value:churn, min:1, max:15, step:1, fmt:function(v){return v+'%';}, onChange:setChurn})
+    ),
+    h('div', {style:card({marginBottom:16})},
+      h('div', {style:{fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.08em',marginBottom:14}}, 'Variable Cost / Premium User'),
+      h(Slider, {label:'TTS (ElevenLabs)', value:tts, min:0.5, max:12, step:0.5, fmt:function(v){return '$'+v.toFixed(2);}, onChange:setTts}),
+      h(Slider, {label:'LLM (Claude API)', value:llm, min:0.1, max:3, step:0.1, fmt:function(v){return '$'+v.toFixed(2);}, onChange:setLlm}),
+      h('div', {style:{borderTop:'1px solid '+C.border,paddingTop:12,marginTop:4}},
+        h('div', {style:{display:'flex',justifyContent:'space-between',marginBottom:4}},
+          h('span', {style:{fontSize:12,color:C.muted}}, 'Storage + delivery'),
+          h('span', {style:{fontFamily:mono,fontSize:12,color:C.muted}}, '$0.20')
+        ),
+        h('div', {style:{display:'flex',justifyContent:'space-between'}},
+          h('span', {style:{fontSize:13,fontWeight:600,color:C.text}}, 'Total variable / user'),
+          h('span', {style:{fontFamily:mono,fontSize:15,color:C.accent,fontWeight:700}}, '$'+vc)
+        )
+      )
+    ),
+    h(STitle, {title:'Revenue vs Cost'}),
+    h(LineChart, {data:chartData, height:175, series:[{key:'rev',color:C.accent},{key:'cost',color:C.red,dashed:true}]}),
+    h(Legend, {items:[{label:'Revenue',color:C.accent},{label:'Total Cost',color:C.red}]}),
+    h(STitle, {title:'Break-even by Price Point', sub:'Tap a row to set active price'}),
+    h('div', {style:{overflowX:'auto',WebkitOverflowScrolling:'touch',margin:'0 -16px',padding:'0 16px'}},
+      h('table', {style:{minWidth:310}},
+        h('thead', null, h('tr', null,
+          ['Price','Margin','Margin %','Break-even'].map(function(hdr) {
+            return h('th', {key:hdr, style:{fontSize:11,color:C.muted,textTransform:'uppercase',letterSpacing:'0.07em',padding:'8px 10px',borderBottom:'1px solid '+C.border,textAlign:'center'}}, hdr);
+          })
+        )),
+        h('tbody', null, [10,12,15,18,22].map(function(p, i) {
+          var cm = +(p - vc).toFixed(2);
+          var bep = cm > 0 ? Math.ceil(overhead / cm) : '\u221e';
+          var sel = p === price;
+          var beColor = typeof bep === 'number' ? (bep < 100 ? C.accent : bep < 300 ? C.amber : C.red) : C.red;
+          return h('tr', {key:p, style:{background:sel?C.accentDim:i%2===0?C.surface:'transparent',cursor:'pointer'}, onClick:function(){setPrice(p);}},
+            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',fontFamily:mono,color:sel?C.accent:C.text,fontWeight:sel?700:400}}, '$'+p),
+            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',fontFamily:mono,color:cm>0?C.accent:C.red}}, '$'+cm),
+            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',color:C.muted}}, ((cm/p)*100).toFixed(0)+'%'),
+            h('td', {style:{fontSize:13,padding:'9px 10px',borderBottom:'1px solid '+C.dim,textAlign:'center',fontFamily:mono,fontWeight:600,color:beColor}}, bep)
+          );
+        }))
+      )
+    ),
+    h('div', {style:{height:20}}),
+    h(STitle, {title:'Fixed Cost Stack'}),
+    h(ScrollTable, {
+      headers: ['Service', 'Plan', '$/mo'],
+      rows: [
+        [{text:'Polygon.io',bold:true},{text:'Developer',color:C.muted},{text:'$79',color:C.amber,mono:true}],
+        [{text:'Finnhub',bold:true},{text:'Professional',color:C.muted},{text:'$50',color:C.amber,mono:true}],
+        [{text:'FMP',bold:true},{text:'Professional',color:C.muted},{text:'$49',color:C.amber,mono:true}],
+        [{text:'Tiingo',bold:true},{text:'Power',color:C.muted},{text:'$10',color:C.amber,mono:true}],
+        [{text:'FRED',bold:true},{text:'Free',color:C.muted},{text:'$0',color:C.muted,mono:true}],
+        [{text:'The Odds API',bold:true},{text:'Basic',color:C.muted},{text:'$0\u201350',color:C.amber,mono:true}],
+        [{text:'Supabase',bold:true},{text:'Pro',color:C.muted},{text:'$25',color:C.amber,mono:true}],
+        [{text:'Railway',bold:true},{text:'Starter',color:C.muted},{text:'$15',color:C.amber,mono:true}],
+        [{text:'ElevenLabs',bold:true},{text:'Creator\u2192Pro',color:C.muted},{text:'$22\u201399',color:C.amber,mono:true}],
+        [{text:'Domain + email',bold:true},{text:'Misc',color:C.muted},{text:'$5',color:C.amber,mono:true}],
+        [{text:'Total Fixed',bold:true,color:C.accent},{text:'',color:C.muted},{text:'$332/mo',color:C.accent,mono:true,bold:true}]
+      ]
+    })
   );
 }
+
+// ── Projections ──────────────────────────────────────────────────
 
 function Projections() {
-  const [view, setView] = useState('mrr');
-
-  return (
-    <div>
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10, marginBottom:16 }}>
-        <Stat label="Month 12 MRR" value="$3,300" sub="220 paid users" />
-        <Stat label="Cash-flow +"  value="Month 7" sub="$138/mo profit" color={T.amber} />
-        <Stat label="Year 1 Revenue" value="~$16K" sub="Cumulative" color="#38bdf8" />
-        <Stat label="LTV (5% churn)" value="~$113" sub="Per paid user" color="#a78bfa" />
-      </div>
-
-      <div style={{ display:'flex', gap:6, marginBottom:16, flexWrap:'wrap' }}>
-        {[['mrr','MRR'],['users','Users'],['profit','P/L']].map(([k,l]) => (
-          <button key={k} onClick={() => setView(k)} style={{
-            padding:'7px 18px', fontSize:12, fontFamily:sans, letterSpacing:'0.06em',
-            background: view===k ? T.accent : 'transparent',
-            color: view===k ? '#000' : T.muted,
-            border:`1px solid ${view===k ? T.accent : T.border}`,
-            borderRadius:20, cursor:'pointer', textTransform:'uppercase', fontWeight: view===k?600:400,
-          }}>{l}</button>
-        ))}
-      </div>
-
-      <div style={{ height:220, marginBottom:16 }}>
-        <ResponsiveContainer width="100%" height="100%">
-          {view === 'users' ? (
-            <BarChart data={PROJ} margin={{ top:5, right:10, bottom:5, left:0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
-              <XAxis dataKey="m" tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false} />
-              <YAxis tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false} width={35} />
-              <Tooltip {...ttFmt} />
-              <Bar dataKey="free" name="Free"  fill={T.navyDim} stackId="a" />
-              <Bar dataKey="paid" name="Paid"  fill={T.accent}  stackId="a" radius={[3,3,0,0]} />
-            </BarChart>
-          ) : view === 'profit' ? (
-            <BarChart data={PROJ} margin={{ top:5, right:10, bottom:5, left:0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
-              <XAxis dataKey="m" tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false} />
-              <YAxis tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false}
-                tickFormatter={v => `$${v}`} width={45} />
-              <Tooltip {...ttFmt} formatter={v=>[`$${v}`, 'Net P/L']} />
-              <ReferenceLine y={0} stroke={T.muted} strokeDasharray="4 2" />
-              <Bar dataKey="profit" name="Net P/L" radius={[3,3,0,0]}>
-                {PROJ.map((e,i) => <Cell key={i} fill={e.profit >= 0 ? T.accent : T.red} />)}
-              </Bar>
-            </BarChart>
-          ) : (
-            <LineChart data={PROJ} margin={{ top:5, right:10, bottom:5, left:0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={T.dim} />
-              <XAxis dataKey="m" tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false} />
-              <YAxis tick={{ fill:T.muted, fontSize:10 }} axisLine={{ stroke:T.border }} tickLine={false}
-                tickFormatter={v => `$${v}`} width={45} />
-              <Tooltip {...ttFmt} formatter={v=>[`$${v}`, 'MRR']} />
-              <Line type="monotone" dataKey="mrr"  name="MRR"  stroke={T.accent} strokeWidth={2.5} dot={{ fill:T.accent, r:3 }} />
-              <Line type="monotone" dataKey="cost" name="Cost" stroke={T.red}    strokeWidth={1.5} strokeDasharray="5 3" dot={false} />
-            </LineChart>
-          )}
-        </ResponsiveContainer>
-      </div>
-
-      <SectionTitle title="Month-by-Month" />
-      <div style={{ overflowX:'auto', WebkitOverflowScrolling:'touch', margin:'0 -16px', padding:'0 16px' }}>
-        <table style={{ minWidth:380 }}>
-          <thead><tr>{['Mo','Free','Paid','MRR','P/L'].map(h=><th key={h} style={{ ...s.th, textAlign:'center' }}>{h}</th>)}</tr></thead>
-          <tbody>
-            {PROJ.map((r,i) => (
-              <tr key={r.m} style={{ background: i%2===0 ? T.surface : 'transparent' }}>
-                <td style={{ ...s.td, textAlign:'center', fontFamily:mono, color:T.muted }}>{r.m}</td>
-                <td style={{ ...s.td, textAlign:'center', color:T.muted }}>{r.free.toLocaleString()}</td>
-                <td style={{ ...s.td, textAlign:'center', color:T.accent, fontWeight:600 }}>{r.paid}</td>
-                <td style={{ ...s.td, textAlign:'center', fontFamily:mono }}>${r.mrr.toLocaleString()}</td>
-                <td style={{ ...s.td, textAlign:'center', fontFamily:mono, fontWeight:600,
-                  color: r.profit >= 0 ? T.accent : T.red }}>
-                  {r.profit >= 0 ? `+$${r.profit.toLocaleString()}` : `-$${Math.abs(r.profit).toLocaleString()}`}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div style={{ height:20 }} />
-      <SectionTitle title="Year 2 Scenarios" />
-      <div style={{ display:'grid', gap:10 }}>
-        {[
-          { label:'Conservative', users:'500', mrr:'$7,500', profit:'$38K', note:'5% conv, word-of-mouth', color:T.muted },
-          { label:'Base Case',    users:'900', mrr:'$13,500', profit:'$80K', note:'7% conv + referral',   color:T.accent },
-          { label:'Aggressive',   users:'1,800', mrr:'$27,000', profit:'$175K', note:'10% conv + paid acq', color:T.amber },
-        ].map(sc => (
-          <div key={sc.label} style={{ ...s.card(), borderTop:`2px solid ${sc.color}` }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start' }}>
-              <div>
-                <div style={{ fontSize:10, color:sc.color, textTransform:'uppercase', letterSpacing:'0.1em' }}>{sc.label}</div>
-                <div style={{ fontFamily:mono, fontSize:22, color:sc.color, margin:'4px 0 2px' }}>{sc.mrr}</div>
-                <div style={{ fontSize:11, color:T.muted }}>MRR at year end · {sc.users} paid users</div>
-              </div>
-              <div style={{ textAlign:'right' }}>
-                <div style={{ fontSize:10, color:T.muted }}>Net profit</div>
-                <div style={{ fontFamily:mono, fontSize:16, color:sc.color, fontWeight:700 }}>{sc.profit}</div>
-              </div>
-            </div>
-            <div style={{ fontSize:11, color:T.muted, marginTop:8, fontStyle:'italic' }}>{sc.note}</div>
-          </div>
-        ))}
-      </div>
-    </div>
+  var sv = useState('mrr'); var view = sv[0]; var setView = sv[1];
+  return h('div', null,
+    h('div', {style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:16}},
+      h(Stat, {label:'Month 12 MRR', value:'$3,300', sub:'220 paid users'}),
+      h(Stat, {label:'Cash-flow+', value:'Month 7', sub:'$138/mo profit', color:C.amber}),
+      h(Stat, {label:'Year 1 Revenue', value:'~$16K', sub:'Cumulative', color:C.blue}),
+      h(Stat, {label:'LTV (5% churn)', value:'~$113', sub:'Per paid user', color:C.purple})
+    ),
+    h('div', {style:{display:'flex',gap:6,marginBottom:16}},
+      [['mrr','MRR'],['users','Users'],['pl','P/L']].map(function(pair) {
+        var k=pair[0], l=pair[1];
+        return h('button', {key:k, onClick:function(){setView(k);}, style:{
+          padding:'7px 18px', fontSize:12, fontFamily:sans, letterSpacing:'0.06em',
+          background:view===k?C.accent:'transparent', color:view===k?'#000':C.muted,
+          border:'1px solid '+(view===k?C.accent:C.border), borderRadius:20,
+          textTransform:'uppercase', fontWeight:view===k?600:400
+        }}, l);
+      })
+    ),
+    view==='mrr'   ? h(LineChart,   {data:PROJ, height:175, series:[{key:'mrr',color:C.accent},{key:'cost',color:C.red,dashed:true}]}) : null,
+    view==='users' ? h(StackedBar,  {data:PROJ, height:175}) : null,
+    view==='pl'    ? h(BarChart,    {data:PROJ, height:175, yKey:'pl', colorFn:function(v){return v>=0?C.accent:C.red;}}) : null,
+    view==='mrr'   ? h(Legend, {items:[{label:'MRR',color:C.accent},{label:'Cost',color:C.red}]}) : null,
+    view==='users' ? h(Legend, {items:[{label:'Paid',color:C.accent,bar:true},{label:'Free',color:C.dim,bar:true}]}) : null,
+    h(STitle, {title:'Month-by-Month'}),
+    h(ScrollTable, {
+      headers: ['Mo','Free','Paid','MRR','P/L'],
+      rows: PROJ.map(function(r) {
+        return [
+          {text:r.m, color:C.muted, mono:true},
+          {text:r.free.toLocaleString(), color:C.muted},
+          {text:r.paid, color:C.accent, bold:true},
+          {text:'$'+r.mrr.toLocaleString(), mono:true},
+          {text:(r.pl>=0?'+$':'-$')+Math.abs(r.pl).toLocaleString(), color:r.pl>=0?C.accent:C.red, mono:true, bold:true}
+        ];
+      })
+    }),
+    h('div', {style:{height:20}}),
+    h(STitle, {title:'Year 2 Scenarios'}),
+    h('div', {style:{display:'grid',gap:10}},
+      [{label:'Conservative',users:'500',mrr:'$7,500',profit:'$38K',note:'5% conv, word-of-mouth only',color:C.muted},
+       {label:'Base Case',users:'900',mrr:'$13,500',profit:'$80K',note:'7% conv + referral program',color:C.accent},
+       {label:'Aggressive',users:'1,800',mrr:'$27,000',profit:'$175K',note:'10% conv + paid acquisition',color:C.amber}]
+      .map(function(sc) {
+        return h('div', {key:sc.label, style:card({borderTop:'2px solid '+sc.color})},
+          h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}},
+            h('div', null,
+              h('div', {style:{fontSize:10,color:sc.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, sc.label),
+              h('div', {style:{fontFamily:mono,fontSize:20,color:sc.color,margin:'4px 0 2px'}}, sc.mrr),
+              h('div', {style:{fontSize:11,color:C.muted}}, 'MRR at year end \u00b7 '+sc.users+' paid users')
+            ),
+            h('div', {style:{textAlign:'right'}},
+              h('div', {style:{fontSize:10,color:C.muted}}, 'Net profit'),
+              h('div', {style:{fontFamily:mono,fontSize:16,color:sc.color,fontWeight:700}}, sc.profit)
+            )
+          ),
+          h('div', {style:{fontSize:11,color:C.muted,marginTop:8,fontStyle:'italic'}}, sc.note)
+        );
+      })
+    )
   );
 }
+
+// ── Roadmap ──────────────────────────────────────────────────────
 
 function Roadmap() {
-  const [active, setActive] = useState(0);
-  const phase = PHASES[active];
-  const done = phase.items.filter(i => i.done).length;
-
-  return (
-    <div>
-      <div style={{ display:'flex', gap:6, marginBottom:20, overflowX:'auto', WebkitOverflowScrolling:'touch', margin:'0 -16px 16px', padding:'0 16px 4px', scrollbarWidth:'none' }}>
-        {PHASES.map((p,i) => (
-          <button key={p.phase} onClick={() => setActive(i)} style={{
-            padding:'8px 16px', fontSize:12, fontFamily:sans, whiteSpace:'nowrap',
-            background: active===i ? p.color : 'transparent',
-            color: active===i ? '#000' : T.muted,
-            border:`1px solid ${active===i ? p.color : T.border}`,
-            borderRadius:20, cursor:'pointer', fontWeight: active===i?600:400, flexShrink:0,
-          }}>
-            {p.phase}: {p.label}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ ...s.card(), borderLeft:`4px solid ${phase.color}`, marginBottom:16 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div>
-            <div style={{ fontSize:10, color:phase.color, textTransform:'uppercase', letterSpacing:'0.1em' }}>{phase.phase}</div>
-            <div style={{ fontFamily:serif, fontSize:22, color:T.text, margin:'3px 0 2px' }}>{phase.label}</div>
-          </div>
-          <div style={{ background:T.surface, border:`1px solid ${T.border}`, borderRadius:6, padding:'5px 11px', fontFamily:mono, fontSize:12, color:T.muted }}>{phase.time}</div>
-        </div>
-        <div style={{ marginTop:12, height:5, background:T.dim, borderRadius:3, overflow:'hidden' }}>
-          <div style={{ height:'100%', background:phase.color, borderRadius:3, width:`${(done/phase.items.length)*100}%`, transition:'width 0.3s' }} />
-        </div>
-        <div style={{ textAlign:'right', fontSize:11, color:T.muted, marginTop:4 }}>{done}/{phase.items.length} complete</div>
-      </div>
-
-      <div style={{ display:'grid', gap:8 }}>
-        {phase.items.map((item, ii) => (
-          <div key={ii} style={{ ...s.card(), display:'flex', alignItems:'flex-start', gap:12, padding:'12px 14px' }}>
-            <div style={{ width:22, height:22, borderRadius:'50%', border:`2px solid ${item.done ? phase.color : T.border}`,
-              background: item.done ? phase.color : 'transparent', display:'flex', alignItems:'center',
-              justifyContent:'center', flexShrink:0, marginTop:1 }}>
-              {item.done && <span style={{ color:'#000', fontSize:12, fontWeight:800 }}>✓</span>}
-            </div>
-            <div style={{ fontSize:13, color: item.done ? T.muted : T.text, textDecoration: item.done ? 'line-through' : 'none', lineHeight:1.5, flex:1 }}>{item.t}</div>
-            {item.done && <div style={{ fontSize:10, color:phase.color, flexShrink:0, marginTop:3 }}>Done</div>}
-          </div>
-        ))}
-      </div>
-    </div>
+  var sa = useState(0); var active = sa[0]; var setActive = sa[1];
+  var phase = PHASES[active];
+  var done = phase.items.filter(function(i){return i.done;}).length;
+  return h('div', null,
+    h('div', {style:{display:'flex',gap:6,overflowX:'auto',WebkitOverflowScrolling:'touch',margin:'0 -16px 16px',padding:'0 16px 4px',scrollbarWidth:'none'}},
+      PHASES.map(function(p, i) {
+        return h('button', {key:p.id, onClick:function(){setActive(i);}, style:{
+          padding:'8px 16px', fontSize:12, fontFamily:sans, whiteSpace:'nowrap',
+          background:active===i?p.color:'transparent', color:active===i?'#000':C.muted,
+          border:'1px solid '+(active===i?p.color:C.border), borderRadius:20,
+          fontWeight:active===i?600:400, flexShrink:0
+        }}, p.id+': '+p.label);
+      })
+    ),
+    h('div', {style:card({borderLeft:'4px solid '+phase.color,marginBottom:16})},
+      h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},
+        h('div', null,
+          h('div', {style:{fontSize:10,color:phase.color,textTransform:'uppercase',letterSpacing:'0.1em'}}, phase.id),
+          h('div', {style:{fontFamily:serif,fontSize:20,color:C.text,margin:'3px 0 2px'}}, phase.label)
+        ),
+        h('div', {style:{background:C.surface,border:'1px solid '+C.border,borderRadius:6,padding:'5px 11px',fontFamily:mono,fontSize:12,color:C.muted}}, phase.time)
+      ),
+      h('div', {style:{marginTop:12,height:5,background:C.dim,borderRadius:3,overflow:'hidden'}},
+        h('div', {style:{height:'100%',background:phase.color,borderRadius:3,width:((done/phase.items.length)*100)+'%',transition:'width 0.3s'}})
+      ),
+      h('div', {style:{textAlign:'right',fontSize:11,color:C.muted,marginTop:4}}, done+'/'+phase.items.length+' complete')
+    ),
+    h('div', {style:{display:'grid',gap:8}},
+      phase.items.map(function(item, ii) {
+        return h('div', {key:ii, style:card({display:'flex',alignItems:'flex-start',gap:12,padding:'12px 14px'})},
+          h('div', {style:{width:22,height:22,borderRadius:'50%',border:'2px solid '+(item.done?phase.color:C.border),background:item.done?phase.color:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}},
+            item.done ? h('span', {style:{color:'#000',fontSize:12,fontWeight:800}}, '\u2713') : null
+          ),
+          h('div', {style:{fontSize:13,color:item.done?C.muted:C.text,textDecoration:item.done?'line-through':'none',lineHeight:1.5,flex:1}}, item.t),
+          item.done ? h('div', {style:{fontSize:10,color:phase.color,flexShrink:0,marginTop:3}}, 'Done') : null
+        );
+      })
+    )
   );
 }
+
+// ── Checklist ────────────────────────────────────────────────────
 
 function Checklist() {
-  const [checks, setChecks] = useState({});
-  const done = Object.values(checks).filter(Boolean).length;
-  const total = CHECKLIST.length;
-  const allDone = done === total;
-
-  return (
-    <div>
-      <div style={{ ...s.card({ borderTop:`2px solid ${allDone ? T.accent : T.amber}` }), marginBottom:20 }}>
-        <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-          <div>
-            <div style={{ fontSize:15, fontWeight:600, color:T.text }}>Launch Readiness</div>
-            <div style={{ fontSize:12, color:T.muted, marginTop:2 }}>All 6 must be true before charging anyone</div>
-          </div>
-          <div style={{ textAlign:'right' }}>
-            <div style={{ fontFamily:mono, fontSize:30, color: allDone ? T.accent : T.amber, lineHeight:1 }}>{done}/{total}</div>
-            <div style={{ fontSize:10, color:T.muted }}>criteria met</div>
-          </div>
-        </div>
-        <div style={{ marginTop:12, height:6, background:T.dim, borderRadius:3, overflow:'hidden' }}>
-          <div style={{ height:'100%', background: allDone ? T.accent : T.amber, borderRadius:3, width:`${(done/total)*100}%`, transition:'width 0.4s' }} />
-        </div>
-      </div>
-
-      <div style={{ display:'grid', gap:10 }}>
-        {CHECKLIST.map(item => {
-          const isDone = checks[item.id];
-          return (
-            <div key={item.id}
-              onClick={() => setChecks(c => ({ ...c, [item.id]: !c[item.id] }))}
-              style={{ ...s.card(), cursor:'pointer', display:'flex', gap:14, alignItems:'flex-start',
-                borderLeft:`3px solid ${isDone ? T.accent : T.border}`,
-                background: isDone ? T.accentDim : T.card, transition:'all 0.2s',
-                WebkitTapHighlightColor:'transparent', userSelect:'none' }}>
-              <div style={{ width:26, height:26, borderRadius:7, border:`2px solid ${isDone ? T.accent : T.border}`,
-                background: isDone ? T.accent : 'transparent', display:'flex', alignItems:'center',
-                justifyContent:'center', flexShrink:0, marginTop:1, transition:'all 0.2s' }}>
-                {isDone && <span style={{ color:'#000', fontSize:14, fontWeight:800 }}>✓</span>}
-              </div>
-              <div style={{ flex:1 }}>
-                <div style={{ fontSize:14, color: isDone ? T.accent : T.text, fontWeight: isDone?600:400, marginBottom:3 }}>{item.t}</div>
-                <div style={{ fontSize:12, color:T.muted }}>{item.d}</div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {allDone && (
-        <div style={{ marginTop:16, ...s.card({ background:T.accentDim, border:`1px solid ${T.accent}`, textAlign:'center', padding:'22px 16px' }) }}>
-          <div style={{ fontFamily:serif, fontSize:22, color:T.accent, marginBottom:6 }}>You're ready to launch. 🚀</div>
-          <div style={{ fontSize:13, color:T.muted }}>All criteria met — go find your first subscriber.</div>
-        </div>
-      )}
-    </div>
+  var sc = useState({}); var checks = sc[0]; var setChecks = sc[1];
+  var done = Object.keys(checks).filter(function(k){return checks[k];}).length;
+  var allDone = done === CHECKS.length;
+  return h('div', null,
+    h('div', {style:card({borderTop:'2px solid '+(allDone?C.accent:C.amber),marginBottom:20})},
+      h('div', {style:{display:'flex',justifyContent:'space-between',alignItems:'center'}},
+        h('div', null,
+          h('div', {style:{fontSize:15,fontWeight:600,color:C.text}}, 'Launch Readiness'),
+          h('div', {style:{fontSize:12,color:C.muted,marginTop:2}}, 'All 6 must be true before charging anyone')
+        ),
+        h('div', {style:{textAlign:'right'}},
+          h('div', {style:{fontFamily:mono,fontSize:30,color:allDone?C.accent:C.amber,lineHeight:1}}, done+'/'+CHECKS.length),
+          h('div', {style:{fontSize:10,color:C.muted}}, 'criteria met')
+        )
+      ),
+      h('div', {style:{marginTop:12,height:6,background:C.dim,borderRadius:3,overflow:'hidden'}},
+        h('div', {style:{height:'100%',background:allDone?C.accent:C.amber,borderRadius:3,width:((done/CHECKS.length)*100)+'%',transition:'width 0.4s'}})
+      )
+    ),
+    h('div', {style:{display:'grid',gap:10}},
+      CHECKS.map(function(item) {
+        var isDone = !!checks[item.id];
+        return h('div', {key:item.id,
+          onClick:function(){setChecks(function(c){var n=Object.assign({},c);n[item.id]=!n[item.id];return n;});},
+          style:card({borderLeft:'3px solid '+(isDone?C.accent:C.border),background:isDone?C.accentDim:C.card,transition:'all 0.2s',cursor:'pointer',userSelect:'none'})},
+          h('div', {style:{display:'flex',gap:14,alignItems:'flex-start'}},
+            h('div', {style:{width:26,height:26,borderRadius:7,border:'2px solid '+(isDone?C.accent:C.border),background:isDone?C.accent:'transparent',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1,transition:'all 0.2s'}},
+              isDone ? h('span', {style:{color:'#000',fontSize:14,fontWeight:800}}, '\u2713') : null
+            ),
+            h('div', {style:{flex:1}},
+              h('div', {style:{fontSize:14,color:isDone?C.accent:C.text,fontWeight:isDone?600:400,marginBottom:3}}, item.t),
+              h('div', {style:{fontSize:12,color:C.muted}}, item.d)
+            )
+          )
+        );
+      })
+    ),
+    allDone ? h('div', {style:card({marginTop:16,background:C.accentDim,border:'1px solid '+C.accent,textAlign:'center',padding:'22px 16px'})},
+      h('div', {style:{fontFamily:serif,fontSize:22,color:C.accent,marginBottom:6}}, "You're ready to launch. \uD83D\uDE80"),
+      h('div', {style:{fontSize:13,color:C.muted}}, "All criteria met \u2014 go find your first subscriber.")
+    ) : null
   );
 }
 
-/* ── ROOT APP ────────────────────────────────────────────────────── */
+// ── Nav Icons ────────────────────────────────────────────────────
+
+function Icon(props) {
+  var col = props.active ? C.accent : C.muted;
+  var s = {width:22,height:22,viewBox:'0 0 24 24',fill:'none',stroke:col,strokeWidth:'1.8',strokeLinecap:'round',strokeLinejoin:'round'};
+  if (props.id==='overview')    return h('svg',s,h('rect',{x:'3',y:'3',width:'7',height:'7',rx:'1'}),h('rect',{x:'14',y:'3',width:'7',height:'7',rx:'1'}),h('rect',{x:'3',y:'14',width:'7',height:'7',rx:'1'}),h('rect',{x:'14',y:'14',width:'7',height:'7',rx:'1'}));
+  if (props.id==='market')      return h('svg',s,h('polyline',{points:'22 7 13.5 15.5 8.5 10.5 2 17'}),h('polyline',{points:'16 7 22 7 22 13'}));
+  if (props.id==='financials')  return h('svg',s,h('line',{x1:'12',y1:'2',x2:'12',y2:'22'}),h('path',{d:'M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6'}));
+  if (props.id==='projections') return h('svg',s,h('polyline',{points:'3 17 9 11 13 15 21 7'}),h('line',{x1:'3',y1:'21',x2:'21',y2:'21'}));
+  if (props.id==='roadmap')     return h('svg',s,h('line',{x1:'8',y1:'6',x2:'21',y2:'6'}),h('line',{x1:'8',y1:'12',x2:'21',y2:'12'}),h('line',{x1:'8',y1:'18',x2:'21',y2:'18'}),h('line',{x1:'3',y1:'6',x2:'3.01',y2:'6'}),h('line',{x1:'3',y1:'12',x2:'3.01',y2:'12'}),h('line',{x1:'3',y1:'18',x2:'3.01',y2:'18'}));
+  if (props.id==='checklist')   return h('svg',s,h('path',{d:'M22 11.08V12a10 10 0 1 1-5.93-9.14'}),h('polyline',{points:'22 4 12 14.01 9 11.01'}));
+  return null;
+}
+
+var NAV = [
+  {id:'overview',    label:'Overview'},
+  {id:'market',      label:'Market'},
+  {id:'financials',  label:'Financials'},
+  {id:'projections', label:'Forecast'},
+  {id:'roadmap',     label:'Roadmap'},
+  {id:'checklist',   label:'Launch'}
+];
+
+var SECTIONS = {
+  overview:    Overview,
+  market:      Market,
+  financials:  Financials,
+  projections: Projections,
+  roadmap:     Roadmap,
+  checklist:   Checklist
+};
+
+// ── App ──────────────────────────────────────────────────────────
+
 function App() {
-  const [nav, setNav] = useState('overview');
-  const scrollRef = useRef(null);
+  var sn = useState('overview'); var nav = sn[0]; var setNav = sn[1];
+  var scrollRef = useRef(null);
+  useEffect(function() { if (scrollRef.current) scrollRef.current.scrollTop = 0; }, [nav]);
 
-  useEffect(() => {
-    if (scrollRef.current) scrollRef.current.scrollTop = 0;
-  }, [nav]);
-
-  const sectionTitles = {
-    overview:'Overview', market:'Market', financials:'Financials',
-    projections:'Projections', roadmap:'Roadmap', checklist:'Launch',
-  };
-
-  return (
-    <div style={{ display:'flex', flexDirection:'column', height:'100%', background:T.bg }}>
-
-      {/* ── Header ─────────────────────────────────────────────── */}
-      <div style={{ background:T.surface, borderBottom:`1px solid ${T.border}`,
-        padding:`calc(env(safe-area-inset-top) + 12px) 16px 12px`,
-        display:'flex', alignItems:'center', justifyContent:'space-between', flexShrink:0 }}>
-        <div>
-          <div style={{ fontFamily:serif, fontSize:18, color:T.accent, fontWeight:700, letterSpacing:'0.03em' }}>ThetaWire</div>
-          <div style={{ fontFamily:sans, fontSize:10, color:T.muted, marginTop:1 }}>Business Plan 2025</div>
-        </div>
-        <div style={{ background:T.accentDim, border:`1px solid ${T.accent}33`, borderRadius:6,
-          padding:'4px 10px', fontFamily:sans, fontSize:11, color:T.accent, letterSpacing:'0.05em' }}>
-          {sectionTitles[nav]}
-        </div>
-      </div>
-
-      {/* ── Content ────────────────────────────────────────────── */}
-      <div ref={scrollRef} style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', padding:'20px 16px' }}>
-        {nav === 'overview'    && <Overview />}
-        {nav === 'market'      && <Market />}
-        {nav === 'financials'  && <Financials />}
-        {nav === 'projections' && <Projections />}
-        {nav === 'roadmap'     && <Roadmap />}
-        {nav === 'checklist'   && <Checklist />}
-        <div style={{ height:`calc(env(safe-area-inset-bottom) + 80px)` }} />
-      </div>
-
-      {/* ── Bottom Tab Bar ─────────────────────────────────────── */}
-      <div style={{ background:T.surface, borderTop:`1px solid ${T.border}`,
-        paddingBottom:'env(safe-area-inset-bottom)',
-        display:'flex', alignItems:'stretch', flexShrink:0, zIndex:50 }}>
-        {NAV_ITEMS.map(item => {
-          const active = nav === item.key;
-          return (
-            <button key={item.key} onClick={() => setNav(item.key)}
-              style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center',
-                gap:3, padding:'8px 4px', background:'none', border:'none', cursor:'pointer',
-                color: active ? T.accent : T.muted, transition:'color 0.15s', minHeight:56 }}>
-              <div style={{ lineHeight:1 }}>{Icons[item.key]}</div>
-              <div style={{ fontFamily:sans, fontSize:9, letterSpacing:'0.05em', textTransform:'uppercase', fontWeight: active?600:400 }}>
-                {item.label}
-              </div>
-              {active && <div style={{ width:4, height:4, borderRadius:'50%', background:T.accent, marginTop:1 }} />}
-            </button>
-          );
-        })}
-      </div>
-    </div>
+  return h('div', {style:{display:'flex',flexDirection:'column',height:'100%',background:C.bg}},
+    h('div', {style:{background:C.surface,borderBottom:'1px solid '+C.border,flexShrink:0,padding:'calc(env(safe-area-inset-top) + 10px) 16px 10px',display:'flex',alignItems:'center',justifyContent:'space-between'}},
+      h('div', null,
+        h('div', {style:{fontFamily:serif,fontSize:18,color:C.accent,fontWeight:700}}, 'ThetaWire'),
+        h('div', {style:{fontSize:10,color:C.muted}}, 'Business Plan 2025')
+      ),
+      h('div', {style:{background:C.accentDim,border:'1px solid '+C.accent+'33',borderRadius:6,padding:'4px 10px',fontSize:11,color:C.accent,fontFamily:sans}},
+        NAV.find(function(n){return n.id===nav;}).label
+      )
+    ),
+    h('div', {ref:scrollRef, style:{flex:1,overflowY:'auto',WebkitOverflowScrolling:'touch',padding:'20px 16px'}},
+      h(SECTIONS[nav], null),
+      h('div', {style:{height:'calc(env(safe-area-inset-bottom) + 74px)'}})
+    ),
+    h('div', {style:{background:C.surface,borderTop:'1px solid '+C.border,paddingBottom:'env(safe-area-inset-bottom)',display:'flex',flexShrink:0,zIndex:50}},
+      NAV.map(function(item) {
+        var active = nav === item.id;
+        return h('button', {
+          key:item.id,
+          onClick:function(){setNav(item.id);},
+          style:{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:3,padding:'8px 2px',background:'none',border:'none',minHeight:54,color:active?C.accent:C.muted,transition:'color 0.15s'}
+        },
+          h(Icon, {id:item.id, active:active}),
+          h('div', {style:{fontFamily:sans,fontSize:9,letterSpacing:'0.04em',textTransform:'uppercase',fontWeight:active?600:400}}, item.label),
+          active ? h('div', {style:{width:4,height:4,borderRadius:'50%',background:C.accent,marginTop:1}}) : null
+        );
+      })
+    )
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+ReactDOM.createRoot(document.getElementById('root')).render(h(App, null));
+
+})();
 </script>
 
 </body>
