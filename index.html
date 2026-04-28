@@ -1,310 +1,650 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Get Quizzicle Trivia — 3 C's Tavern</title>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Quizzicle Trivia • Season 1 • 3 C's Tavern</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@400;600;700&family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #111211; --bg2: #181a18; --bg3: #1f211f; --bg4: #262926;
-  --border: rgba(74,200,92,0.15); --border2: rgba(74,200,92,0.3);
-  --green: #4ac85c; --green2: #2e8a3c; --green-dim: rgba(74,200,92,0.12); --green-glow: rgba(74,200,92,0.08);
-  --text: #e8ece8; --text2: #9aab9a; --text3: #5a6b5a;
-  --gold: #f0b429; --silver: #b0bec5; --bronze: #cd8b5a;
-  --font: 'Space Grotesk', sans-serif; --mono: 'Space Mono', monospace;
+  --bg: #000000;
+  --bg-2: #000000;
+  --bg-3: #0a0a0a;
+  --panel: #050505;
+  --line: #2a2a2a;
+  --green: #00ff7f;
+  --green-dim: #00b85c;
+  --green-glow: rgba(0,255,127,0.35);
+  --gold: #ffd60a;
+  --silver: #e8e8e8;
+  --bronze: #e89642;
+  --text: #ffffff;
+  --text-dim: #b0b0b0;
+  --text-faint: #707070;
+  --red: #ff5555;
 }
-body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
-.dash { max-width: 960px; margin: 0 auto; padding: 28px 20px; }
-.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
-.header-left h1 { font-size: 24px; font-weight: 700; color: var(--green); letter-spacing: -0.5px; line-height: 1; }
-.header-left .venue { font-size: 12px; color: var(--text2); margin-top: 5px; font-family: var(--mono); text-transform: uppercase; letter-spacing: 1px; }
-.season-tabs { display: flex; gap: 6px; }
-.tab { padding: 7px 16px; border-radius: 4px; font-size: 13px; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--font); transition: all 0.15s; }
-.tab.active { background: var(--green); color: #0a1a0c; border-color: var(--green); }
-.tab:hover:not(.active) { border-color: var(--border2); color: var(--text); }
-.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
-@media (max-width: 600px) { .stat-row { grid-template-columns: repeat(2, 1fr); } }
-.stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
-.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-family: var(--mono); margin-bottom: 6px; }
-.stat-value { font-size: 26px; font-weight: 700; color: var(--green); line-height: 1; font-family: var(--mono); }
-.stat-sub { font-size: 12px; color: var(--text2); margin-top: 4px; }
-.main-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
-@media (max-width: 700px) { .main-grid { grid-template-columns: 1fr; } }
-.panel { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
-.panel-header { padding: 12px 16px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-.panel-title { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px; color: var(--green); font-family: var(--mono); }
-.panel-body { padding: 12px; }
-.lb-row { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 5px; margin-bottom: 3px; transition: background 0.1s; }
-.lb-row:hover { background: var(--green-glow); }
-.lb-rank { font-size: 13px; font-weight: 700; font-family: var(--mono); width: 22px; text-align: center; flex-shrink: 0; }
-.rank-1 { color: var(--gold); } .rank-2 { color: var(--silver); } .rank-3 { color: var(--bronze); } .rank-other { color: var(--text3); }
-.lb-medal { font-size: 14px; width: 18px; flex-shrink: 0; }
-.lb-team { flex: 1; font-size: 14px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.lb-pts { font-size: 14px; font-weight: 700; color: var(--green); font-family: var(--mono); flex-shrink: 0; }
-.lb-bar-wrap { width: 70px; flex-shrink: 0; }
-.lb-bar-bg { height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; }
-.lb-bar-fill { height: 4px; background: var(--green); border-radius: 2px; }
-.week-selector { display: flex; flex-wrap: wrap; gap: 4px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-.wk-btn { padding: 3px 9px; font-size: 11px; border-radius: 3px; cursor: pointer; border: 1px solid var(--border); background: transparent; color: var(--text2); font-family: var(--mono); transition: all 0.12s; }
-.wk-btn.active { background: var(--green-dim); border-color: var(--green); color: var(--green); }
-.wk-btn:hover:not(.active) { border-color: var(--border2); color: var(--text); }
-.week-table { width: 100%; border-collapse: collapse; font-size: 13px; }
-.week-table th { padding: 6px 8px; text-align: left; color: var(--text3); font-family: var(--mono); font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); font-weight: 400; }
-.week-table td { padding: 8px 8px; border-bottom: 1px solid rgba(74,200,92,0.06); }
-.week-table tr:last-child td { border-bottom: none; }
-.week-table tr:hover td { background: var(--green-glow); }
-.rank-badge { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 3px; font-size: 11px; font-weight: 700; font-family: var(--mono); }
-.rb-1 { background: rgba(240,180,41,0.15); color: var(--gold); }
-.rb-2 { background: rgba(176,190,197,0.15); color: var(--silver); }
-.rb-3 { background: rgba(205,139,90,0.15); color: var(--bronze); }
-.rb-o { background: var(--bg4); color: var(--text3); }
-.score-high { color: var(--green); font-family: var(--mono); font-weight: 700; }
-.score-mid { color: var(--text); font-family: var(--mono); font-weight: 700; }
-.score-low { color: var(--text3); font-family: var(--mono); font-weight: 700; }
-.trend-panel { margin-bottom: 20px; }
-.trend-wrap { position: relative; width: 100%; height: 220px; padding: 16px 12px 0; }
-.legend { display: flex; gap: 20px; flex-wrap: wrap; padding: 10px 16px 14px; }
-.legend-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2); font-family: var(--mono); }
-.legend-line { width: 20px; height: 3px; border-radius: 2px; display: inline-block; }
-.footer { text-align: center; padding: 20px 0 10px; font-size: 11px; color: var(--text3); font-family: var(--mono); letter-spacing: 0.5px; }
+
+- { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { background: var(–bg); color: var(–text); font-family: ‘Space Grotesk’, sans-serif; min-height: 100vh; -webkit-font-smoothing: antialiased; }
+
+body::before {
+content: ‘’; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+background:
+radial-gradient(ellipse 800px 400px at 20% 0%, rgba(0,255,127,0.05), transparent),
+radial-gradient(ellipse 600px 300px at 90% 100%, rgba(0,255,127,0.03), transparent);
+}
+body::after {
+content: ‘’; position: fixed; inset: 0; pointer-events: none; z-index: 1; opacity: 0.025;
+background-image: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.5) 2px, rgba(255,255,255,0.5) 3px);
+}
+
+.container { max-width: 1400px; margin: 0 auto; padding: 28px 24px 80px; position: relative; z-index: 2; }
+
+/* === HEADER === */
+.hero {
+border: 1px solid var(–line);
+background: linear-gradient(135deg, var(–bg-2), var(–bg));
+padding: 32px 36px;
+margin-bottom: 28px;
+position: relative;
+overflow: hidden;
+}
+.hero::before {
+content: ‘’; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+background: linear-gradient(90deg, transparent, var(–green), transparent);
+animation: scan 3s infinite;
+}
+@keyframes scan { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+.hero-inner { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 24px; }
+.brand-stack { display: flex; flex-direction: column; gap: 6px; }
+.tag {
+font-family: ‘JetBrains Mono’, monospace; font-size: 11px; letter-spacing: 0.3em;
+color: var(–green); text-transform: uppercase;
+}
+.tag::before { content: ’◢ ’; opacity: 0.7; }
+h1 {
+font-family: ‘Bungee’, sans-serif; font-size: clamp(2.4rem, 6vw, 4.8rem);
+letter-spacing: -0.02em; line-height: 0.95; color: var(–text);
+text-shadow: 0 0 40px rgba(0,255,127,0.2);
+}
+h1 .accent { color: var(–green); }
+.subtitle { font-family: ‘JetBrains Mono’, monospace; font-size: 13px; color: var(–text-dim); margin-top: 4px; letter-spacing: 0.05em; }
+.subtitle .pipe { color: var(–green); margin: 0 8px; }
+
+.meta-strip { display: flex; gap: 18px; flex-wrap: wrap; font-family: ‘JetBrains Mono’, monospace; font-size: 11px; color: var(–text-faint); }
+.meta-strip span { padding: 4px 10px; border: 1px solid var(–line); border-radius: 2px; }
+.meta-strip strong { color: var(–green); font-weight: 600; }
+
+/* === TABS === */
+.tabs {
+display: flex; gap: 0; margin-bottom: 0; border-bottom: 1px solid var(–line);
+overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(–line) transparent;
+}
+.tabs::-webkit-scrollbar { height: 4px; }
+.tabs::-webkit-scrollbar-thumb { background: var(–line); }
+.tab {
+background: none; border: none; color: var(–text-dim); cursor: pointer;
+padding: 14px 20px; font-family: ‘JetBrains Mono’, monospace; font-size: 12px;
+letter-spacing: 0.08em; text-transform: uppercase; transition: all 0.15s;
+white-space: nowrap; border-bottom: 2px solid transparent; margin-bottom: -1px;
+position: relative;
+}
+.tab:hover { color: var(–text); }
+.tab.active { color: var(–green); border-bottom-color: var(–green); }
+.tab.active::after {
+content: ‘’; position: absolute; inset: 0; background: var(–green);
+opacity: 0.05; pointer-events: none;
+}
+.tab .num { color: var(–text-faint); margin-right: 6px; font-weight: 700; }
+.tab.active .num { color: var(–green); }
+
+/* === PANELS === */
+.panel { display: none; padding-top: 32px; animation: fadeIn 0.35s ease-out; }
+.panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* === STAT CARDS === */
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 32px; }
+.stat-card {
+border: 1px solid var(–line); background: var(–panel); padding: 18px 20px;
+position: relative; overflow: hidden; transition: all 0.2s;
+}
+.stat-card:hover { border-color: var(–green-dim); transform: translateY(-2px); }
+.stat-card::before {
+content: ‘’; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(–green);
+transform: scaleY(0.3); transform-origin: top; transition: transform 0.3s;
+}
+.stat-card:hover::before { transform: scaleY(1); }
+.stat-label {
+font-family: ‘JetBrains Mono’, monospace; font-size: 10px; letter-spacing: 0.18em;
+color: var(–text-faint); text-transform: uppercase; margin-bottom: 8px;
+}
+.stat-value {
+font-family: ‘Archivo Black’, sans-serif; font-size: 22px; line-height: 1.1;
+color: var(–text); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.02em;
+}
+.stat-sub { font-family: ‘JetBrains Mono’, monospace; font-size: 11px; color: var(–green); }
+
+/* === SECTION HEADERS === */
+.sec-h {
+font-family: ‘Bungee’, sans-serif; font-size: 16px; letter-spacing: 0.05em;
+color: var(–text); margin: 32px 0 18px; padding-bottom: 10px;
+border-bottom: 1px solid var(–line); display: flex; align-items: center; gap: 12px;
+}
+.sec-h::before { content: ‘▸’; color: var(–green); font-size: 14px; }
+.sec-h .count { font-family: ‘JetBrains Mono’, monospace; font-size: 11px; color: var(–text-faint); margin-left: auto; font-weight: 400; letter-spacing: 0.05em; }
+
+/* === STANDINGS TABLE === */
+.standings { border: 1px solid var(–line); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; font-family: ‘Space Grotesk’, sans-serif; }
+thead { background: var(–bg-3); }
+th {
+text-align: left; padding: 12px 14px; font-family: ‘JetBrains Mono’, monospace;
+font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase;
+color: var(–text-dim); border-bottom: 1px solid var(–line); font-weight: 600;
+}
+th.num, td.num { text-align: right; }
+th.center, td.center { text-align: center; }
+tbody tr {
+border-bottom: 1px solid var(–line); transition: background 0.12s;
+}
+tbody tr:hover { background: rgba(0,255,127,0.04); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 14px; font-size: 14px; color: var(–text); }
+.team-name { font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.rank-cell {
+font-family: ‘Archivo Black’, sans-serif; font-size: 16px; width: 60px;
+text-align: center; color: var(–text-dim);
+}
+.rank-1 { color: var(–gold); text-shadow: 0 0 12px rgba(255,214,10,0.5); }
+.rank-2 { color: var(–silver); }
+.rank-3 { color: var(–bronze); }
+.rank-1::before { content: ‘🥇’; margin-right: 0; }
+.rank-2::before { content: ‘🥈’; margin-right: 0; }
+.rank-3::before { content: ‘🥉’; margin-right: 0; }
+.rank-1, .rank-2, .rank-3 { font-size: 18px; }
+
+.total-pts {
+font-family: ‘JetBrains Mono’, monospace; font-weight: 700; color: var(–green);
+}
+.muted { color: var(–text-dim); font-family: ‘JetBrains Mono’, monospace; font-size: 13px; }
+
+/* Top row glow */
+tbody tr.top-row { background: linear-gradient(90deg, rgba(0,255,127,0.06), transparent 60%); }
+tbody tr.top-row td { color: var(–text); }
+
+/* === CHARTS === */
+.chart-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+@media (min-width: 900px) { .chart-grid.two-col { grid-template-columns: 1fr 1fr; } }
+.chart-box {
+border: 1px solid var(–line); background: var(–panel); padding: 20px;
+position: relative;
+}
+.chart-box .chart-title {
+font-family: ‘JetBrains Mono’, monospace; font-size: 11px; letter-spacing: 0.15em;
+color: var(–text-dim); text-transform: uppercase; margin-bottom: 4px;
+}
+.chart-box .chart-sub {
+font-family: ‘Space Grotesk’, sans-serif; font-size: 18px; font-weight: 600;
+color: var(–text); margin-bottom: 16px;
+}
+.chart-wrap { position: relative; height: 360px; }
+.chart-wrap.tall { height: 580px; }
+
+/* === WEEK PANEL === */
+.week-meta {
+display: flex; gap: 24px; flex-wrap: wrap; margin-bottom: 24px;
+font-family: ‘JetBrains Mono’, monospace; font-size: 12px; color: var(–text-dim);
+}
+.week-meta strong { color: var(–green); font-weight: 600; }
+.week-meta .divider { color: var(–text-faint); }
+
+.score-cell { font-family: ‘JetBrains Mono’, monospace; color: var(–text-dim); font-size: 12px; }
+.score-cell.has-val { color: var(–text); }
+.score-cell.neg { color: var(–red); }
+
+/* footer */
+.footer {
+margin-top: 48px; padding-top: 24px; border-top: 1px solid var(–line);
+font-family: ‘JetBrains Mono’, monospace; font-size: 11px; color: var(–text-faint);
+text-align: center; letter-spacing: 0.1em; text-transform: uppercase;
+}
+.footer .pulse { display: inline-block; width: 6px; height: 6px; background: var(–green); border-radius: 50%; margin: 0 8px; animation: pulse 1.5s infinite; vertical-align: middle; }
+@keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 8px var(–green); } 50% { opacity: 0.4; box-shadow: 0 0 0 var(–green); } }
+
+/* mobile */
+@media (max-width: 700px) {
+.container { padding: 16px 12px 60px; }
+.hero { padding: 22px 18px; }
+th, td { padding: 10px 8px; font-size: 12px; }
+th { font-size: 9px; }
+.hide-sm { display: none; }
+.tab { padding: 12px 14px; font-size: 11px; }
+}
 </style>
+
 </head>
 <body>
-<div class="dash">
-  <div class="header">
-    <div class="header-left">
-      <h1>Get Quizzicle Trivia</h1>
-      <div class="venue">3 C's Tavern &mdash; Seasonal Scoreboard</div>
-    </div>
-    <div class="season-tabs">
-      <button class="tab" onclick="setSeason(1)">Season 1</button>
-      <button class="tab active" onclick="setSeason(2)">Season 2</button>
-    </div>
-  </div>
+<div class="container">
 
-  <div class="stat-row" id="stat-row"></div>
-
-  <div class="main-grid">
-    <div class="panel">
-      <div class="panel-header">
-        <span class="panel-title">Season Leaderboard</span>
-        <span style="font-size:11px;color:var(--text3);font-family:var(--mono);">Championship pts</span>
+  <header class="hero">
+    <div class="hero-inner">
+      <div class="brand-stack">
+        <div class="tag">Get Quizzicle Trivia // Season 1</div>
+        <h1>3 C'<span class="accent">S</span> TAVERN<br><span class="accent">SCOREBOARD</span></h1>
+        <div class="subtitle">9 weeks <span class="pipe">/</span> <span id="totalTeams">—</span> teams <span class="pipe">/</span> <span id="dateRange">—</span></div>
       </div>
-      <div class="panel-body" id="leaderboard-panel" style="padding:8px 6px;max-height:460px;overflow-y:auto;"></div>
+      <div class="meta-strip">
+        <span>SEASON <strong>01</strong></span>
+        <span>FORMAT <strong>R1–R5 + BONUS + POTW + QOD</strong></span>
+        <span>VENUE <strong>3 C'S TAVERN</strong></span>
+      </div>
     </div>
-    <div class="panel">
-      <div class="panel-header"><span class="panel-title">Weekly Results</span></div>
-      <div class="week-selector" id="week-selector"></div>
-      <div class="panel-body" id="weekly-panel" style="padding:8px;"></div>
-    </div>
-  </div>
+  </header>
 
-  <div class="panel trend-panel">
-    <div class="panel-header">
-      <span class="panel-title">Score Trend — Top Teams</span>
-      <span style="font-size:11px;color:var(--text3);font-family:var(--mono);" id="trend-subtitle"></span>
-    </div>
-    <div class="trend-wrap"><canvas id="trendChart"></canvas></div>
-    <div class="legend" id="trend-legend"></div>
-  </div>
+  <nav class="tabs" id="tabs"></nav>
 
-  <div class="footer">Get Quizzicle Trivia &mdash; 3 C's Tavern &mdash; Season Dashboard</div>
+  <main id="panels"></main>
+
+  <div class="footer">
+    <span class="pulse"></span> Quizzicle Trivia Network <span class="pulse"></span>
+  </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-const DATA = {
-  1: {
-    stats: { events: 9, teams: 34, topTeam: 'Tres Veganos', topPts: 98, bestScore: 57, bestTeam: 'Tres Veganos', bestWeek: 'Feb 10' },
-    leaderboard: [
-      {team:'Tres Veganos',pts:98},{team:'Super Smart Amigos',pts:44},{team:'Prosecco Princesses',pts:18},
-      {team:'Cotton Headed Ninny Muggin',pts:16},{team:'4 Stooges',pts:13},{team:'Illiterate',pts:8},
-      {team:'Taking Up Space',pts:8},{team:'Alaskan Flounder Basket',pts:8},{team:'Wake Up Drunk Man',pts:5},
-      {team:'Team Extreme',pts:3},{team:'Wait This Isnt Eddies',pts:3},{team:'Mystery Inc',pts:3},
-      {team:'Baton Rouge Cindy',pts:3},{team:'Prawn Stars',pts:1}
-    ],
-    weeks: {
-      'Dec 9': [{rank:1,team:'Tres Veganos',score:53},{rank:2,team:'4 Stooges',score:47},{rank:3,team:'Prosecco Princesses',score:44},{rank:4,team:'Team Extreme',score:41},{rank:5,team:'Prawn Stars',score:39},{rank:6,team:'I Forgot My Wallet',score:32},{rank:7,team:"Diddy Didn't Do It",score:27}],
-      'Dec 16': [{rank:1,team:'Tres Veganos',score:46},{rank:2,team:'Prosecco Princesses',score:42},{rank:3,team:'Wake Up Drunk Man',score:38},{rank:4,team:'Mystery Inc',score:32},{rank:5,team:'Three Stooges',score:25},{rank:6,team:'Super Smart Amigos',score:23},{rank:7,team:"Wait This Isn't Eddies",score:21},{rank:8,team:'Gabriel Needs A Raise',score:11}],
-      'Dec 23': [{rank:1,team:'Cotton Headed Ninny Muggin',score:56},{rank:2,team:'Tres Veganos',score:55},{rank:3,team:'Super Smart Amigos',score:39},{rank:4,team:'Were All Trying...',score:37},{rank:5,team:'Real Wafers',score:33},{rank:6,team:'The Six Stooges',score:30},{rank:7,team:'Dos Elfos',score:30}],
-      'Jan 6': [{rank:1,team:'Tres Veganos',score:51},{rank:2,team:'Super Smart Amigos',score:35.5},{rank:3,team:'Illiterate',score:26.5},{rank:4,team:'Bunch Of Stooges',score:25.5},{rank:5,team:'El Jefe Y La Chingona',score:12},{rank:6,team:'Paisons',score:12},{rank:7,team:'We Tried',score:2},{rank:8,team:'Crispi Crew',score:2}],
-      'Jan 13': [{rank:1,team:'Tres Veganos',score:52},{rank:2,team:'Alaskan Flounder Basket',score:51},{rank:3,team:'Super Smart Amigos',score:46},{rank:4,team:'Baton Rouge Cindy',score:39},{rank:5,team:'Technically Tim',score:34},{rank:6,team:'I Forgot My Wallet',score:29},{rank:7,team:'Prosecco Princesses',score:17},{rank:8,team:'Birthday Broads',score:15}],
-      'Jan 20': [{rank:1,team:'Tres Veganos',score:31},{rank:2,team:'Super Smart Amigos',score:30},{rank:3,team:'Prosecco Princesses',score:21},{rank:4,team:'Gabriel Needs A Raise',score:1}],
-      'Jan 27': [{rank:1,team:'Tres Veganos',score:43},{rank:2,team:'Eddie And Mad Dog',score:36},{rank:3,team:'Tuesdays',score:35},{rank:4,team:'Jeopardy Losers Club',score:29},{rank:5,team:'Three Stooges',score:28},{rank:6,team:'Super Smart Amigos',score:27},{rank:7,team:'I Might Be Wrong',score:21},{rank:8,team:'I Forgot My Wallet',score:21}],
-      'Feb 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:38},{rank:3,team:'Moses Supposes',score:33},{rank:4,team:'The Hamsters',score:32},{rank:5,team:"Owen's Grandpa",score:25}],
-      'Feb 10': [{rank:1,team:'Tres Veganos',score:57},{rank:2,team:'Jon And Leck',score:44},{rank:3,team:'Super Smart Amigos',score:42},{rank:4,team:'Prosecco Princesses',score:38},{rank:5,team:'Stupid Cupids',score:34},{rank:6,team:'Marias',score:11}]
-    },
-    trendWeeks: ['Dec 9','Dec 16','Dec 23','Jan 6','Jan 13','Jan 20','Jan 27','Feb 3','Feb 10'],
-    trendTeams: [
-      {name:'Tres Veganos',color:'#4ac85c',data:[53,46,55,51,52,31,43,41,57]},
-      {name:'Super Smart Amigos',color:'#2e8a3c',data:[null,23,39,35.5,46,30,27,38,42]},
-      {name:'Prosecco Princesses',color:'#7aad84',data:[44,42,null,null,17,21,null,null,38]}
-    ]
-  },
-  2: {
-    stats: { events: 8, teams: 50, topTeam: 'Tres Veganos', topPts: 337.5, bestScore: 59, bestTeam: 'Thre Caballeros', bestWeek: 'Mar 24' },
-    leaderboard: [
-      {team:'Tres Veganos',pts:337.5},{team:'Super Smart Amigos',pts:329.5},{team:'Sloppy Joes',pts:171.5},
-      {team:'A Very Unbirthday (Bear)',pts:128},{team:'Tres Caballeros',pts:126},{team:'Gabriel Needs A Raise',pts:66},
-      {team:'Big Booty Bitches',pts:58},{team:'Jack Daniels',pts:50},{team:'Epstein Escapists',pts:44.5},
-      {team:'Are You Cyrious',pts:37},{team:'Golden Toe Bean',pts:36.5},{team:'Awesome Sauce',pts:34.5},
-      {team:'Gabriels Angels',pts:30},{team:'Sorry Val',pts:29},{team:'Better Late Than Pregnant',pts:28},
-      {team:'The Birthday Brigade',pts:27},{team:'2 Chicks 1 Dick',pts:25},{team:'I Forgot My Wallet',pts:23},
-      {team:'Questionable First Date',pts:22},{team:'The Yips',pts:20},{team:'Shit Heads',pts:17},
-      {team:'Underdawgs',pts:9},{team:'Sandra Dee',pts:7},{team:'The Kaczinskis',pts:6}
-    ],
-    weeks: {
-      'Feb 17': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Super Smart Amigos',score:40},{rank:3,team:'A Very Unbirthday',score:39},{rank:4,team:'Sorry Val',score:29},{rank:5,team:'2 Chicks 1 Dick',score:25},{rank:6,team:'Underdawgs',score:9},{rank:7,team:'Sandra Dee',score:7},{rank:8,team:'The Kaczinskis',score:6}],
-      'Feb 24': [{rank:1,team:'Super Smart Amigos',score:53},{rank:2,team:'Tres Veganos',score:36},{rank:3,team:'Sloppy Joes',score:29},{rank:4,team:'Jack Daniels',score:24},{rank:5,team:'The Yips',score:20},{rank:6,team:'Gabriel Needs A Raise',score:19},{rank:7,team:'Shit Heads',score:17}],
-      'Mar 3': [{rank:1,team:'Tres Veganos',score:41},{rank:2,team:'Are You Cyrious',score:37},{rank:3,team:'Gabriels Angels',score:30},{rank:4,team:'Birthday Brigade',score:27},{rank:5,team:'Super Smart Amigos',score:25},{rank:6,team:'Tequila Mockingbird',score:15}],
-      'Mar 10': [{rank:1,team:'Big Booty Bitches',score:58},{rank:2,team:'Super Smart Amigos',score:51},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Chicken Wingin It',score:32},{rank:5,team:'Better Late Than Pregnant',score:28},{rank:6,team:'I Forgot My Wallet',score:23},{rank:7,team:'Questionable First Date',score:22}],
-      'Mar 17': [{rank:1,team:'Gucci',score:48},{rank:2,team:'Epstein Escapists',score:44.5},{rank:3,team:"O'tres Veganos",score:41.5},{rank:4,team:'Team Golden Toe Bean',score:36.5},{rank:5,team:'Awesome Sauce',score:34.5},{rank:6,team:'Super Smart Amigos',score:29},{rank:7,team:'Shamrock Shakers',score:28},{rank:8,team:'Sharkbait',score:26},{rank:9,team:'Blueyy',score:24},{rank:10,team:'Lettuce And Tomato',score:20.5}],
-      'Mar 24': [{rank:1,team:'Thre Caballeros',score:59},{rank:2,team:'Super Smart Amigos',score:50.5},{rank:3,team:'Tres Veganos',score:47},{rank:4,team:'Know Nothings',score:44},{rank:5,team:'Hard R',score:25},{rank:6,team:'Quiztopher + Tierney',score:21},{rank:7,team:'Jerry Berry',score:20},{rank:8,team:'Chama',score:18},{rank:9,team:'Shark Bait',score:16},{rank:10,team:'Hannah Montana',score:15}],
-      'Mar 31': [{rank:1,team:'Gabriel Needs A Raise',score:47},{rank:2,team:'Tres Veganos',score:41},{rank:3,team:'Super Smart Amigos',score:38},{rank:4,team:'Fire And Brimstone',score:37},{rank:5,team:'Samirs Mom',score:34},{rank:6,team:'Two Caballeros',score:25},{rank:7,team:'Jumpin Jerry',score:20},{rank:8,team:'Ball N Chain',score:15},{rank:9,team:'El Grande Americano',score:13},{rank:10,team:'Choo-Choo',score:9}],
-      'Apr 7': [{rank:1,team:'Two 2 Tango',score:45},{rank:2,team:'Super Smart Amigos',score:43},{rank:3,team:'Tres Veganos',score:43},{rank:4,team:'3 Caballeros',score:42},{rank:5,team:'Quiz On My Face',score:30.5},{rank:6,team:'Team Cannoli',score:28},{rank:7,team:'Multiple Scoregasm',score:27.5}]
-    },
-    trendWeeks: ['Feb 17','Feb 24','Mar 3','Mar 10','Mar 17','Mar 24','Mar 31','Apr 7'],
-    trendTeams: [
-      {name:'Tres Veganos',color:'#4ac85c',data:[41,36,41,47,41.5,47,41,43]},
-      {name:'Super Smart Amigos',color:'#2e8a3c',data:[40,53,25,51,29,50.5,38,43]},
-      {name:'Sloppy Joes',color:'#7aad84',data:[null,29,15,32,28,20,20,null]}
-    ]
-  }
+const DATA = {"weekLabels": ["February 24", "March 3", "March 10", "March 17", "March 24", "March 31", "April 7", "April 14", "April 21"], "teams": [{"key": "super smart amigos", "name": "super smart amigos", "total": 374.5, "weeksPlayed": 9, "avg": 41.61, "best": 54.0, "overtakes": 1, "weekTotals": {"February 24": 53.0, "March 3": 25.0, "March 10": 51.0, "March 17": 29.0, "March 24": 50.5, "March 31": 38.0, "April 7": 43.0, "April 14": 31.0, "April 21": 54.0}, "cumulative": {"February 24": 53.0, "March 3": 78.0, "March 10": 129.0, "March 17": 158.0, "March 24": 208.5, "March 31": 246.5, "April 7": 289.5, "April 14": 320.5, "April 21": 374.5}, "cumRank": {"February 24": 1, "March 3": 1, "March 10": 1, "March 17": 2, "March 24": 2, "March 31": 2, "April 7": 2, "April 14": 2, "April 21": 1}}, {"key": "tres veganos", "name": "tres veganos", "total": 368.5, "weeksPlayed": 9, "avg": 40.94, "best": 47.0, "overtakes": 1, "weekTotals": {"February 24": 36.0, "March 3": 41.0, "March 10": 47.0, "March 17": 41.5, "March 24": 47.0, "March 31": 41.0, "April 7": 43.0, "April 14": 37.0, "April 21": 35.0}, "cumulative": {"February 24": 36.0, "March 3": 77.0, "March 10": 124.0, "March 17": 165.5, "March 24": 212.5, "March 31": 253.5, "April 7": 296.5, "April 14": 333.5, "April 21": 368.5}, "cumRank": {"February 24": 2, "March 3": 2, "March 10": 2, "March 17": 1, "March 24": 1, "March 31": 1, "April 7": 1, "April 14": 1, "April 21": 2}}, {"key": "sloppy joes", "name": "Sloppy Joes", "total": 213.5, "weeksPlayed": 9, "avg": 23.72, "best": 32.0, "overtakes": 0, "weekTotals": {"February 24": 29.0, "March 3": 15.0, "March 10": 32.0, "March 17": 26.0, "March 24": 20.0, "March 31": 20.0, "April 7": 27.5, "April 14": 21.0, "April 21": 23.0}, "cumulative": {"February 24": 29.0, "March 3": 44.0, "March 10": 76.0, "March 17": 102.0, "March 24": 122.0, "March 31": 142.0, "April 7": 169.5, "April 14": 190.5, "April 21": 213.5}, "cumRank": {"February 24": 3, "March 3": 3, "March 10": 3, "March 17": 3, "March 24": 3, "March 31": 3, "April 7": 3, "April 14": 3, "April 21": 3}}, {"key": "three caballeros", "name": "Three caballeros", "total": 173.0, "weeksPlayed": 4, "avg": 43.25, "best": 59.0, "overtakes": 2, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 59.0, "March 31": 25.0, "April 7": 42.0, "April 14": null, "April 21": 47.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 59.0, "March 31": 84.0, "April 7": 126.0, "April 14": 126.0, "April 21": 173.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 6, "March 31": 4, "April 7": 4, "April 14": 4, "April 21": 4}}, {"key": "jack daniels", "name": "Jack Daniels", "total": 141.5, "weeksPlayed": 6, "avg": 23.58, "best": 30.5, "overtakes": 5, "weekTotals": {"February 24": 24.0, "March 3": null, "March 10": null, "March 17": 28.0, "March 24": 16.0, "March 31": null, "April 7": 30.5, "April 14": 20.0, "April 21": 23.0}, "cumulative": {"February 24": 24.0, "March 3": 24.0, "March 10": 24.0, "March 17": 52.0, "March 24": 68.0, "March 31": 68.0, "April 7": 98.5, "April 14": 118.5, "April 21": 141.5}, "cumRank": {"February 24": 4, "March 3": 7, "March 10": 9, "March 17": 5, "March 24": 5, "March 31": 6, "April 7": 6, "April 14": 5, "April 21": 5}}, {"key": "birthday brigade", "name": "the birthday brigade", "total": 116.0, "weeksPlayed": 3, "avg": 38.67, "best": 45.0, "overtakes": 9, "weekTotals": {"February 24": null, "March 3": 27.0, "March 10": null, "March 17": null, "March 24": 44.0, "March 31": null, "April 7": 45.0, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 27.0, "March 10": 27.0, "March 17": 27.0, "March 24": 71.0, "March 31": 71.0, "April 7": 116.0, "April 14": 116.0, "April 21": 116.0}, "cumRank": {"February 24": null, "March 3": 6, "March 10": 8, "March 17": 13, "March 24": 4, "March 31": 5, "April 7": 5, "April 14": 6, "April 21": 6}}, {"key": "el grande americano", "name": "el grande americano", "total": 73.0, "weeksPlayed": 3, "avg": 24.33, "best": 33.0, "overtakes": 25, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 13.0, "April 7": null, "April 14": 33.0, "April 21": 27.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 13.0, "April 7": 13.0, "April 14": 46.0, "April 21": 73.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 31, "April 7": 32, "April 14": 10, "April 21": 7}}, {"key": "gabriel needs a raise", "name": "Gabriel Needs a raise", "total": 66.0, "weeksPlayed": 2, "avg": 33.0, "best": 47.0, "overtakes": 15, "weekTotals": {"February 24": 19.0, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 47.0, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 19.0, "March 3": 19.0, "March 10": 19.0, "March 17": 19.0, "March 24": 19.0, "March 31": 66.0, "April 7": 66.0, "April 14": 66.0, "April 21": 66.0}, "cumRank": {"February 24": 6, "March 3": 9, "March 10": 13, "March 17": 19, "March 24": 22, "March 31": 7, "April 7": 7, "April 14": 7, "April 21": 8}}, {"key": "big booty bitches", "name": "big booty bitches", "total": 58.0, "weeksPlayed": 1, "avg": 58.0, "best": 58.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": 58.0, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 58.0, "March 17": 58.0, "March 24": 58.0, "March 31": 58.0, "April 7": 58.0, "April 14": 58.0, "April 21": 58.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": 4, "March 17": 4, "March 24": 7, "March 31": 8, "April 7": 8, "April 14": 8, "April 21": 9}}, {"key": "stage 5 clingers", "name": "stage 5 clingers", "total": 58.0, "weeksPlayed": 1, "avg": 58.0, "best": 58.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 58.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 0, "April 21": 58.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 10}}, {"key": "gucci", "name": "gucci", "total": 48.0, "weeksPlayed": 1, "avg": 48.0, "best": 48.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 48.0, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 48.0, "March 24": 48.0, "March 31": 48.0, "April 7": 48.0, "April 14": 48.0, "April 21": 48.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 6, "March 24": 8, "March 31": 9, "April 7": 9, "April 14": 9, "April 21": 11}}, {"key": "juicy mangos", "name": "juicy mangos", "total": 45.0, "weeksPlayed": 2, "avg": 22.5, "best": 23.0, "overtakes": 12, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": 22.0, "April 21": 23.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 22.0, "April 21": 45.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": 24, "April 21": 12}}, {"key": "epstein escapists", "name": "epstein escapists", "total": 44.5, "weeksPlayed": 1, "avg": 44.5, "best": 44.5, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 44.5, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 44.5, "March 24": 44.5, "March 31": 44.5, "April 7": 44.5, "April 14": 44.5, "April 21": 44.5}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 7, "March 24": 9, "March 31": 10, "April 7": 10, "April 14": 11, "April 21": 13}}, {"key": "tommys bday bitches", "name": "tommys bday bitches", "total": 44.0, "weeksPlayed": 1, "avg": 44.0, "best": 44.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 44.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 0, "April 21": 44.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 14}}, {"key": "team beauldur", "name": "team beauldur", "total": 38.0, "weeksPlayed": 1, "avg": 38.0, "best": 38.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": 38.0, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 38.0, "April 21": 38.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": 12, "April 21": 15}}, {"key": "fire and brimstone", "name": "fire and brimstone", "total": 37.0, "weeksPlayed": 1, "avg": 37.0, "best": 37.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 37.0, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 37.0, "April 7": 37.0, "April 14": 37.0, "April 21": 37.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 11, "April 7": 11, "April 14": 13, "April 21": 16}}, {"key": "are you cyrious", "name": "are you cyrious", "total": 37.0, "weeksPlayed": 1, "avg": 37.0, "best": 37.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": 37.0, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 37.0, "March 10": 37.0, "March 17": 37.0, "March 24": 37.0, "March 31": 37.0, "April 7": 37.0, "April 14": 37.0, "April 21": 37.0}, "cumRank": {"February 24": null, "March 3": 4, "March 10": 5, "March 17": 8, "March 24": 10, "March 31": 12, "April 7": 12, "April 14": 14, "April 21": 17}}, {"key": "team golden toe bean", "name": "team golden toe bean", "total": 36.5, "weeksPlayed": 1, "avg": 36.5, "best": 36.5, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 36.5, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 36.5, "March 24": 36.5, "March 31": 36.5, "April 7": 36.5, "April 14": 36.5, "April 21": 36.5}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 9, "March 24": 11, "March 31": 13, "April 7": 13, "April 14": 15, "April 21": 18}}, {"key": "awesome sauce", "name": "awesome sauce", "total": 34.5, "weeksPlayed": 1, "avg": 34.5, "best": 34.5, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 34.5, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 34.5, "March 24": 34.5, "March 31": 34.5, "April 7": 34.5, "April 14": 34.5, "April 21": 34.5}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 10, "March 24": 12, "March 31": 14, "April 7": 14, "April 14": 16, "April 21": 19}}, {"key": "armadillos", "name": "armadillos", "total": 34.0, "weeksPlayed": 1, "avg": 34.0, "best": 34.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 34.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 0, "April 21": 34.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 20}}, {"key": "samirs mom", "name": "samirs mom", "total": 34.0, "weeksPlayed": 1, "avg": 34.0, "best": 34.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 34.0, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 34.0, "April 7": 34.0, "April 14": 34.0, "April 21": 34.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 15, "April 7": 15, "April 14": 17, "April 21": 21}}, {"key": "gabriels angels", "name": "gabriels Angels", "total": 30.0, "weeksPlayed": 1, "avg": 30.0, "best": 30.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": 30.0, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 30.0, "March 10": 30.0, "March 17": 30.0, "March 24": 30.0, "March 31": 30.0, "April 7": 30.0, "April 14": 30.0, "April 21": 30.0}, "cumRank": {"February 24": null, "March 3": 5, "March 10": 6, "March 17": 11, "March 24": 13, "March 31": 16, "April 7": 16, "April 14": 18, "April 21": 22}}, {"key": "dj cannoli", "name": "dj cannoli", "total": 29.0, "weeksPlayed": 1, "avg": 29.0, "best": 29.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 29.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 0, "April 21": 29.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 23}}, {"key": "better late than pregnant", "name": "better late than pregnant", "total": 28.0, "weeksPlayed": 1, "avg": 28.0, "best": 28.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": 28.0, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 28.0, "March 17": 28.0, "March 24": 28.0, "March 31": 28.0, "April 7": 28.0, "April 14": 28.0, "April 21": 28.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": 7, "March 17": 12, "March 24": 14, "March 31": 17, "April 7": 17, "April 14": 19, "April 21": 24}}, {"key": "team cannoli", "name": "team cannoli", "total": 28.0, "weeksPlayed": 1, "avg": 28.0, "best": 28.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": 28.0, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 28.0, "April 14": 28.0, "April 21": 28.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": 18, "April 14": 20, "April 21": 25}}, {"key": "hard r", "name": "hard r", "total": 25.0, "weeksPlayed": 1, "avg": 25.0, "best": 25.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 25.0, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 25.0, "March 31": 25.0, "April 7": 25.0, "April 14": 25.0, "April 21": 25.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 15, "March 31": 18, "April 7": 19, "April 14": 21, "April 21": 26}}, {"key": "shrimps on the barbies", "name": "shrimps on the barbies", "total": 25.0, "weeksPlayed": 1, "avg": 25.0, "best": 25.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 25.0}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 0, "April 7": 0, "April 14": 0, "April 21": 25.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": 27}}, {"key": "blueyy", "name": "blueyy", "total": 24.0, "weeksPlayed": 1, "avg": 24.0, "best": 24.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 24.0, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 24.0, "March 24": 24.0, "March 31": 24.0, "April 7": 24.0, "April 14": 24.0, "April 21": 24.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 14, "March 24": 16, "March 31": 19, "April 7": 20, "April 14": 22, "April 21": 28}}, {"key": "i forgot my wallet", "name": "I forgot my wallet", "total": 23.0, "weeksPlayed": 1, "avg": 23.0, "best": 23.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": 23.0, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 23.0, "March 17": 23.0, "March 24": 23.0, "March 31": 23.0, "April 7": 23.0, "April 14": 23.0, "April 21": 23.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": 10, "March 17": 15, "March 24": 17, "March 31": 20, "April 7": 21, "April 14": 23, "April 21": 29}}, {"key": "questionable first date", "name": "questionable first date", "total": 22.0, "weeksPlayed": 1, "avg": 22.0, "best": 22.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": 22.0, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 22.0, "March 17": 22.0, "March 24": 22.0, "March 31": 22.0, "April 7": 22.0, "April 14": 22.0, "April 21": 22.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": 11, "March 17": 16, "March 24": 18, "March 31": 21, "April 7": 22, "April 14": 25, "April 21": 30}}, {"key": "quiztophrt + tierney", "name": "quiztophrt + Tierney", "total": 21.0, "weeksPlayed": 1, "avg": 21.0, "best": 21.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 21.0, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 21.0, "March 31": 21.0, "April 7": 21.0, "April 14": 21.0, "April 21": 21.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 19, "March 31": 22, "April 7": 23, "April 14": 26, "April 21": 31}}, {"key": "lettuce and tomato", "name": "lettuce and tomato", "total": 20.5, "weeksPlayed": 1, "avg": 20.5, "best": 20.5, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 20.5, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 20.5, "March 24": 20.5, "March 31": 20.5, "April 7": 20.5, "April 14": 20.5, "April 21": 20.5}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 17, "March 24": 20, "March 31": 23, "April 7": 24, "April 14": 27, "April 21": 32}}, {"key": "yips", "name": "The yips", "total": 20.0, "weeksPlayed": 1, "avg": 20.0, "best": 20.0, "overtakes": 0, "weekTotals": {"February 24": 20.0, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 20.0, "March 3": 20.0, "March 10": 20.0, "March 17": 20.0, "March 24": 20.0, "March 31": 20.0, "April 7": 20.0, "April 14": 20.0, "April 21": 20.0}, "cumRank": {"February 24": 5, "March 3": 8, "March 10": 12, "March 17": 18, "March 24": 21, "March 31": 24, "April 7": 25, "April 14": 28, "April 21": 33}}, {"key": "chama", "name": "chama", "total": 18.0, "weeksPlayed": 1, "avg": 18.0, "best": 18.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 18.0, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 18.0, "March 31": 18.0, "April 7": 18.0, "April 14": 18.0, "April 21": 18.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 23, "March 31": 25, "April 7": 26, "April 14": 29, "April 21": 34}}, {"key": "shit heads", "name": "shit heads", "total": 17.0, "weeksPlayed": 1, "avg": 17.0, "best": 17.0, "overtakes": 0, "weekTotals": {"February 24": 17.0, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 17.0, "March 3": 17.0, "March 10": 17.0, "March 17": 17.0, "March 24": 17.0, "March 31": 17.0, "April 7": 17.0, "April 14": 17.0, "April 21": 17.0}, "cumRank": {"February 24": 7, "March 3": 10, "March 10": 14, "March 17": 20, "March 24": 24, "March 31": 26, "April 7": 27, "April 14": 30, "April 21": 35}}, {"key": "hannah montana", "name": "hannah montana", "total": 15.0, "weeksPlayed": 1, "avg": 15.0, "best": 15.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 15.0, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 15.0, "March 31": 15.0, "April 7": 15.0, "April 14": 15.0, "April 21": 15.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 25, "March 31": 27, "April 7": 28, "April 14": 31, "April 21": 36}}, {"key": "ball n chain", "name": "ball n chain", "total": 15.0, "weeksPlayed": 1, "avg": 15.0, "best": 15.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 15.0, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 15.0, "April 7": 15.0, "April 14": 15.0, "April 21": 15.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 28, "April 7": 29, "April 14": 32, "April 21": 37}}, {"key": "leprecunts", "name": "the leprecunts", "total": 15.0, "weeksPlayed": 1, "avg": 15.0, "best": 15.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": 15.0, "March 24": null, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 15.0, "March 24": 15.0, "March 31": 15.0, "April 7": 15.0, "April 14": 15.0, "April 21": 15.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": 21, "March 24": 26, "March 31": 29, "April 7": 30, "April 14": 33, "April 21": 38}}, {"key": "rj junior senior", "name": "rj junior senior", "total": 13.5, "weeksPlayed": 1, "avg": 13.5, "best": 13.5, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 13.5, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 13.5, "March 31": 13.5, "April 7": 13.5, "April 14": 13.5, "April 21": 13.5}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 27, "March 31": 30, "April 7": 31, "April 14": 34, "April 21": 39}}, {"key": "girly pops", "name": "girly pops", "total": 12.0, "weeksPlayed": 1, "avg": 12.0, "best": 12.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 12.0, "March 31": null, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 12.0, "March 31": 12.0, "April 7": 12.0, "April 14": 12.0, "April 21": 12.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": 28, "March 31": 32, "April 7": 33, "April 14": 35, "April 21": 40}}, {"key": "choo-choo", "name": "choo-choo", "total": 9.0, "weeksPlayed": 1, "avg": 9.0, "best": 9.0, "overtakes": 0, "weekTotals": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 9.0, "April 7": null, "April 14": null, "April 21": null}, "cumulative": {"February 24": 0, "March 3": 0, "March 10": 0, "March 17": 0, "March 24": 0, "March 31": 9.0, "April 7": 9.0, "April 14": 9.0, "April 21": 9.0}, "cumRank": {"February 24": null, "March 3": null, "March 10": null, "March 17": null, "March 24": null, "March 31": 33, "April 7": 34, "April 14": 36, "April 21": 41}}], "weeks": [{"label": "February 24", "rows": [{"team": "super smart amigos", "scores": {"R1": 6, "R2": 2, "R3": 9, "R4": 6, "R5": 8, "Bonus": 15, "POTW": 5, "QOD": 2}, "total": 53}, {"team": "tres veganos", "scores": {"R1": 6, "R2": 1, "R3": 1, "R4": 2, "R5": 14, "Bonus": 5, "POTW": 5, "QOD": 2}, "total": 36}, {"team": "Sloppy Joes", "scores": {"R1": 6, "R2": 1, "R3": 1, "R4": 3, "R5": 14, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 29}, {"team": "Jack Daniels", "scores": {"R1": 1, "R2": 1, "R3": 9, "R4": 8, "R5": 1, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 24}, {"team": "The yips", "scores": {"R1": 6, "R2": 7, "R3": 7, "R4": 2, "R5": 2, "Bonus": -6, "POTW": null, "QOD": 2}, "total": 20}, {"team": "Gabriel Needs a raise", "scores": {"R1": 5, "R2": 6, "R3": 1, "R4": 1, "R5": 6, "Bonus": null, "POTW": null, "QOD": null}, "total": 19}, {"team": "shit heads", "scores": {"R1": 1, "R2": 1, "R3": 1, "R4": 8, "R5": 2, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 17}]}, {"label": "March 3", "rows": [{"team": "tres veganos", "scores": {"R1": 4, "R2": 6, "R3": 9, "R4": 6, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 41}, {"team": "are you cyrious", "scores": {"R1": 3, "R2": 4, "R3": 3, "R4": 6, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 37}, {"team": "gabriels Angels", "scores": {"R1": 4, "R2": 4, "R3": 5, "R4": 4, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 30}, {"team": "the birthday brigade", "scores": {"R1": 4, "R2": 3, "R3": 5, "R4": 2, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": 0}, "total": 27}, {"team": "super smart amigos", "scores": {"R1": 5, "R2": 3, "R3": 8, "R4": 2, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": -6}, "total": 25}, {"team": "Sloppy Joes", "scores": {"R1": 3, "R2": 1, "R3": 3, "R4": 1, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": -6}, "total": 15}]}, {"label": "March 10", "rows": [{"team": "big booty bitches", "scores": {"R1": 7, "R2": 4, "R3": 10, "R4": 10, "R5": 13, "Bonus": 5, "POTW": 2, "QOD": 7}, "total": 58}, {"team": "super smart amigos", "scores": {"R1": 5, "R2": 2, "R3": 8, "R4": 10, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": 10}, "total": 51}, {"team": "tres veganos", "scores": {"R1": 7, "R2": 6, "R3": 9, "R4": 6, "R5": 15, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 47}, {"team": "Sloppy Joes", "scores": {"R1": 1, "R2": 2, "R3": 5, "R4": 4, "R5": 14, "Bonus": 5, "POTW": 2, "QOD": -1}, "total": 32}, {"team": "better late than pregnant", "scores": {"R1": null, "R2": 1, "R3": 2, "R4": 6, "R5": 13, "Bonus": 5, "POTW": 2, "QOD": -1}, "total": 28}, {"team": "I forgot my wallet", "scores": {"R1": null, "R2": 1, "R3": 3, "R4": 6, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": null}, "total": 23}, {"team": "questionable first date", "scores": {"R1": 2, "R2": 1, "R3": 3, "R4": 4, "R5": 12, "Bonus": null, "POTW": null, "QOD": null}, "total": 22}]}, {"label": "March 17", "rows": [{"team": "gucci", "scores": {"R1": 3, "R2": 4, "R3": 9, "R4": 8, "R5": 15, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 48}, {"team": "epstein escapists", "scores": {"R1": 2, "R2": 3, "R3": 8.5, "R4": 4, "R5": 12, "Bonus": null, "POTW": null, "QOD": 15}, "total": 44.5}, {"team": "tres veganos", "scores": {"R1": 3, "R2": 3, "R3": 6.5, "R4": 8, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 41.5}, {"team": "team golden toe bean", "scores": {"R1": 3, "R2": 4, "R3": 7.5, "R4": 4, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": -1}, "total": 36.5}, {"team": "awesome sauce", "scores": {"R1": 6, "R2": 4, "R3": 9.5, "R4": 8, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": -6}, "total": 34.5}, {"team": "super smart amigos", "scores": {"R1": 4, "R2": 4, "R3": 9, "R4": 8, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": -6}, "total": 29}, {"team": "Jack Daniels", "scores": {"R1": 3, "R2": 1, "R3": 8, "R4": 6, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": null}, "total": 28}, {"team": "Sloppy Joes", "scores": {"R1": 2, "R2": 1, "R3": 9, "R4": 4, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": null}, "total": 26}, {"team": "blueyy", "scores": {"R1": 3, "R2": 2, "R3": 7, "R4": 6, "R5": 6, "Bonus": null, "POTW": null, "QOD": null}, "total": 24}, {"team": "lettuce and tomato", "scores": {"R1": 4, "R2": 4, "R3": 8.5, "R4": 4, "R5": null, "Bonus": null, "POTW": null, "QOD": null}, "total": 20.5}, {"team": "the leprecunts", "scores": {"R1": 1, "R2": 3, "R3": 7, "R4": 4, "R5": null, "Bonus": null, "POTW": null, "QOD": null}, "total": 15}]}, {"label": "March 24", "rows": [{"team": "Three caballeros", "scores": {"R1": 6, "R2": 5, "R3": 8, "R4": 8, "R5": 15, "Bonus": 5, "POTW": 2, "QOD": 10}, "total": 59}, {"team": "super smart amigos", "scores": {"R1": 6, "R2": 5, "R3": 9, "R4": 5, "R5": 13.5, "Bonus": 5, "POTW": 2, "QOD": 5}, "total": 50.5}, {"team": "tres veganos", "scores": {"R1": 4, "R2": 5, "R3": 7, "R4": 7, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 5}, "total": 47}, {"team": "the birthday brigade", "scores": {"R1": 2, "R2": 3, "R3": 8, "R4": 5, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 7}, "total": 44}, {"team": "hard r", "scores": {"R1": 4, "R2": 3, "R3": 6, "R4": 5, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 25}, {"team": "quiztophrt + Tierney", "scores": {"R1": 4, "R2": 1, "R3": 6, "R4": 6, "R5": 0, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 21}, {"team": "Sloppy Joes", "scores": {"R1": 4, "R2": 3, "R3": 4, "R4": 2, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 20}, {"team": "chama", "scores": {"R1": 4, "R2": 1, "R3": 4, "R4": 2, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 18}, {"team": "Jack Daniels", "scores": {"R1": 4, "R2": 1, "R3": 4, "R4": 2, "R5": 1, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 16}, {"team": "hannah montana", "scores": {"R1": 4, "R2": 4, "R3": 6, "R4": 4, "R5": 6, "Bonus": null, "POTW": null, "QOD": -9}, "total": 15}, {"team": "rj junior senior", "scores": {"R1": 3, "R2": 0, "R3": 5, "R4": 4, "R5": 1.5, "Bonus": null, "POTW": null, "QOD": null}, "total": 13.5}, {"team": "girly pops", "scores": {"R1": 3, "R2": 1, "R3": 6, "R4": 2, "R5": null, "Bonus": null, "POTW": null, "QOD": null}, "total": 12}]}, {"label": "March 31", "rows": [{"team": "Gabriel Needs a raise", "scores": {"R1": 6, "R2": 3, "R3": 2, "R4": 9, "R5": 12, "Bonus": null, "POTW": null, "QOD": 15}, "total": 47}, {"team": "tres veganos", "scores": {"R1": 3, "R2": 2, "R3": 6, "R4": 6, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 5}, "total": 41}, {"team": "super smart amigos", "scores": {"R1": 3, "R2": 4, "R3": 4, "R4": 6, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 38}, {"team": "fire and brimstone", "scores": {"R1": 2, "R2": 4, "R3": 2, "R4": 8, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": 5}, "total": 37}, {"team": "samirs mom", "scores": {"R1": 2, "R2": 3, "R3": 2, "R4": 6, "R5": 12, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 34}, {"team": "Three caballeros", "scores": {"R1": 1, "R2": 6, "R3": 6, "R4": 5, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": -6}, "total": 25}, {"team": "Sloppy Joes", "scores": {"R1": 2, "R2": 1, "R3": 2, "R4": 2, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": null}, "total": 20}, {"team": "ball n chain", "scores": {"R1": 2, "R2": 2, "R3": 1, "R4": 7, "R5": 12, "Bonus": null, "POTW": null, "QOD": -9}, "total": 15}, {"team": "el grande americano", "scores": {"R1": 1, "R2": 1, "R3": 2, "R4": 2, "R5": 6, "Bonus": 5, "POTW": 2, "QOD": -6}, "total": 13}, {"team": "choo-choo", "scores": {"R1": 4, "R2": 5, "R3": null, "R4": null, "R5": null, "Bonus": null, "POTW": null, "QOD": null}, "total": 9}]}, {"label": "April 7", "rows": [{"team": "the birthday brigade", "scores": {"R1": 7, "R2": 4, "R3": 8, "R4": 8, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 45}, {"team": "super smart amigos", "scores": {"R1": 7, "R2": 4, "R3": 6, "R4": 10, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": null}, "total": 43}, {"team": "tres veganos", "scores": {"R1": 7, "R2": 3, "R3": 7, "R4": 10, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": null}, "total": 43}, {"team": "Three caballeros", "scores": {"R1": 7, "R2": 5, "R3": 7, "R4": 10, "R5": 9, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 42}, {"team": "Jack Daniels", "scores": {"R1": 4, "R2": 3, "R3": 4, "R4": 6, "R5": 4.5, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 30.5}, {"team": "team cannoli", "scores": {"R1": 4, "R2": 3, "R3": 3, "R4": 6, "R5": 3, "Bonus": 5, "POTW": 2, "QOD": 2}, "total": 28}, {"team": "Sloppy Joes", "scores": {"R1": 4, "R2": 3, "R3": 3, "R4": 6, "R5": 7.5, "Bonus": 5, "POTW": 2, "QOD": -3}, "total": 27.5}]}, {"label": "April 14", "rows": [{"team": "team beauldur", "scores": {"R1": 6, "R2": 4, "R3": 7, "R4": 10, "R5": 4, "Bonus": null, "POTW": 5, "QOD": 2}, "total": 38}, {"team": "tres veganos", "scores": {"R1": 6, "R2": 4, "R3": 5, "R4": 6, "R5": 4, "Bonus": 5, "POTW": 5, "QOD": 2}, "total": 37}, {"team": "el grande americano", "scores": {"R1": 6, "R2": 2, "R3": 6, "R4": 10, "R5": 0, "Bonus": 2, "POTW": 5, "QOD": 2}, "total": 33}, {"team": "super smart amigos", "scores": {"R1": 6, "R2": 1, "R3": 3, "R4": 3, "R5": 6, "Bonus": 5, "POTW": 5, "QOD": 2}, "total": 31}, {"team": "juicy mangos", "scores": {"R1": 4, "R2": 1, "R3": 3, "R4": 4, "R5": 3, "Bonus": null, "POTW": 5, "QOD": 2}, "total": 22}, {"team": "Sloppy Joes", "scores": {"R1": 6, "R2": 1, "R3": 1, "R4": 4, "R5": 0, "Bonus": 2, "POTW": 5, "QOD": 2}, "total": 21}, {"team": "Jack Daniels", "scores": {"R1": null, "R2": 1, "R3": 4, "R4": 5, "R5": 3, "Bonus": 0, "POTW": 5, "QOD": 2}, "total": 20}]}, {"label": "April 21", "rows": [{"team": "stage 5 clingers", "scores": {"R1": 6, "R2": 7, "R3": 9, "R4": 6, "R5": 8, "Bonus": 15, "POTW": 5, "QOD": 2}, "total": 58}, {"team": "super smart amigos", "scores": {"R1": 6, "R2": 5, "R3": 9, "R4": 8, "R5": 14, "Bonus": 5, "POTW": 5, "QOD": 2}, "total": 54}, {"team": "Three caballeros", "scores": {"R1": 6, "R2": 6, "R3": 9, "R4": 8, "R5": 14, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 47}, {"team": "tommys bday bitches", "scores": {"R1": 4, "R2": 5, "R3": 9, "R4": 8, "R5": 14, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 44}, {"team": "tres veganos", "scores": {"R1": 6, "R2": 7, "R3": 7, "R4": 6, "R5": 8, "Bonus": -6, "POTW": 5, "QOD": 2}, "total": 35}, {"team": "armadillos", "scores": {"R1": 5, "R2": 6, "R3": 6, "R4": 4, "R5": 6, "Bonus": null, "POTW": 5, "QOD": 2}, "total": 34}, {"team": "dj cannoli", "scores": {"R1": 1, "R2": 3, "R3": 7, "R4": 8, "R5": 6, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 29}, {"team": "el grande americano", "scores": {"R1": 2, "R2": 2, "R3": 7, "R4": 6, "R5": 6, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 27}, {"team": "shrimps on the barbies", "scores": {"R1": 5, "R2": 6, "R3": 4, "R4": 6, "R5": 5, "Bonus": -1, "POTW": null, "QOD": null}, "total": 25}, {"team": "Sloppy Joes", "scores": {"R1": 1, "R2": 2, "R3": 6, "R4": 4, "R5": 6, "Bonus": -3, "POTW": 5, "QOD": 2}, "total": 23}, {"team": "juicy mangos", "scores": {"R1": 4, "R2": 1, "R3": 9, "R4": 2, "R5": null, "Bonus": null, "POTW": 5, "QOD": 2}, "total": 23}, {"team": "Jack Daniels", "scores": {"R1": 2, "R2": 1, "R3": 6, "R4": 4, "R5": 3, "Bonus": null, "POTW": 5, "QOD": 2}, "total": 23}]}], "weeklyWinners": [{"week": "February 24", "team": "super smart amigos", "score": 53.0}, {"week": "March 3", "team": "tres veganos", "score": 41.0}, {"week": "March 10", "team": "big booty bitches", "score": 58.0}, {"week": "March 17", "team": "gucci", "score": 48.0}, {"week": "March 24", "team": "Three caballeros", "score": 59.0}, {"week": "March 31", "team": "Gabriel Needs a raise", "score": 47.0}, {"week": "April 7", "team": "the birthday brigade", "score": 45.0}, {"week": "April 14", "team": "team beauldur", "score": 38.0}, {"week": "April 21", "team": "stage 5 clingers", "score": 58.0}]};
+
+/* ============== UTILS ============== */
+const fmt = (n) => n == null ? '—' : (Math.round(n * 10) / 10).toString();
+const fmtNeg = (n) => n == null ? '—' : (n < 0 ? '−' + Math.abs(n) : n);
+const UC = (s) => (s == null ? '' : String(s).toUpperCase());
+
+/* ============== TABS ============== */
+const tabs = document.getElementById('tabs');
+const panels = document.getElementById('panels');
+
+const tabDefs = [
+  { id: 'dashboard', label: 'DASHBOARD', num: '00' },
+  ...DATA.weeks.map((w, i) => ({ id: 'wk' + (i+1), label: w.label.toUpperCase(), num: String(i+1).padStart(2,'0') }))
+];
+
+tabDefs.forEach((t, i) => {
+  const b = document.createElement('button');
+  b.className = 'tab' + (i === 0 ? ' active' : '');
+  b.dataset.target = t.id;
+  b.innerHTML = `<span class="num">${t.num}</span>${t.label}`;
+  b.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById(t.id).classList.add('active');
+    if (t.id === 'dashboard') ensureCharts();
+  });
+  tabs.appendChild(b);
+});
+
+/* ============== HEADER METADATA ============== */
+document.getElementById('totalTeams').textContent = DATA.teams.length;
+document.getElementById('dateRange').textContent = DATA.weekLabels[0] + ' → ' + DATA.weekLabels[DATA.weekLabels.length - 1];
+
+/* ============== DASHBOARD PANEL ============== */
+function buildDashboard() {
+  const champ = DATA.teams[0];
+  const runnerUp = DATA.teams[1];
+
+  // Highest single week
+  let bestSingle = { team: '', score: -Infinity, week: '' };
+  DATA.teams.forEach(t => {
+    Object.entries(t.weekTotals).forEach(([wl, v]) => {
+      if (v != null && v > bestSingle.score) bestSingle = { team: t.name, score: v, week: wl };
+    });
+  });
+
+  // Most overtakes
+  const mostOvertakes = [...DATA.teams].sort((a,b) => b.overtakes - a.overtakes)[0];
+
+  const totalTeamWeeks = DATA.teams.reduce((s,t) => s + t.weeksPlayed, 0);
+
+  const panel = document.createElement('section');
+  panel.className = 'panel active';
+  panel.id = 'dashboard';
+  panel.innerHTML = `
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">// Season Champ</div>
+        <div class="stat-value">${champ.name}</div>
+        <div class="stat-sub">${fmt(champ.total)} pts · ${champ.weeksPlayed} weeks</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">// Highest Single Week</div>
+        <div class="stat-value">${bestSingle.team}</div>
+        <div class="stat-sub">${fmt(bestSingle.score)} pts · ${bestSingle.week}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">// Most Overtakes</div>
+        <div class="stat-value">${mostOvertakes.name}</div>
+        <div class="stat-sub">+${mostOvertakes.overtakes} spots gained</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">// Title Race Margin</div>
+        <div class="stat-value">${fmt(champ.total - runnerUp.total)} pts</div>
+        <div class="stat-sub">${UC(champ.name.split(' ')[0])} over ${UC(runnerUp.name.split(' ')[0])}</div>
+      </div>
+    </div>
+
+    <h2 class="sec-h">Final Standings <span class="count">${DATA.teams.length} teams</span></h2>
+    <div class="standings">
+      <table>
+        <thead>
+          <tr>
+            <th class="center">Rank</th>
+            <th>Team</th>
+            <th class="num">Total</th>
+            <th class="num hide-sm">Weeks</th>
+            <th class="num hide-sm">Avg</th>
+            <th class="num hide-sm">Best</th>
+            <th class="num hide-sm">Overtakes</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${DATA.teams.map((t, i) => {
+            const r = i + 1;
+            const rc = r <= 3 ? `rank-${r}` : '';
+            const tr = r <= 3 ? 'top-row' : '';
+            return `
+              <tr class="${tr}">
+                <td class="rank-cell ${rc}">${r}</td>
+                <td class="team-name">${t.name}</td>
+                <td class="num total-pts">${fmt(t.total)}</td>
+                <td class="num hide-sm muted">${t.weeksPlayed}</td>
+                <td class="num hide-sm muted">${fmt(t.avg)}</td>
+                <td class="num hide-sm muted">${fmt(t.best)}</td>
+                <td class="num hide-sm muted">+${t.overtakes}</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="sec-h">Cumulative Progression <span class="count">Top 8 teams</span></h2>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-title">// LINE</div>
+        <div class="chart-sub">Running Total — Week by Week</div>
+        <div class="chart-wrap"><canvas id="cumChart"></canvas></div>
+      </div>
+    </div>
+
+    <h2 class="sec-h">Rank Progression <span class="count">Lower = better</span></h2>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-title">// MOVEMENT</div>
+        <div class="chart-sub">Cumulative Rank — Top 8 by Week</div>
+        <div class="chart-wrap"><canvas id="rankChart"></canvas></div>
+      </div>
+    </div>
+
+    <h2 class="sec-h">Season Totals <span class="count">All teams</span></h2>
+    <div class="chart-grid">
+      <div class="chart-box">
+        <div class="chart-title">// HORIZONTAL BAR</div>
+        <div class="chart-sub">Total Points by Team</div>
+        <div class="chart-wrap tall"><canvas id="totalsChart"></canvas></div>
+      </div>
+    </div>
+
+    <h2 class="sec-h">Weekly Winners <span class="count">${DATA.weeklyWinners.length} weeks</span></h2>
+    <div class="chart-grid two-col">
+      <div class="chart-box">
+        <div class="chart-title">// COLUMN</div>
+        <div class="chart-sub">Winning Score per Week</div>
+        <div class="chart-wrap"><canvas id="winnersChart"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-title">// LIST</div>
+        <div class="chart-sub">Week-by-Week Champions</div>
+        <div style="max-height: 360px; overflow-y: auto;">
+          <table>
+            <thead><tr><th>Week</th><th>Champion</th><th class="num">Pts</th></tr></thead>
+            <tbody>
+              ${DATA.weeklyWinners.map((w, i) => `
+                <tr>
+                  <td class="muted">W${i+1} · ${w.week}</td>
+                  <td class="team-name">${w.team}</td>
+                  <td class="num total-pts">${fmt(w.score)}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+  panels.appendChild(panel);
+}
+
+/* ============== WEEKLY PANELS ============== */
+function buildWeekPanel(week, idx) {
+  const panel = document.createElement('section');
+  panel.className = 'panel';
+  panel.id = 'wk' + (idx + 1);
+
+  const winner = week.rows[0];
+  const total = week.rows.reduce((s, r) => s + (r.total || 0), 0);
+  const avg = total / week.rows.length;
+  const margin = week.rows.length > 1 ? week.rows[0].total - week.rows[1].total : 0;
+
+  const scoreKeys = ['R1','R2','R3','R4','R5','Bonus','POTW','QOD'];
+
+  const renderScore = (v) => {
+    if (v == null || v === '') return '<span class="score-cell">—</span>';
+    const cls = v < 0 ? 'score-cell has-val neg' : 'score-cell has-val';
+    return `<span class="${cls}">${fmtNeg(v)}</span>`;
+  };
+
+  panel.innerHTML = `
+    <div class="week-meta">
+      <span><strong>WEEK ${idx + 1}</strong></span>
+      <span class="divider">/</span>
+      <span>${week.label}</span>
+      <span class="divider">/</span>
+      <span><strong>${week.rows.length}</strong> teams</span>
+      <span class="divider">/</span>
+      <span>Winner: <strong>${winner.team}</strong> · ${fmt(winner.total)} pts</span>
+      <span class="divider">/</span>
+      <span>Margin: <strong>${fmt(margin)}</strong> pts</span>
+      <span class="divider">/</span>
+      <span>Avg: <strong>${fmt(avg)}</strong></span>
+    </div>
+
+    <div class="standings">
+      <table>
+        <thead>
+          <tr>
+            <th class="center">#</th>
+            <th>Team</th>
+            ${scoreKeys.map(k => `<th class="num hide-sm">${k}</th>`).join('')}
+            <th class="num">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${week.rows.map((r, i) => {
+            const rk = i + 1;
+            const rc = rk <= 3 ? `rank-${rk}` : '';
+            const tr = rk <= 3 ? 'top-row' : '';
+            return `
+              <tr class="${tr}">
+                <td class="rank-cell ${rc}">${rk}</td>
+                <td class="team-name">${r.team}</td>
+                ${scoreKeys.map(k => `<td class="num hide-sm">${renderScore(r.scores[k])}</td>`).join('')}
+                <td class="num total-pts">${fmt(r.total)}</td>
+              </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>
+  `;
+  panels.appendChild(panel);
+}
+
+/* ============== CHARTS ============== */
+let chartsBuilt = false;
+function ensureCharts() {
+  if (chartsBuilt) return;
+  chartsBuilt = true;
+  buildCharts();
+}
+
+const PALETTE = ['#00ff7f','#ffd60a','#00bfff','#ff6b6b','#ffa500','#b266ff','#40e0d0','#ff69b4'];
+
+const CHART_DEFAULTS = {
+  color: '#8a958a',
+  font: { family: "'JetBrains Mono', monospace", size: 11 },
 };
 
-let currentSeason = 2;
-let currentWeek = null;
-let chartInstance = null;
-
-function setSeason(s) {
-  currentSeason = s;
-  currentWeek = null;
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i === s-1));
-  render();
+function gridStyle() {
+  return { color: 'rgba(255,255,255,0.05)', drawBorder: false };
 }
 
-function render() {
-  const d = DATA[currentSeason];
-  renderStats(d.stats);
-  renderLeaderboard(d.leaderboard);
-  const firstWeek = Object.keys(d.weeks)[0];
-  if (!currentWeek) currentWeek = firstWeek;
-  renderWeekSelector(d);
-  renderWeekly(d.weeks[currentWeek], currentWeek);
-  renderTrend(d);
-}
+function buildCharts() {
+  Chart.defaults.color = CHART_DEFAULTS.color;
+  Chart.defaults.font.family = CHART_DEFAULTS.font.family;
+  Chart.defaults.font.size = CHART_DEFAULTS.font.size;
 
-function renderStats(s) {
-  document.getElementById('stat-row').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Nights Hosted</div><div class="stat-value">${s.events}</div><div class="stat-sub">trivia events</div></div>
-    <div class="stat-card"><div class="stat-label">Unique Teams</div><div class="stat-value">${s.teams}</div><div class="stat-sub">season participants</div></div>
-    <div class="stat-card"><div class="stat-label">Season Leader</div><div class="stat-value" style="font-size:15px;line-height:1.3;">${s.topTeam}</div><div class="stat-sub">${s.topPts} championship pts</div></div>
-    <div class="stat-card"><div class="stat-label">Top Score</div><div class="stat-value">${s.bestScore}</div><div class="stat-sub">${s.bestTeam} &middot; ${s.bestWeek}</div></div>
-  `;
-}
+  const top8 = DATA.teams.slice(0, 8);
 
-function renderLeaderboard(lb) {
-  const maxPts = lb[0].pts;
-  const medals = ['🥇','🥈','🥉'];
-  document.getElementById('leaderboard-panel').innerHTML = lb.map((r,i) => {
-    const pct = Math.round((r.pts / maxPts) * 100);
-    const rankCls = i < 3 ? `rank-${i+1}` : 'rank-other';
-    return `<div class="lb-row">
-      <span class="lb-rank ${rankCls}">${i+1}</span>
-      <span class="lb-medal">${medals[i] || ''}</span>
-      <span class="lb-team">${r.team}</span>
-      <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${pct}%"></div></div></div>
-      <span class="lb-pts">${r.pts}</span>
-    </div>`;
-  }).join('');
-}
-
-function renderWeekSelector(d) {
-  document.getElementById('week-selector').innerHTML = Object.keys(d.weeks).map(w =>
-    `<button class="wk-btn ${w===currentWeek?'active':''}" onclick="selectWeek('${w}')">${w}</button>`
-  ).join('');
-}
-
-function selectWeek(w) {
-  currentWeek = w;
-  document.querySelectorAll('.wk-btn').forEach(b => b.classList.toggle('active', b.textContent === w));
-  renderWeekly(DATA[currentSeason].weeks[w], w);
-}
-
-function renderWeekly(teams, week) {
-  if (!teams) return;
-  const maxScore = Math.max(...teams.map(t => t.score));
-  const rbCls = r => r===1?'rb-1':r===2?'rb-2':r===3?'rb-3':'rb-o';
-  const sCls = s => s >= maxScore*0.85 ? 'score-high' : s >= maxScore*0.6 ? 'score-mid' : 'score-low';
-  document.getElementById('weekly-panel').innerHTML = `
-    <table class="week-table">
-      <thead><tr><th>Rank</th><th>Team</th><th style="text-align:right">Score</th></tr></thead>
-      <tbody>${teams.map(t=>`<tr>
-        <td><span class="rank-badge ${rbCls(t.rank)}">${t.rank}</span></td>
-        <td style="color:var(--text)">${t.team}</td>
-        <td class="${sCls(t.score)}" style="text-align:right">${t.score}</td>
-      </tr>`).join('')}</tbody>
-    </table>`;
-}
-
-function renderTrend(d) {
-  document.getElementById('trend-subtitle').textContent = `Top 3 teams · ${d.trendWeeks.length} weeks`;
-  document.getElementById('trend-legend').innerHTML = d.trendTeams.map(t =>
-    `<span class="legend-item"><span class="legend-line" style="background:${t.color}"></span>${t.name}</span>`
-  ).join('');
-
-  const canvas = document.getElementById('trendChart');
-  if (chartInstance) { chartInstance.destroy(); chartInstance = null; }
-
-  chartInstance = new Chart(canvas, {
+  // 1. Cumulative line chart
+  new Chart(document.getElementById('cumChart'), {
     type: 'line',
     data: {
-      labels: d.trendWeeks,
-      datasets: d.trendTeams.map(t => ({
-        label: t.name,
-        data: t.data,
-        borderColor: t.color,
-        backgroundColor: t.color + '20',
-        borderWidth: 2,
-        pointBackgroundColor: t.color,
-        pointRadius: 4,
-        pointHoverRadius: 6,
+      labels: DATA.weekLabels,
+      datasets: top8.map((t, i) => ({
+        label: UC(t.name),
+        data: DATA.weekLabels.map(wl => t.cumulative[wl]),
+        borderColor: PALETTE[i],
+        backgroundColor: PALETTE[i] + '20',
+        borderWidth: 2.5,
         tension: 0.3,
-        spanGaps: true
+        pointRadius: 3,
+        pointHoverRadius: 6,
+        pointBackgroundColor: PALETTE[i],
       }))
     },
     options: {
-      responsive: true,
-      maintainAspectRatio: false,
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#ffffff', font: { family: "'Space Grotesk', sans-serif", size: 12 }, boxWidth: 12, padding: 12 } },
+        tooltip: { backgroundColor: '#000000', borderColor: '#00ff7f', borderWidth: 1, titleColor: '#00ff7f', bodyColor: '#ffffff', padding: 12 }
+      },
+      scales: {
+        x: { grid: gridStyle(), ticks: { color: '#909090' } },
+        y: { grid: gridStyle(), ticks: { color: '#909090' }, title: { display: true, text: 'TOTAL POINTS', color: '#909090', font: { size: 10, weight: '600' } } }
+      }
+    }
+  });
+
+  // 2. Rank progression (inverted Y)
+  new Chart(document.getElementById('rankChart'), {
+    type: 'line',
+    data: {
+      labels: DATA.weekLabels,
+      datasets: top8.map((t, i) => ({
+        label: UC(t.name),
+        data: DATA.weekLabels.map(wl => t.cumRank[wl]),
+        borderColor: PALETTE[i],
+        backgroundColor: PALETTE[i] + '20',
+        borderWidth: 2.5,
+        tension: 0.2,
+        pointRadius: 4,
+        pointHoverRadius: 7,
+        pointBackgroundColor: PALETTE[i],
+        spanGaps: true,
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { position: 'bottom', labels: { color: '#ffffff', font: { family: "'Space Grotesk', sans-serif", size: 12 }, boxWidth: 12, padding: 12 } },
+        tooltip: { backgroundColor: '#000000', borderColor: '#00ff7f', borderWidth: 1, titleColor: '#00ff7f', bodyColor: '#ffffff', padding: 12 }
+      },
+      scales: {
+        x: { grid: gridStyle(), ticks: { color: '#909090' } },
+        y: { reverse: true, grid: gridStyle(), ticks: { color: '#909090', stepSize: 1 }, title: { display: true, text: 'RANK', color: '#909090', font: { size: 10, weight: '600' } }, min: 1 }
+      }
+    }
+  });
+
+  // 3. Total bar chart (horizontal)
+  new Chart(document.getElementById('totalsChart'), {
+    type: 'bar',
+    data: {
+      labels: DATA.teams.map(t => UC(t.name)),
+      datasets: [{
+        data: DATA.teams.map(t => t.total),
+        backgroundColor: DATA.teams.map((_, i) => i === 0 ? '#ffd60a' : i === 1 ? '#d4d4d4' : i === 2 ? '#cd7f32' : '#00ff7f'),
+        borderColor: 'transparent',
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: '#000000', borderColor: '#00ff7f', borderWidth: 1, titleColor: '#00ff7f', bodyColor: '#ffffff', padding: 12, callbacks: { label: (ctx) => ctx.parsed.x + ' pts' } }
+      },
+      scales: {
+        x: { grid: gridStyle(), ticks: { color: '#909090' } },
+        y: { grid: { display: false }, ticks: { color: '#ffffff', font: { family: "'Space Grotesk', sans-serif", size: 11 } } }
+      }
+    }
+  });
+
+  // 4. Weekly winners bar
+  new Chart(document.getElementById('winnersChart'), {
+    type: 'bar',
+    data: {
+      labels: DATA.weeklyWinners.map((w, i) => 'W' + (i+1)),
+      datasets: [{
+        data: DATA.weeklyWinners.map(w => w.score),
+        backgroundColor: '#ffd60a',
+        borderColor: 'transparent',
+        borderRadius: 2,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: '#1f211f',
-          borderColor: 'rgba(74,200,92,0.3)',
-          borderWidth: 1,
-          titleColor: '#9aab9a',
-          bodyColor: '#e8ece8',
-          padding: 10
+          backgroundColor: '#000000', borderColor: '#ffd60a', borderWidth: 1,
+          titleColor: '#ffd60a', bodyColor: '#ffffff', padding: 12,
+          callbacks: {
+            title: (ctx) => DATA.weeklyWinners[ctx[0].dataIndex].week,
+            label: (ctx) => UC(DATA.weeklyWinners[ctx.dataIndex].team) + ' · ' + ctx.parsed.y + ' pts'
+          }
         }
       },
       scales: {
-        x: {
-          grid: { color: 'rgba(74,200,92,0.07)' },
-          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 }, autoSkip: false }
-        },
-        y: {
-          grid: { color: 'rgba(74,200,92,0.07)' },
-          ticks: { color: '#5a6b5a', font: { family: 'Space Mono', size: 11 } },
-          min: 0
-        }
+        x: { grid: gridStyle(), ticks: { color: '#909090' } },
+        y: { grid: gridStyle(), ticks: { color: '#909090' }, title: { display: true, text: 'POINTS', color: '#909090', font: { size: 10, weight: '600' } } }
       }
     }
   });
 }
 
-render();
+/* ============== INIT ============== */
+buildDashboard();
+DATA.weeks.forEach((w, i) => buildWeekPanel(w, i));
+ensureCharts();
 </script>
+
 </body>
 </html>
