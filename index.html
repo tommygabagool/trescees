@@ -321,7 +321,7 @@ function buildDashboard() {
   panel.innerHTML = `
     <div class="stat-grid">
       <div class="stat-card">
-        <div class="stat-label">// Season Champ</div>
+        <div class="stat-label">// Season Leader</div>
         <div class="stat-value">${champ.name}</div>
         <div class="stat-sub">${fmt(champ.total)} pts · ${champ.weeksPlayed} weeks</div>
       </div>
@@ -342,7 +342,7 @@ function buildDashboard() {
       </div>
     </div>
 
-    <h2 class="sec-h">Final Standings <span class="count">${DATA.teams.length} teams</span></h2>
+    <h2 class="sec-h">Current Standings <span class="count">${DATA.teams.length} teams</span></h2>
     <div class="standings">
       <table>
         <thead>
