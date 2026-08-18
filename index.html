@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
+<html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
@@ -8,8 +7,8 @@
 <meta name="supported-color-schemes" content="dark">
 <title>Get Quizzicle Trivia • Season 1 • 3 C's Tavern</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=JetBrains+Mono:wght@400;600;700&family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&amp;family=JetBrains+Mono:wght@400;600;700&amp;family=Archivo+Black&amp;family=Space+Grotesk:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
@@ -141,7 +140,7 @@ input[type="file"] { display: none; }
 <div class="container">
 
   <!-- HOST CONTROL BAR (only shows with ?host=1) -->
-  <div class="host-bar" id="hostBar">
+  <div class="host-bar show" id="hostBar">
     <h2>HOST MODE</h2>
     <div class="host-controls">
       <button class="host-btn" onclick="document.getElementById('mergeFile').click()">📤 Add a Week</button>
@@ -151,8 +150,8 @@ input[type="file"] { display: none; }
       <input type="file" id="replaceFile" accept=".xlsx,.xls" onchange="handleUpload(event, 'replace')">
 
       <button class="host-btn danger" onclick="wipeAll()">🗑️ Wipe All</button>
-      <button class="host-btn" id="downloadBtn" onclick="downloadUpdatedHTML()" disabled>💾 Download Updated HTML</button>
-      <button class="host-btn danger" onclick="undoLastAction()" id="undoBtn" disabled>↶ Undo</button>
+      <button class="host-btn" id="downloadBtn" onclick="downloadUpdatedHTML()" disabled="">💾 Download Updated HTML</button>
+      <button class="host-btn danger" onclick="undoLastAction()" id="undoBtn" disabled="">↶ Undo</button>
     </div>
     <div class="host-status" id="hostStatus" style="margin-top:10px;">Ready.</div>
     <div class="host-help">
@@ -169,7 +168,7 @@ input[type="file"] { display: none; }
       <div class="brand-stack">
         <div class="tag">Get Quizzicle Trivia // Season 1</div>
         <h1>3 C'<span class="accent">S</span> TAVERN<br><span class="accent">SCOREBOARD</span></h1>
-        <div class="subtitle"><span id="totalWeeks">—</span> weeks <span class="pipe">/</span> <span id="totalTeams">—</span> teams <span class="pipe">/</span> <span id="dateRange">—</span></div>
+        <div class="subtitle"><span id="totalWeeks">9</span> weeks <span class="pipe">/</span> <span id="totalTeams">52</span> teams <span class="pipe">/</span> <span id="dateRange">June 2 → August 11</span></div>
       </div>
       <div class="meta-strip">
         <span>SEASON <strong>01</strong></span>
@@ -190,7 +189,1131 @@ input[type="file"] { display: none; }
      ============================================================ -->
 <script id="raw-data" type="application/json">
 {
-  "weeks": []
+  "weeks": [
+    {
+      "label": "June 2",
+      "rows": [
+        {
+          "team": "tres veganos",
+          "R1": 6,
+          "R2": 3,
+          "R3": 10,
+          "R4": 6,
+          "R5": 14,
+          "Bonus": 15,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "4 caballeros",
+          "R1": 6,
+          "R2": 4,
+          "R3": 9,
+          "R4": 8,
+          "R5": 6,
+          "Bonus": 15,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "thick with three cs",
+          "R1": 6,
+          "R2": 5,
+          "R3": 4,
+          "R4": 8,
+          "R5": 8,
+          "Bonus": 15,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "stage 5 clingers",
+          "R1": 6,
+          "R2": 3,
+          "R3": 9,
+          "R4": 7,
+          "R5": 8,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "super smart amigos",
+          "R1": 6,
+          "R2": 3,
+          "R3": 2,
+          "R4": 8,
+          "R5": 13,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "bad influence triangle",
+          "R1": 6,
+          "R2": 3,
+          "R3": 2,
+          "R4": 5,
+          "R5": 12,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "the knuckleheads",
+          "R1": 5,
+          "R2": 3,
+          "R3": 0,
+          "R4": 5,
+          "R5": 6,
+          "Bonus": 7,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "yum city",
+          "R1": 4,
+          "R2": 2,
+          "R3": 3,
+          "R4": 8,
+          "R5": 5,
+          "Bonus": 7,
+          "POTW": null,
+          "QOD": 2
+        },
+        {
+          "team": "the kidz",
+          "R1": 2,
+          "R2": 2,
+          "R3": 3,
+          "R4": 6,
+          "R5": 10,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "4 leaf clovers",
+          "R1": 2,
+          "R2": 1,
+          "R3": 5,
+          "R4": 5,
+          "R5": 10,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "grandpa 2 b",
+          "R1": 3,
+          "R2": 3,
+          "R3": 0,
+          "R4": 2,
+          "R5": 10,
+          "Bonus": 5,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "the flynigans",
+          "R1": 1,
+          "R2": 4,
+          "R3": 0,
+          "R4": 3,
+          "R5": 5,
+          "Bonus": 10,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "quiztopher and tierney",
+          "R1": 3,
+          "R2": 2,
+          "R3": 1,
+          "R4": 5,
+          "R5": 3,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        }
+      ]
+    },
+    {
+      "label": "June 16",
+      "rows": [
+        {
+          "team": "4 cabalLeros",
+          "R1": 4,
+          "R2": 6,
+          "R3": 10,
+          "R4": 10,
+          "R5": 16,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "tres veganos",
+          "R1": 5,
+          "R2": 6,
+          "R3": 4,
+          "R4": 10,
+          "R5": 15,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "super smart amigos",
+          "R1": 4,
+          "R2": 6,
+          "R3": 6,
+          "R4": 10,
+          "R5": 12,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "the kids",
+          "R1": 1,
+          "R2": 4,
+          "R3": 9,
+          "R4": 8,
+          "R5": 6,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 1,
+          "R2": 3,
+          "R3": 7,
+          "R4": 8,
+          "R5": 4,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 1,
+          "R2": 3,
+          "R3": 9,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "rex",
+          "R1": 1,
+          "R2": 3,
+          "R3": 6,
+          "R4": 8,
+          "R5": 9,
+          "Bonus": -3,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "no idea",
+          "R1": 2,
+          "R2": 6,
+          "R3": 6,
+          "R4": 4,
+          "R5": 4,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "2 peas in a pod",
+          "R1": 3,
+          "R2": 1,
+          "R3": 3,
+          "R4": 2,
+          "R5": 6,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "shrimp on the barbie",
+          "R1": 1,
+          "R2": 2,
+          "R3": 2,
+          "R4": 8,
+          "R5": 9,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        }
+      ]
+    },
+    {
+      "label": "June 24",
+      "rows": [
+        {
+          "team": "super smart amigos",
+          "R1": 6,
+          "R2": 5,
+          "R3": 10,
+          "R4": 10,
+          "R5": 9,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "4 caballeros",
+          "R1": 5,
+          "R2": 5,
+          "R3": 9,
+          "R4": 8,
+          "R5": 15,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "tres veganos",
+          "R1": 4,
+          "R2": 5,
+          "R3": 9,
+          "R4": 6,
+          "R5": 15,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 5,
+          "R2": 4,
+          "R3": 3,
+          "R4": 2,
+          "R5": 6,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "3 a's and a e",
+          "R1": 5,
+          "R2": 2,
+          "R3": 6,
+          "R4": 2,
+          "R5": 9,
+          "Bonus": -6,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 6,
+          "R2": 4,
+          "R3": 3,
+          "R4": 2,
+          "R5": 3,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "habs",
+          "R1": 1,
+          "R2": 2,
+          "R3": null,
+          "R4": null,
+          "R5": null,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        }
+      ]
+    },
+    {
+      "label": "June 30",
+      "rows": [
+        {
+          "team": "super smart amigos",
+          "R1": 6,
+          "R2": 4,
+          "R3": 10,
+          "R4": 10,
+          "R5": 14,
+          "Bonus": 7,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "tres veganos",
+          "R1": 6,
+          "R2": 2,
+          "R3": 8,
+          "R4": 4,
+          "R5": 15,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "3 brick 4 1 wood",
+          "R1": 6,
+          "R2": 5,
+          "R3": 9,
+          "R4": 8,
+          "R5": 14,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "4 caballeros",
+          "R1": 5,
+          "R2": 3,
+          "R3": 10,
+          "R4": 8,
+          "R5": 10,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 5,
+          "R2": 3,
+          "R3": 8,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "a little bit alexis",
+          "R1": 4,
+          "R2": 1,
+          "R3": 2,
+          "R4": 4,
+          "R5": 8,
+          "Bonus": 7,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 6,
+          "R2": 2,
+          "R3": 8,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "oldies but goodies",
+          "R1": 4,
+          "R2": 2,
+          "R3": 1,
+          "R4": 4,
+          "R5": 12,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "swedish fish",
+          "R1": 6,
+          "R2": 3,
+          "R3": 4,
+          "R4": 2,
+          "R5": 6,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "rex",
+          "R1": 5,
+          "R2": 2,
+          "R3": 6,
+          "R4": 6,
+          "R5": 1,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "malibu baybreeze",
+          "R1": null,
+          "R2": null,
+          "R3": 7,
+          "R4": 2,
+          "R5": 6,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "noble",
+          "R1": 5,
+          "R2": 3,
+          "R3": 4,
+          "R4": null,
+          "R5": null,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        }
+      ]
+    },
+    {
+      "label": "July 7",
+      "rows": [
+        {
+          "team": "tres veganos",
+          "R1": 6,
+          "R2": 3,
+          "R3": 10,
+          "R4": 8,
+          "R5": 12,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "all done",
+          "R1": 5,
+          "R2": 3,
+          "R3": 9,
+          "R4": 8,
+          "R5": 6,
+          "Bonus": 7,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "the kids",
+          "R1": 3,
+          "R2": 4,
+          "R3": 9,
+          "R4": 10,
+          "R5": 9,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "rex",
+          "R1": null,
+          "R2": 3,
+          "R3": 6,
+          "R4": 10,
+          "R5": 7.5,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "ashleys avengers",
+          "R1": 4,
+          "R2": 6,
+          "R3": 8,
+          "R4": 8,
+          "R5": 7.5,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "swedish fish",
+          "R1": 3,
+          "R2": 3,
+          "R3": 9,
+          "R4": 2,
+          "R5": 9,
+          "Bonus": 2,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "funtanos",
+          "R1": 5,
+          "R2": 2,
+          "R3": 7,
+          "R4": 10,
+          "R5": 4.5,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "tappy place",
+          "R1": 5,
+          "R2": 4,
+          "R3": 9,
+          "R4": 2,
+          "R5": 9,
+          "Bonus": 2,
+          "POTW": null,
+          "QOD": 2
+        },
+        {
+          "team": "woodwind",
+          "R1": 6,
+          "R2": 3,
+          "R3": 9,
+          "R4": 4,
+          "R5": 9,
+          "Bonus": -6,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 2,
+          "R2": 3,
+          "R3": 5,
+          "R4": 10,
+          "R5": 4,
+          "Bonus": -6,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "big man",
+          "R1": 3,
+          "R2": 4,
+          "R3": 6,
+          "R4": 8,
+          "R5": null,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "3 broads 1 beard",
+          "R1": 2,
+          "R2": 1,
+          "R3": 6,
+          "R4": 6,
+          "R5": 7.5,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 2,
+          "R2": 5,
+          "R3": 4,
+          "R4": 10,
+          "R5": 3,
+          "Bonus": -6,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "shark bait who haha",
+          "R1": null,
+          "R2": 4,
+          "R3": 4,
+          "R4": 10,
+          "R5": null,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "rifraff",
+          "R1": 4,
+          "R2": 3,
+          "R3": 3,
+          "R4": 6,
+          "R5": 7,
+          "Bonus": 2,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "malibu baybreeze",
+          "R1": null,
+          "R2": null,
+          "R3": 6,
+          "R4": 10,
+          "R5": 3,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "silver lining",
+          "R1": 2,
+          "R2": 2,
+          "R3": null,
+          "R4": null,
+          "R5": null,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        }
+      ]
+    },
+    {
+      "label": "July 14",
+      "rows": [
+        {
+          "team": "4 caballeros",
+          "R1": 6,
+          "R2": 4,
+          "R3": 8,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "super smart amigos",
+          "R1": 4,
+          "R2": 3,
+          "R3": 6,
+          "R4": 8,
+          "R5": 6,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "3rd wheel",
+          "R1": 2,
+          "R2": 2,
+          "R3": 6,
+          "R4": 1,
+          "R5": 9,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "rex",
+          "R1": 2,
+          "R2": 2,
+          "R3": 6,
+          "R4": 1,
+          "R5": 9,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "shark bait who haha",
+          "R1": 1,
+          "R2": 1,
+          "R3": 4,
+          "R4": 1,
+          "R5": 9,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 3,
+          "R2": 4,
+          "R3": 6,
+          "R4": 1,
+          "R5": 1,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 3,
+          "R2": 4,
+          "R3": 4,
+          "R4": 1,
+          "R5": 3,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "funny business",
+          "R1": 2,
+          "R2": 3,
+          "R3": 4,
+          "R4": 1,
+          "R5": 6,
+          "Bonus": -1,
+          "POTW": null,
+          "QOD": null
+        },
+        {
+          "team": "golden girls",
+          "R1": 1,
+          "R2": 1,
+          "R3": 6,
+          "R4": 2,
+          "R5": 3,
+          "Bonus": -1,
+          "POTW": null,
+          "QOD": null
+        }
+      ]
+    },
+    {
+      "label": "July 21",
+      "rows": [
+        {
+          "team": "4 caballeros",
+          "R1": 6,
+          "R2": 5,
+          "R3": 9,
+          "R4": 11,
+          "R5": 6,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "the kids",
+          "R1": 4,
+          "R2": 6,
+          "R3": 8,
+          "R4": 1,
+          "R5": 15,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 6,
+          "R2": 2,
+          "R3": 2,
+          "R4": 4,
+          "R5": 9,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "prosecco princesses",
+          "R1": null,
+          "R2": 4,
+          "R3": 10,
+          "R4": 6,
+          "R5": 6,
+          "Bonus": 7,
+          "POTW": null,
+          "QOD": 2
+        },
+        {
+          "team": "here 4 fun",
+          "R1": 1,
+          "R2": 4,
+          "R3": 7,
+          "R4": 3,
+          "R5": 12,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "im ready",
+          "R1": 5,
+          "R2": 3,
+          "R3": 10,
+          "R4": 4,
+          "R5": 3,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 6,
+          "R2": 3,
+          "R3": 3,
+          "R4": 4,
+          "R5": 9,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "tres veganos",
+          "R1": 3,
+          "R2": 2,
+          "R3": 8,
+          "R4": 11,
+          "R5": 9,
+          "Bonus": -9,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "super smart amigos",
+          "R1": 4,
+          "R2": 2,
+          "R3": 6,
+          "R4": 3,
+          "R5": 6,
+          "Bonus": -1,
+          "POTW": 5,
+          "QOD": 2
+        }
+      ]
+    },
+    {
+      "label": "July 28",
+      "rows": [
+        {
+          "team": "guac n roll",
+          "R1": 5,
+          "R2": 5,
+          "R3": 9,
+          "R4": 9,
+          "R5": 9,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "super smart amigos",
+          "R1": 6,
+          "R2": 4,
+          "R3": 9,
+          "R4": 10,
+          "R5": 9,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "4 caballeros",
+          "R1": 3,
+          "R2": 5,
+          "R3": 10,
+          "R4": 10,
+          "R5": 6,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "let us eat lettuce",
+          "R1": 5,
+          "R2": 3,
+          "R3": 9,
+          "R4": 6,
+          "R5": 6,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "tres veganos",
+          "R1": 6,
+          "R2": 3,
+          "R3": 9,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "team 6",
+          "R1": 2,
+          "R2": 5,
+          "R3": 9,
+          "R4": 6,
+          "R5": 9,
+          "Bonus": -9,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "the minions",
+          "R1": 2,
+          "R2": 5,
+          "R3": 5,
+          "R4": 6,
+          "R5": 6,
+          "Bonus": 2,
+          "POTW": null,
+          "QOD": 2
+        },
+        {
+          "team": "troublemakers",
+          "R1": 1,
+          "R2": 2,
+          "R3": 7,
+          "R4": 6,
+          "R5": 1,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 2,
+          "R2": 3,
+          "R3": 3,
+          "R4": 6,
+          "R5": 6,
+          "Bonus": -9,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 2,
+          "R2": 1,
+          "R3": 1,
+          "R4": 4,
+          "R5": 1,
+          "Bonus": -3,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "rex",
+          "R1": 2,
+          "R2": 1,
+          "R3": 1,
+          "R4": 4,
+          "R5": 6,
+          "Bonus": -9,
+          "POTW": 5,
+          "QOD": 2
+        }
+      ]
+    },
+    {
+      "label": "August 11",
+      "rows": [
+        {
+          "team": "tres veganos",
+          "R1": 5,
+          "R2": 5,
+          "R3": 8,
+          "R4": 8,
+          "R5": 15,
+          "Bonus": 15,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "4 caballeros",
+          "R1": 6,
+          "R2": 4,
+          "R3": 9,
+          "R4": 8,
+          "R5": 15,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "super smart amigos",
+          "R1": 2,
+          "R2": 2,
+          "R3": 6,
+          "R4": 10,
+          "R5": 15,
+          "Bonus": 10,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "team 6",
+          "R1": 5,
+          "R2": 3,
+          "R3": 9,
+          "R4": 4,
+          "R5": 15,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "2 many margs",
+          "R1": 2,
+          "R2": 3,
+          "R3": 3,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": 5,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "el grande americano",
+          "R1": 1,
+          "R2": 5,
+          "R3": 3,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "sloppy joes",
+          "R1": 2,
+          "R2": 1,
+          "R3": 2,
+          "R4": 6,
+          "R5": 3,
+          "Bonus": null,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "oldies but goodies",
+          "R1": 2,
+          "R2": 3,
+          "R3": 1,
+          "R4": 2,
+          "R5": 1,
+          "Bonus": 0,
+          "POTW": 5,
+          "QOD": 2
+        },
+        {
+          "team": "spicy mama",
+          "R1": 1,
+          "R2": 2,
+          "R3": 3,
+          "R4": 2,
+          "R5": 6,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": 2
+        },
+        {
+          "team": "rexsplode",
+          "R1": 1,
+          "R2": 4,
+          "R3": 2,
+          "R4": 4,
+          "R5": 1,
+          "Bonus": null,
+          "POTW": null,
+          "QOD": null
+        }
+      ]
+    }
+  ]
 }
 </script>
 
@@ -963,5 +2086,6 @@ function downloadUpdatedHTML() {
 /* INIT */
 renderAll();
 </script>
-</body>
-</html>
+
+
+</body></html>
